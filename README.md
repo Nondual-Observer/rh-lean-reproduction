@@ -112,7 +112,7 @@ The balance x/m + m was stated independently, from other sources, in Jonas Whidd
 ## 11. What this does not show
 
 - Nothing here checks the logic of the proof. That is done by the independent kernels and by `lake comparator --paranoid`.
-- The trace explains where √X sits in the inequalities, not why the automorphic objects (theta lifts, Hida theory, slopes) satisfy them. `Eb` is now traced to its source (section 13), but it is not yet connected end to end to the "+m" side of the size balance. Claims in `mechanism/TRACE.md` are labelled Verified, Exact, Index or Reading.
+- The trace explains where √X sits in the inequalities, not why the automorphic objects (theta lifts, Hida theory, slopes) satisfy them. `Eb` is now traced to its source (section 13), and it is connected to the "+m" side of the size balance: both balance terms sit in the error of the divisibility hypothesis `DIV`, whose m-term is the drift plus `Eb` (section 14). Claims in `mechanism/TRACE.md` are labelled Verified, Exact, Index or Reading.
 - Declaration-level numbers depend on tamnd's approximate index.
 - The `.olean` comparison is partial and has an open question (section 6).
 

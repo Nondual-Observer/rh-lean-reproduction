@@ -412,11 +412,63 @@ This is the Bloch–Kato dimension count: for a crystalline T with H⁰ = 0, dim
 - Why the lift exponent e' must be as large as b = exp(x^ε) rather than polynomial in x. If e' could be taken polynomial, B0 would shrink by a factor b, which affects the absolute size but not the m-dependence.
 - The K_j norms (`hn.sz`, `CBData`, `nKcb`) from item 4 of the old plan. Given the above, they no longer decide (a).
 
-## 14. Next steps
+## 14. The "+m" side of the balance is the divisibility error (closing the loop)
+
+Question left open in section 13: is `Eb` really what produces the "+m" term in the balance x/m + m of section 5?
+
+**Answer (Verified pieces, Reading for the conclusion): yes, up to two other charges of the same size that the size layer does not need.** Both terms of the balance are visible in one inequality, the divisibility hypothesis `Data.DIV`, and its m-term is the `errB` whose Eb part section 13 traced.
+
+**Step 1: what the per-point error is made of (Verified).** `each_unit_bound_statement` (`…/ChainSlopeWindows/LevelOfCongruence.lean:175`, Exact: used) proves ASK(u0) ≤ Main(u0) + `ErrX5at`(u0), and the proof ends in `linarith` after unfolding. The error is defined in `Formalism/SizeWindowBrackets/QuotientSlopeBoundsWith.lean:45` (used). The terms that matter for the balance, one by one:
+
+| Term in `ErrX5at` | Comes from | After dividing by nT·m·b | Balance term |
+|---|---|---|---|
+| cDiv·nT·a·La | `DIV` (as `EDiv`) | a/(m·b) ≈ x/m | **x/m** (T1) |
+| cDiv·m·(B0 + Nc)·x^(eDiv·ε) | `DIV` (as `EDiv`) | B0/(nT·b) ≈ 2n·m/nT ≈ m | **m** (T3) |
+| m·cE·B0 | `EComp5` | same order | m |
+| cSl1·m·B0 (inside `UBar5`) | `QuotientSlopeBoundsWith` | same order | m |
+| cSlope·nT·a·La·(1 + m/k) | count/slope bookkeeping | x/m·(1 + m/k) | x/m (and T2) |
+
+`EDiv` is `Formalism/RankGapBounds/RankGapProofs/WeightedMeanData.lean:131` (used), and `Data.DIV` (`Formalism/RankGapBounds/MeanBoundSecondForm.lean:118`, used) is
+
+```
+μ_CC + h(u) − Fo  ≤  Σ_t ( m·(ph(aT t) − aT t·logOm) − aT t·log T(u) )  +  cDiv·nT·a·La  +  cDiv·m·(B0 + Nc)·x^(eDiv·ε)
+```
+
+So the divisibility inequality alone already carries **both** sides of the balance: the x/m term (through the top weights a = x·b) and the m term (through m·B0).
+
+**Step 2: the other two m-charges are not needed by the size layer (Verified, unused route).** `exists_data_completion` (`…/ChainSlopeWindows/PChain.lean:306`, with `data_completion_bounds` at line 222; both proved, **not** used) shows that from the single bound
+
+```
+ASK ≤ Main + cDiv·nT·a·La + cDiv·m·(B0 + Nc)·x^(eDiv·ε) + LoP
+```
+
+one can build a data record with the same visible quantities that satisfies all of `SizeData₂`. It does this degenerately: one word per point (`W := Unit`), energy sum zero, `delBar = etaBar = eBar = 0` (`compl`, line 163). So `EComp5` and the slope bounds hold there trivially, and the size layer still runs. The kernel has checked this (every module builds), even though the final proof takes the other route. Consequence: even if the energy and slope charges were zero, the DIV error alone would still give T3.
+
+**Step 3: the family gets `DIV` from `LinkDIV` (Verified).** `LinkDIV_at` (`Formalism/SharpRestriction/GlobalTheoremInputs.lean:77`, used) contains, as separate clauses, the DIV-type bound with C·m·(B0 + Nc)·x^(Cabs·ε) **and** the per-lift energy bound |Σ_w sz(w, E(u,j,w)) − (Σ_t aT t)·log(g₀g₁)| ≤ C·B0. `linkCore` turns the first into `Data.DIV` (`LossesSmallShares.lean:169`). On the lattice side this m·(B0 + Nc) is the `errB` = ce·m·x^ε·(B0 + Nc) of section 11, assembled by `errB_of_units` from the signature drift and Eb (section 13).
+
+**Conclusion (Reading).**
+
+```
+balance term   x/m          ←  DIV error: nT·a·La          (top weights, a = x·b)
+balance term   m            ←  DIV error: m·(B0 + Nc)       ←  errB  =  drift  +  Eb
+                                                                     │        │
+                                         signed sum nearly cancels ─┘        └─ m lifts × Bloch–Kato rank m (structural)
+also of order m (not needed by the size layer):  EComp5 (m·cE·B0),  slope bound (cSl1·m·B0)
+```
+
+So the √x in this proof is set by the divisibility error. Of its two m·B0 users, the signature drift looks avoidable (section 11), and Eb does not (section 13). If the energy and slope charges were improved but Eb were not, the balance would still stop at √x. This is consistent with Gz(x) = Ω(√x): something must stop it, and the trace now points to a specific term, Eb, with a specific reason, the Hodge–Tate count.
+
+**Not checked.**
+- Whether `EComp5`'s m·B0 in the real family is itself fed by the same Bloch–Kato count (section 9 traced how `EComp` is proved, but not its size this way).
+- The constants. Every statement here is up to x^(O(ε)).
+
+**Side result, for issue #5 on the community repo (Exact).** On the final path the period tie `OmegaCompatible` is not obtained through `curveLinks_of`. It is built by `omTied_retie_of_cube` → `omTied_withTrue` → `exists_trueVolume_stage_of_any_column_choice` (`…/IwasawaDecomposition/ExistsGIs.lean:146`), stored as the `om` field of `ColumnDataSplitPrimes` (`…/AutomorphicMembership/TiedColumnData.lean:93`), and consumed through `exists_GJStage_GIs2_pinned` → `exists_ext_twisted_places` → `secondNo_of_sMt_sRat_sCusp_sFinl`. Every declaration in this chain is used.
+
+## 15. Next steps
 
 1. **Done:** exact dependency list (section 4).
 2. **Done:** `ChainTied` and the balance (sections 5 to 7). `ErrorFormsWeakWindowsFalse.lean` turned out to define unused propositions; only `ErrWindows`, `ErrText` and `errorBracketSizeWindows` from it are used.
 3. **Done:** `E u j w` (section 8) and how `EComp` is proved (section 9). **Next:** read how `EComp` is proved for the family: `QuadraticLogDerivCongr.lean:594` (`data_EComp5`) and the `Formalism.L2.DIV.linkDIVt_of_*` lemmas; check whether the product-formula reading of the g-place term is what they do, and where Σ_τ nuAbs(u,j,τ) ≈ Σ_t aT t is proved.
-4. **Done:** inside `DIV`, the full m·B0 is used by the signature drift and by Eb (section 11). **Done (b):** the windows are chosen, not forced; only the balance itself pins m to √x (section 12). **Done (a):** Eb uses the full per-lift budget, not the `VWinAt` loss. Its m² is (m lifts) × (Bloch–Kato rank m per piece, fixed by equality in the family), section 13. **Next:** connect Eb to the "+m" side of `proposition_size_bound` through `DIV` → `EComp` → `SizeWindows`, and find why the lift exponent e' is as large as b = exp(x^ε).
+4. **Done:** inside `DIV`, the full m·B0 is used by the signature drift and by Eb (section 11). **Done (b):** the windows are chosen, not forced; only the balance itself pins m to √x (section 12). **Done (a):** Eb uses the full per-lift budget, not the `VWinAt` loss. Its m² is (m lifts) × (Bloch–Kato rank m per piece, fixed by equality in the family), section 13. **Done:** the "+m" side of the balance is the `DIV` error m·(B0 + Nc), i.e. drift + Eb; the energy and slope charges of the same order are not needed by the size layer (`exists_data_completion`), section 14. **Next:** check whether `EComp5`'s m·B0 is fed by the same Bloch–Kato count, and find why the lift exponent e' is as large as b = exp(x^ε).
 5. **Done:** `BNBounds` is proved by equality, B0 = 2·|H|·m·b·x^ε with f = 2|H| (section 12).
 6. **Bring it to people who know the theory.** The automorphic layer needs number theorists. A short, factual Zulip post (written by me) with sections 1, 2 and 4 could help the people already working on understanding.
