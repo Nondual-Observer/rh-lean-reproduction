@@ -755,7 +755,7 @@ Labels as before: **Exact** = the Lean statement, **Verified** = checked against
 
 **Reading.** The point of w = √p is that working over a ramified extension where p has a square root lets the Frobenius congruence (which only gives "mod p") produce divisibility by half a p. That half-unit of valuation per place is the local input that `LinkG_at` turns into the lattice inclusion `DV.LocLe` and the gain clause gain_j(w) ≥ vonMangoldtClassSum − loss used in section 20.
 
-**Open.** The exact declaration where the closed-form statements are converted into the gain inequality (rather than the inclusion) was not traced line by line.
+**Closed in 25.2:** the gain inequality is `AuxBlock8.Conclusion1`, proved orbit by orbit (`starAll_of`, `gain_bound_all_of_star`).
 
 ## 22. `LinkS` (4d): near-orthogonality of the words
 
@@ -787,7 +787,7 @@ Labels as before: **Exact** = the Lean statement, **Verified** = checked against
 
 under `GrowthInequalityHypotheses`, which include topExcess ≤ Err and `ValuesAtX`: ‖G_ψ(x)‖ ≤ x^(1/2+ε) and ‖ℓ(ψ)‖ ≤ CL·log x for the three non-trivial characters. `signal_term` turns those three bounds into Gz(x) − 3x^(1/2+ε) − moveCost ≤ Re Gsig(y) for |y − x| ≤ 1.
 
-**Reading.** This is where the size bound becomes RH. topExcess is the size layer's output; dividing by |TT|·m·b·δ2/2 leaves Gz(x) ≤ 3x^(1/2+ε) + Err/(|TT|·m·b·δ2/2) + small terms. So the balance must deliver Err ≲ |TT|·m·b·δ2·x^(1/2+ε): this is the √x that sections 5 to 19 pay for. Only an upper bound on Gz is derived; the directory name (`LandauTheorems`) suggests a positivity argument makes the one-sided bound enough. Not traced.
+**Reading.** This is where the size bound becomes RH. topExcess is the size layer's output; dividing by |TT|·m·b·δ2/2 leaves Gz(x) ≤ 3x^(1/2+ε) + Err/(|TT|·m·b·δ2/2) + small terms. So the balance must deliver Err ≲ |TT|·m·b·δ2·x^(1/2+ε): this is the √x that sections 5 to 19 pay for. Only an upper bound on Gz is derived; why one sign is enough is closed in 25.1 (a windowed Landau theorem).
 
 **Verified (the auxiliary characters are chosen, not proved).** `ValuesAtX` is supplied for the auxiliary twists by `QH.pairEx` → `pair_exists` → … → `count_bad_core` → `ZD.zero_density_box` (all used). `zero_density_box` is assembled from `coefficient_square_bound`, `zero_detection mollifier_identity`, `duality_inequality` and `pair_twist_bound`. `count_bad_core`: the number of bad primes q (twists with no zero-free box) is ≤ C·Q^(1/4). `Box` = good conductor, ‖L′/L(1)‖ ≤ C·log Y, and ‖Gχ(y)‖ ≤ y^(1/2+τ) on [Y, X]. The auxiliary primes are q ≡ 3 mod 8, d ≡ 7 mod 16 (`PrimePair`).
 
@@ -807,13 +807,64 @@ under `GrowthInequalityHypotheses`, which include topExcess ≤ Err and `ValuesA
 
 **Verified (prover).** `VWin` is a hypothesis of `plugWin` / `plugAll` / `zero_free_all_of_green_v_win`. It is discharged by `vwinAt_of_joint` / `vwin_of_joint` (used) from `JointWin Ct` and `ThmBc Ct`. `ThmBc ↔ ThmBcFree` (`thmBc_iff`), and `ThmBcFree` comes from `thmBc_of` with `StickBound` and `PrimeBound`. Minus part (Stickelberger-type): len Ш⁻·log ℓ ≤ C·ℓ·[E:Q]²·(e+1)·log(eℓN)². Plus part (`HVAt`): `VVplusLe E t ((cond·t)^C + C·exp(x^(4ε/5)))`. `JointWin 401` comes from `JointWinOfCounts` (`CountZ`, `CountI`–`CountIII`, `LemmaK`, `ThmBab`). `supplyChi` uses `VWinAt ψ 401` to produce `HostExW (3/2) (GChi ψ).req`.
 
-**Verified.** No declaration named after Ferrero, Washington or Iwasawa μ is in the used set (case-insensitive grep; the only "Iwasawa" hits are the unrelated Iwasawa decomposition and `HasIwasawa` in the doubling layer). Step 6 does not use Ferrero–Washington by name.
+**Corrected (see 25.3).** An earlier version said no Ferrero–Washington declaration is used. That was wrong: `UpperTheory.V.FW.ferreroWashington` is proved in Lean and used, through `ThmBab`.
 
 **Reading (budget).** The minus part is polynomial in t = x^401, [E:Q] ≈ x^(2+8ε) and logs; the plus part is at most exp(x^(4ε/5)) times a polynomial. Both are far below the budget √b = exp(x^ε/2). The window's √b is generous and `VWin` does not touch the √x balance.
 
-**Open.** Whether each input of `JointWinOfCounts` is proved directly or discharged further up was not traced; since the final theorem has no hypotheses and `vwin_of_joint` is used, they are discharged somewhere on the final path.
+**Closed in 25.3:** the inputs of `JointWinOfCounts` and where each comes from.
 
-## 25. Next steps
+## 25. Closing the three gaps, and how the final theorem is assembled
+
+### 25.1 From an upper bound on windows to "no zeros" (closes the gap in 23)
+
+**Exact.** The last analytic step is `zeroFree_of_rpow_window` (LandauTheorems/ZeroFreeOfRpowWindow.lean:11): for a `CharFamily` F (finitely many Dirichlet characters χ_i with weights a_i > 0, trivial character only at modulus 1),
+
+  if for every Y0 there is Y ≥ Y0 with Gm F(y) ≤ C·y^θ for all y in [Y, Y^(1+δ)], then no L(s, χ_i) vanishes for Re s > θ.
+
+Here Gm F = Σ a_i · Re Gχ_i, and Gχ(y) = Σ_n Λ(n)χ(n)(y/n − 1)₊ minus its main term (y log y − (1+γ)y for the trivial character, −y·L′/L(1, χ) otherwise). It goes through `lemmaL` and `landau_window`, whose proof splits into `landau_window_key`, `landau_dichotomy` and `landau_nearest`; the pole data comes from `poleData` (the Mellin transform has its poles at the zeros of the L(s, χ_i) and of their conjugates). All used.
+
+**Reading.** This is a windowed version of Landau's theorem. The classical one needs a one-sided bound for *all* large y; here it is only needed on windows [Y, Y^(1+δ)] that reach arbitrarily far out. That is why `VWinAt` (section 24) is stated for x in [Y, Y²] (δ = 1) with Y ≥ X^(1/J): the whole proof only has to work on such windows. It also explains why one sign is enough: the weights a_i are positive and each character comes with its conjugate, so an upper bound on Gm controls the poles.
+
+**Exact (top of the proof).** `Main.lean`: `riemannHypothesis := rhOfAll`, `rhOfAll := rh_of_every allChi`, and `allChi := FinalTheorems.everyCharacter : EveryCharacter`, which says L(s, χ) ≠ 0 for every Dirichlet character χ and every Re s > 1/2 (except the pole at s = 1). `everyCharacter := everyCharacter_of_row galoisLocalGlobalStrong_recParameter`, which combines the literature-level inputs with `VWin` via `vwin_of_row`. So the Lean theorem proves GRH for all Dirichlet L-functions and gets RH as the trivial-character case.
+
+### 25.2 Where the gain inequality comes from (closes the gap in 21)
+
+**Exact.** The gain clause of `LinkG_at` is `AuxBlock8.Conclusion1` (SmallOrderPrimes.lean:15), handed to `linkG_at_of` by `linkG_without_kernels` through `AuxBlock8.Pf.stmtF`. Its proof runs through:
+
+1. `St.starAll_of` (PartnerCountOfCentral.lean:842): `StarAll`, one inequality per prime p, per lift j and per orbit representative t0:
+   Σ_{s in tops(t0)} (askP − lo) ≤ gU − Pr − ⌈tv⌉ − Dp − 1 + dl,
+   where gU = γ_p·Σ_s α(s) − Σ_s Σ_{e odd} min(α(s)/p^e, cap) − dl (IsResidueClassZero.lean:165).
+2. `gain_bound_all_of_star` (NotSingularOfCentral.lean:730): summing the orbit inequalities gives `GainBoundAllUniform`.
+3. `gainBoundAll_add_one_of_gainBoundAllRequired`: `GainBoundAll`, which at the family's own (a, b) = (aL L, bL L) is exactly `Conclusion1`.
+
+All three are used.
+
+**Reading.** The gain is built orbit by orbit, and the only valuation correction is a sum over **odd** exponents e. That matches section 21: the w = √p in `key_minor_dvd` makes valuations come in half units, and odd exponents are where the half unit shows. I did not trace the exact call from `key3Ord` into `gU`, so this link stays Reading.
+
+### 25.3 What `JointWinOfCounts` needs, and a correction to section 24 (closes the gap in 24)
+
+**Correction.** Section 24 said no Ferrero–Washington declaration is in the used set. That was **wrong**: my grep output was cut off by `head` before the Ferrero hits. The correct fact:
+
+**Verified.** `UpperTheory.V.FW.ferreroWashington : Published.FerreroWashington` is proved in Lean (GaloisLibrary/FerreroWashingtonIndex, 62 files) and is used. Statement (**Exact**): for a prime l and an abelian number field K containing μ_l (μ_4 if l = 2), there is r such that every layer K′ of the cyclotomic Z_l-tower over K has |Cl(K′)/Cl(K′)^l| ≤ l^r. **Reading:** bounded l-rank up the tower is the μ = 0 statement, i.e. the Ferrero–Washington theorem.
+
+**Verified (the chain, all used).** `vwin_of_row` → `automorphic_window_of_inputs` → `v_window_of_depth_zero_residual_bc_cm` → `v_window_of_literal_automorphy_n` → `v_window_of_automorphy_csd_ss_mono_odd` → `vwin_of_hypotheses_H_E_alt` → `of_four_alt` → `vwin_of_counts` → `vwin_of_joint` → `vwinAt_of_joint`. It is one chain, not two routes. Inputs at `of_four_alt`:
+
+| input | where it comes from |
+|---|---|
+| `ThmBab K 401` | `thmBab_of_lemmaK` with `FW.ferreroWashington` |
+| `ThmBcFree` (minus part) | `Odd.thmBcFree_of (ML.iv …)`; `ML.iv` derives the ψ-bound from Poitou–Tate duality and unramified orthogonality |
+| `LemmaK` | `lemmaK_litN_alt` |
+| `CountI` | `count_i_of_printed_bound_k_kato_automorphy` (Kato) |
+| `CountII`, `CountIII` | `countII_and_countIII_of_printsH_of_sp4In` |
+| `CountV` | `count_v_of_printed_bound_k_reduced_unitary_lift` |
+| `CountZ` | `countZ X.propZ` |
+| Poitou–Tate, local finiteness, local Tate duality | fields of `LiteratureRankNHypothesis.coh : LitCoh` (also local/global Euler characteristic, Greenberg–Wiles) |
+
+`LiteratureRankNHypothesis` and `LiteratureCMHypothesis` (Grothendieck deformation, de Rham comparison, Serre–Tate good reduction, CM main theorem, Hilbert class field via j, Siegel–Klingen / Deligne–Ribet, functional equation of partial zeta) are **structures of named classical theorems**, each filled by a Lean proof (`…_from_literature`, `…_of_open`) from one `OpenImageCondition`, which comes from `Row0b`, proved by `galoisLocalGlobalStrong_recParameter`. The axiom check (`OVERALL: CLEAN`, only `propext`, `Quot.sound`, `Classical.choice`) means none of them is assumed.
+
+**Reading.** So step 6 sits on formal proofs of a large part of classical Iwasawa theory and Galois cohomology (Ferrero–Washington, Poitou–Tate, Kato-type bounds, CM theory). Whether these formal statements match the published theorems at full strength is a question for specialists; the kernel only guarantees that the Lean statements are proved.
+
+## 26. Next steps
 
 1. **Done:** exact dependency list (section 4).
 2. **Done:** `ChainTied` and the balance (sections 5 to 7). `ErrorFormsWeakWindowsFalse.lean` turned out to define unused propositions; only `ErrWindows`, `ErrText` and `errorBracketSizeWindows` from it are used.
@@ -822,4 +873,4 @@ under `GrowthInequalityHypotheses`, which include topExcess ≤ Err and `ValuesA
 5. **Done:** `BNBounds` is proved by equality, B0 = 2·|H|·m·b·x^ε with f = 2|H| (section 12).
 6. **Bring it to people who know the theory.** The automorphic layer needs number theorists. A short, factual Zulip post (written by me) with sections 1, 2 and 4 could help the people already working on understanding.
 
-**Status of a readable account of the new argument (steps 3 to 6 of the guide):** size balance and divisibility bookkeeping (sections 5 to 19) and the degree identity (section 20) are done. 4b (section 21), 4d (section 22), step 5 (section 23) and step 6 (section 24) are traced. Remaining gaps: the exact declaration turning the closed form into the gain inequality (21), the one-sided-to-RH step (23), and the inputs of `JointWinOfCounts` (24).
+**Status of a readable account of the new argument (steps 3 to 6 of the guide):** size balance and divisibility bookkeeping (sections 5 to 19) and the degree identity (section 20) are done. 4b (section 21), 4d (section 22), step 5 (section 23) and step 6 (section 24) are traced. The three remaining gaps are closed in section 25, which also records how `Main.lean` assembles RH from GRH for all Dirichlet characters.
