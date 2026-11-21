@@ -16,6 +16,7 @@ This repository is my independent look at the release. It does **not** claim to 
 | 4 | All the heavy computations the proof asks Lean's kernel to run (124 `decide +kernel` sites) give the claimed results when re-run independently in Python. | Re-run with cross-checks and negative tests |
 | 5 | Compiled `.olean` files with no embedded source path match Sutherland's published hashes byte for byte (20,625 of 20,625 so far). Every mismatch carries an absolute source path. | Partial (25% of the build); open question below |
 | 6 | Several key words of the note (Stepanov, Guinand–Weil, relative trace formula, Vandiver) never appear in the code, while theta lifts, seesaws and covolumes appear in thousands of files. | Name search only |
+| 7 | The √X is one inequality: per unit of main term the error is about x/m + m, where m is the length of the chain of lifts. m ≈ √x is set by hand in `RankVal`; the other two sizes (n ≈ x², k ≈ x^(9/2)) follow from it. Nothing in the construction of the family forces m ≈ √x. | Read in source; every declaration checked against the exact list the proof uses |
 
 ## 1. Source and provenance
 
@@ -37,6 +38,8 @@ The same file proves that `riemannZeta` equals Σ 1/nˢ for Re s > 1 (line 207),
 A text-only import-graph scan (`analysis/reach.py`) finds that all 175,187 files and 17,374,215 lines are reachable from `Main`; the longest import chain is 203 modules, and the only external libraries are Mathlib, Lean and Batteries. This answered a Zulip question about "~400k unreachable lines": at the file level there are none.
 
 At the declaration level the picture is different. Using the declaration index published by [riemann.tamnd.com](https://riemann.tamnd.com) (data CC0), 769,260 of 1,061,531 declarations (72%) are used by `riemannHypothesis`. So roughly 292,000 declarations are compiled but never reached, which may be what the Zulip question was seeing. tamnd's resolver works without Lean, so these counts are close but not exact.
+
+Exact count: the published export (`solution.ndjson.zst`, sha256 `61a8938a…b05381`) is the proof's full dependency closure, including Mathlib and Lean core. It has 1,468,419 declarations (1,246,110 theorems, 214,241 definitions, 7,970 inductive types, 91 opaque, 4 quotient, 3 axioms: `propext`, `Quot.sound`, `Classical.choice`), plus 16,314 constructors and recursors (`analysis/export_decls.py`). The exact number of project declarations outside this closure needs the compiled environment; `analysis/dead_code/` will produce it when my build finishes.
 
 Below `EveryCharacter` the proof runs down a chain of eight short theorems, each a few lines, with the work in large branches hanging off them: a statement about Galois representations attached to automorphic forms (54,225 declarations), a "window bound" on Galois cohomology (56,145), a covolume bound (52,322), and the construction of a 46-field record of hypotheses about unitary groups (89,250 in its largest branch). The interactive map in `visuals/proof-map.html` lays this out.
 
@@ -95,26 +98,38 @@ Both pages are self-contained; open them in a browser.
 
 One small numerical note from building plate 1: the simple form |ψ(x) − x| < √x (log x)² fails for 2 ≤ x < 3 (at x just below 3, ψ = log 2) and holds from x = 3 to 10⁶. Schoenfeld's sharper bound with constant 1/(8π) holds for 73.2 ≤ x ≤ 10⁶, reaching 91.8% of the band.
 
-## 10. What this does not show
+## 10. Where the √X comes from
 
-- Nothing here checks the logic of the proof. That is done by the independent kernels, and by `lake comparator --paranoid`, which Sutherland expects to finish this weekend.
-- The mechanism behind the √X chain of lifts is not understood by anyone yet, me included. The relevant visual is labelled as a reading.
+`mechanism/TRACE.md` follows the proof downward from the top theorem, with every declaration checked against the exact list of declarations the proof uses. The main points, each with file and line there:
+
+- **The endgame.** A bound Gm(x) ≤ x^(1/2+Cε) on a weighted prime sum, needed only on windows [Y, Y^(1+δ)], gives zero-freeness by a windowed Landau argument (`zeroFree_of_rpow_window`, `lemmaL`). One-sided bounds suffice because the combined Dirichlet coefficients are positive. The named Landau theorem `zero_free_of_Chebyshev_growth` is not used.
+- **The balance.** The square-root bound is one inequality, `proposition_size_bound`. Divided by the main term, its four error terms are about x/m, x·m/k, m and k/n², so the error is about x/m + m once the windows on k hold, smallest at m ≈ √x. The x/m comes from the top weight a = x·b against m lifts of size b each; the m comes from a chain cost of m·B0 with B0 = f·m·b·x^ε, a budget defined in the code.
+- **The sizes are chosen.** `RankVal` sets m ∈ [√(x·δ1), 2√(x·δ1)] with δ1 = x^(−ε/8), n ≈ x^(2+8ε) and k ≈ x^(9/2+10ε), and `exists_ranks_rankVal_frame` picks them. The constructor accepts any even m with 2 ≤ m ≤ 2n ≤ k, and a host exists for every choice. n and k are tied to m: the family needs about exp(m⁵·n) words, coded in k bits, so k ≳ m⁵·n (`exists_injective_words`); and the balance needs k ≤ n²·√x. With m = √x this gives n ≈ x² and k ≈ x^(9/2).
+- **Who pays the m.** Inside the divisibility inequality `DIV` only two error terms use the full m·B0 budget: a signature drift, bounded in absolute value although its signed sum is exactly zero, and a hypothesis `Eb` on the per-lift charges. Since Gz(x) = Ω(√x), the m cost cannot be removable everywhere; finding what proves `Eb` is the next step.
+
+The balance x/m + m was stated independently, from other sources, in Jonas Whidden's Zulip reading and in Bartosz Naskręcki's proof guide (section 12). What the trace adds is the exact location of each step in the code, the fact that the sizes are chosen rather than forced, and where the m cost is charged.
+
+## 11. What this does not show
+
+- Nothing here checks the logic of the proof. That is done by the independent kernels and by `lake comparator --paranoid`.
+- The trace explains where √X sits in the inequalities, not why the automorphic objects (theta lifts, Hida theory, slopes) satisfy them. Whether the chain avoids the 2/3 barrier through `Eb` is still open. Claims in `mechanism/TRACE.md` are labelled Verified, Exact, Index or Reading.
 - Declaration-level numbers depend on tamnd's approximate index.
 - The `.olean` comparison is partial and has an open question (section 6).
 
-## 11. Related work by others
+## 12. Related work by others
 
 - [Andrew Sutherland](https://math.mit.edu/~drew/grh/): the main verification record and downloads.
 - [Deicyde/riemann-hypothesis](https://github.com/Deicyde/riemann-hypothesis): source mirror, comparator setup, static scan and metaprogramming notes.
 - [tamnd/riemann](https://riemann.tamnd.com): a written proof from the top down, with a page per declaration.
-- [nasqret/riemann-rev](https://github.com/nasqret/riemann-rev): Bartosz Naskręcki's high-level digest and links.
+- [nasqret/riemann-rev](https://github.com/nasqret/riemann-rev): Bartosz Naskręcki's status dashboard, map and 11-page proof guide; it states the x/m + m balance and describes the per-lift Iwasawa-theory loss.
+- Jonas Whidden's AI-assisted readings on the Lean Zulip (20 November): the 2/3 barrier and the x/m against m balance.
 - [drew2apps/rh-lean-decomposition](https://github.com/drew2apps/rh-lean-decomposition): dominator-tree decomposition of the import graph.
 - [kant2002/riemann-hypothesis-supplimentary](https://github.com/kant2002/riemann-hypothesis-supplimentary): folder-level import graph.
 - [Infatoshi/rh-verification-receipts](https://github.com/Infatoshi/rh-verification-receipts): an independent build and nanoda run.
 - [DevinWatson/rh-weil-bound-toy](https://github.com/DevinWatson/rh-weil-bound-toy): the note's toy finite-field argument.
 - [friederrr/riemann-review](https://github.com/friederrr/riemann-review): a pooled AI-written informal write-up.
 
-## 12. Reproduce
+## 13. Reproduce
 
 ```bash
 # source, hash check, build (Linux or macOS; see scripts/README.md)
@@ -138,6 +153,8 @@ python3 more.py ~/rh/lean/src && python3 cyclo.py ~/rh/lean/src
 - `scripts/`: the build pipeline (steps 1 to 6), `7_compare.sh` and `8_export_hash.sh`.
 - `analysis/`: `reach.py`, `census.py`, `levels.py`, `note_terms.py`, and `kernel-computations/`.
 - `results/`: every output quoted above, with the date it was taken.
+- `mechanism/TRACE.md`: the mechanism trace of section 10.
+- `analysis/dead_code/`: the exact dead-code count, to be run on the finished build.
 - `visuals/`: the two interactive pages and the script for their data.
 
 ## How this was made

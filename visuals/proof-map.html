@@ -207,7 +207,7 @@ footer a{color:#fff}
 <section class="band" id="core">
 <div class="wrap">
 <h2>A community reading of the core mechanism</h2>
-<div class="warn"><b>Unverified.</b> This is Jonas Whidden's AI-assisted reading, posted on the Lean Zulip at 5:14 PM on 20 November, paraphrased. I checked only that each Lean name he cites exists at the file he gives. I did not check that these declarations lie on the path from <code>riemannHypothesis</code>, or that the reading is right.</div>
+<div class="warn"><b>Partly checked.</b> This is Jonas Whidden's AI-assisted reading, posted on the Lean Zulip at 5:14 PM on 20 November, paraphrased. I have since checked each Lean name against the exact list of declarations the proof uses (from the published export): <code>chain_into</code>, <code>linkGLOBAL7_items</code> and <code>Ga_bound5</code> are used; <code>RR_lattice</code> and <code>RR_mem</code> are not. The final balance is verified line by line in the source. Whether the reading explains <i>why</i> the chain avoids 2/3 is still open. Details: <code>mechanism/TRACE.md</code>.</div>
 <p>The note says a chain of theta lifts imitates the <i>multiplicity</i> in Stepanov's method over function fields, and that the right chain length for a von Mangoldt sum of length <i>X</i> is √<i>X</i>. The reading says that charging each lift's cost separately stalls at exponent 2/3. The fix is to track divisibility along the whole chain inside one integral lattice.</p>
 <div class="flow" id="flow"></div>
 </div>
@@ -372,12 +372,12 @@ const roTl=new ResizeObserver(drawTl);roTl.observe(tl);
 /* ---------- stage 5: flow ---------- */
 const FLOW=[
  ['A chain of m theta lifts','Each lift plays the role of one extra order of vanishing in Stepanov’s method.',''],
- ['Track divisibility along the chain','How much each successive lift is divisible by, carried through the chain.','chain_into · Development/AbelianVarietyTheory/Proofs/GlobalInterpolation/LevelChainSharpColumnValuationOfStability.lean'],
- ['One common integral lattice','The columns from all the lifts placed in one lattice, with local membership conditions.','RR_lattice, RR_mem · Formalism/LocalToGlobal/IndefiniteReal/PrincipalLevelLattice.lean'],
- ['Gain against cross terms','Divisibility gain, off-diagonal bounds and the family size in one comparison; the same slope appears on both sides and cancels.','linkGLOBAL7_items · Formalism/SharpRestriction/GlobalSchurBounds/LinkMin.lean; Ga_bound5 · Formalism/SizeWindowBrackets/ChainSlopeWindows/LevelOfCongruence.lean'],
- ['Balance at m ≈ √X, then Landau','Weighing X/m against m gives a square-root bound on prime-power sums; a windowed Landau argument turns it into no zeros right of ½.','']
+ ['Track divisibility along the chain','How much each successive lift is divisible by, carried through the chain.','chain_into · Development/AbelianVarietyTheory/Proofs/GlobalInterpolation/LevelChainSharpColumnValuationOfStability.lean','used by the proof ✓'],
+ ['One common integral lattice','The columns from all the lifts placed in one lattice, with local membership conditions. The two theorems the reading names for this are not on the proof path; whatever plays this role is elsewhere (other declarations in the same file are used).','RR_lattice, RR_mem · Formalism/LocalToGlobal/IndefiniteReal/PrincipalLevelLattice.lean','not used by the proof ✗'],
+ ['Gain against cross terms','Divisibility gain, off-diagonal bounds and the family size in one comparison; the same slope appears on both sides and cancels.','linkGLOBAL7_items · Formalism/SharpRestriction/GlobalSchurBounds/LinkMin.lean; Ga_bound5 · Formalism/SizeWindowBrackets/ChainSlopeWindows/LevelOfCongruence.lean','used by the proof ✓'],
+ ['Balance at m ≈ √X, then Landau','One inequality: relative to the main term the error is about X/m + m, smallest at m ≈ √X. In the code m ≈ √x is set by hand (RankVal) and the other sizes follow from it; the error terms make that choice optimal. A windowed Landau argument turns the bound into no zeros right of ½.','proposition_size_bound · Formalism/SizeWindowBrackets/ChainSlopeWindows/LipschitzWeightAndMinimum.lean','verified in source ✓']
 ];
-$('#flow').innerHTML=FLOW.map(f=>`<div class="fbox"><h3>${f[0]}</h3><div>${f[1]}</div>${f[2]?`<code>${f[2]}</code><span class="chip" style="margin-top:6px">name exists ✓</span>`:''}</div>`).join('');
+$('#flow').innerHTML=FLOW.map(f=>`<div class="fbox"><h3>${f[0]}</h3><div>${f[1]}</div>${f[2]?`<code>${f[2]}</code><span class="chip" style="margin-top:6px">${f[3]}</span>`:''}</div>`).join('');
 
 /* ---------- stage 6: who ---------- */
 const WHO=[

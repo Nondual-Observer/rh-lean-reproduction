@@ -217,7 +217,7 @@ footer a{color:#fff}
 <h2>The note's idea: multiplicity over the integers, one theta lift at a time</h2>
 <p>Over the integers there is no "vanishing to order m": the note likens it to differentiating whole numbers. Its proposal is to get multiplicity from automorphic forms instead. A chain of theta lifts between definite unitary groups U(X₀) → U(X₁) → ⋯ → U(X<sub>m</sub>) adds one unit of multiplicity per lift.</p>
 <p>The note says that for a von Mangoldt sum of length X, the right chain length is √X, adding "And yet, what else could it be?" It is Stepanov's balance again, with X in place of q. Slide X and the chain re-forms at its best length.</p>
-<p>The note also says that if each lift's cost is paid separately the method stops at exponent 2/3. Jonas Whidden's reading says the fix is to track divisibility along the whole chain inside one integral lattice, so the costs do not simply add up.</p>
+<p>The note also says that if each lift's cost is paid separately the method stops at exponent 2/3. Jonas Whidden's reading says the fix is to track divisibility along the whole chain inside one integral lattice, so the costs do not simply add up. In the code the balance is a single inequality (<code>proposition_size_bound</code>): per unit of main term the error is about X/m + m. The chain length is set to about √x by hand (<code>RankVal</code>), and 2/3 never appears in the code.</p>
 <div class="ctl">
 <label for="x6">Sum length X<input id="x6" type="range" min="1" max="4" step="0.05" value="2"><output id="x6o"></output></label>
 <label for="m6">Chain length m<input id="m6" type="range" min="1" max="40" step="1" value="6"><output id="m6o"></output></label>
