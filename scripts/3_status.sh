@@ -52,8 +52,10 @@ fi
 # ---- last lines of the log -----------------------------------------------------
 if [ -f "$OUT/build_main.log" ]; then
   echo; echo "last log lines:"; tail -n 3 "$OUT/build_main.log" | cut -c1-160
-  errs=$(grep -c 'error' "$OUT/build_main.log" || true)
-  [ "$errs" -gt 0 ] && echo "!! $errs lines mention 'error'. Look: grep -n error $OUT/build_main.log | head"
+  # Lean/Lake errors look like "error: file.lean:12:3: ..." or "✖ [...] Building X"; a plain
+  # grep for 'error' also matches lemma names such as errorNonneg inside warnings.
+  errs=$(grep -cE '^error|: error:|✖ \[' "$OUT/build_main.log" || true)
+  [ "$errs" -gt 0 ] && echo "!! $errs real error lines. Look: grep -nE '^error|: error:|✖ \\[' $OUT/build_main.log | head"
 fi
 
 if [ -f "$OUT/replay.log" ]; then
