@@ -1,0 +1,17 @@
+levels.py run on the CHALLENGE export only (the five statements plus the Mathlib definitions they use). The full proof export has NOT been scanned yet.
+challenge.ndjson sha256 bd484ac9886a96f26b1d9a7a59ebd45b7a70d102c015d4f31f9302bbdd6ab2b9
+level records            : 2,457
+concrete (no parameters) : 4
+
+concrete level -> uses in Sort | uses as a constant's level argument
+    0               1          18,334
+    1               1           2,669
+    2               0              41
+
+largest concrete level used: 2   (Type 1 = Sort 2)
+first uses of that level:
+    const Lean.Grind.CommRing.Mon.rec
+    const Nat.rec
+    const Lean.Grind.CommRing.Poly.rec
+
+largest offset over a parameter (u+k) in used levels: k = 4

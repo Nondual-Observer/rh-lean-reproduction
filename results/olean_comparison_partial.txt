@@ -1,0 +1,19 @@
+PARTIAL run, build still in progress. Taken 2026-11-21 00:06 UTC.
+Compared my compiled .olean files with Sutherland's project-oleans.sha256 (script: scripts/7_compare.sh, PARTIAL=1).
+Machine: Google Cloud VM, 377 GB RAM, JOBS=94, Lean v4.33.1, project built with `lake build Main`.
+
+manifest entries      : 175,187
+files built here      : 43,717
+compared              : 43,717
+identical             : 20,625
+DIFFERENT             : 23,092
+  identical, no source path : 20,625
+  identical, has source path: 0
+  DIFFERENT, no source path : 0
+  DIFFERENT, has source path: 23,092
+
+"has source path" means the file's bytes contain the text ".lean" (a heuristic for an embedded absolute source path).
+
+One module examined by hand (CompanionTheory/.../SandwichStatementStatement.olean): the only text that differs between my build's file and a rebuild
+is the stored source path ("/mnt/rh_ram/lean/src/..." versus "src/..."); the file sizes differ by 104 bytes and 2,148 bytes differ in total, because the longer string shifts what follows.
+I also recompiled that module twice by hand (single thread, flags approximated from the lakefile, not Lake's exact setup file); the two rebuilds were byte-identical to each other.

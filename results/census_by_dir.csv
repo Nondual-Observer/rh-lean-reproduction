@@ -1,0 +1,8 @@
+top_folder,sorry,admit,axiom,native_decide,unsafe,implemented_by,extern,opaque,partial,decide +native,macro,macro_rules,syntax,elab,elab_rules,declare_syntax_cat,initialize,builtin_initialize,run_cmd,run_elab,run_meta,import Lean,open Lean,notation,infix,infixl,infixr,prefix,postfix,local instance,attribute [local,#exit,#eval,set_option
+BuildAid,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,5,0,0,10,0,0,0,0,0,0,0,0,0,0,0,0
+CompanionTheory,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,13,0,0,0,0,0,163,156,0,0,757
+Development,0,0,0,0,0,0,0,0,0,0,66,0,0,0,0,0,0,0,0,0,0,0,0,525,0,25,0,0,0,46391,46173,0,0,75921
+Formalism,0,0,0,0,0,0,0,0,2,0,19,0,0,4,0,0,0,0,0,0,0,2,4,452,0,0,0,0,0,3458,3409,0,0,2564
+GroundTheory,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,685,0,2,0,0,0,469,458,0,0,8257
+PositivityTheory,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,8,0,0,0,0,0,83,83,0,0,54
+ReciprocityTheory,0,0,0,0,0,0,0,0,0,0,2,0,0,0,0,0,0,0,0,0,0,0,0,13,0,0,0,0,0,487,467,0,0,586

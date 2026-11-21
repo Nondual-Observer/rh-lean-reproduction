@@ -1,0 +1,148 @@
+source dir : PROJECT/src
+lean files : 175,187
+lines scanned: 17,374,215
+
+==================================================================
+[unsound]
+  pattern                  occurrences     files
+  sorry                              0         0
+  admit                              0         0
+  axiom                              0         0
+  native_decide                      0         0
+  unsafe                             0         0
+  implemented_by                     0         0
+  extern                             0         0
+  opaque                             0         0
+  partial                            2         2
+  decide +native                     0         0
+
+[meta]
+  pattern                  occurrences     files
+  macro                             87        64
+  macro_rules                        0         0
+  syntax                             0         0
+  elab                               4         3
+  elab_rules                         0         0
+  declare_syntax_cat                 0         0
+  initialize                         0         0
+  builtin_initialize                 0         0
+  run_cmd                            5         5
+  run_elab                           0         0
+  run_meta                           0         0
+  import Lean                       12         7
+  open Lean                          4         4
+
+[rebinding]
+  pattern                  occurrences     files
+  notation                       1,696       935
+  infix                              0         0
+  infixl                            27        19
+  infixr                             0         0
+  prefix                             0         0
+  postfix                            0         0
+  local instance                51,051    47,013
+  attribute [local              50,746    46,964
+  #exit                              0         0
+  #eval                              0         0
+
+[options]
+  pattern                  occurrences     files
+  set_option                    88,139    75,197
+
+set_option by option name (top 25):
+  option                             occurrences     files
+  maxHeartbeats                           57,556    54,080
+  autoImplicit                            11,203    10,743
+  maxSynthPendingDepth                     7,478     7,478
+  synthInstance.maxHeartbeats              7,381     6,477
+  backward.isDefEq.respectTransparency       1,879     1,727
+  linter.unusedSectionVars                   874       852
+  linter.unusedVariables                     503       272
+  linter.unusedSimpArgs                      272       113
+  genSizeOfSpec                              181       148
+  genInjectivity                             179       146
+  linter.style.haveILetI                     122       104
+  backward.isDefEq.respectTransparency.types          87        62
+  synthInstance.maxSize                       51        47
+  linter.dupNamespace                         46        46
+  linter.overlappingInstances                 40        38
+  linter.all                                  38        38
+  allowUnsafeReducibility                     37        33
+  maxRecDepth                                 34        22
+  linter.deprecated                           34        34
+  backward.defeqAttrib.useBackward            33        11
+  hygiene                                     31        15
+  linter.style.longLine                       23        23
+  linter.unusedTactic                         12        12
+  linter.unreachableTactic                    12        12
+  linter.unnecessarySeqFocus                   9         9
+==================================================================
+
+Exact locations for rare patterns (<= 60 hits):
+
+  partial  (2 hits)
+    Formalism/HermitianCurvature/HermitianCurvatureProofs/CutCptCopy.lean:41
+    Formalism/LocalToGlobal/NumberFieldFamilies/OwnStruct.lean:18
+
+  elab  (4 hits)
+    Formalism/HermitianCurvature/HermitianCurvatureProofs/CutCptCopy.lean:87
+    Formalism/LocalToGlobal/IndefiniteReal/HeckeNonvanishing/Imports.lean:5
+    Formalism/LocalToGlobal/NumberFieldFamilies/OwnStruct.lean:53
+    Formalism/LocalToGlobal/NumberFieldFamilies/OwnStruct.lean:60
+
+  run_cmd  (5 hits)
+    BuildAid/D1.lean:4
+    BuildAid/D2.lean:4
+    BuildAid/D3.lean:4
+    BuildAid/D4.lean:4
+    BuildAid/D5.lean:4
+
+  import Lean  (12 hits)
+    BuildAid/D1.lean:1
+    BuildAid/D1.lean:2
+    BuildAid/D2.lean:1
+    BuildAid/D2.lean:2
+    BuildAid/D3.lean:1
+    BuildAid/D3.lean:2
+    BuildAid/D4.lean:1
+    BuildAid/D4.lean:2
+    BuildAid/D5.lean:1
+    BuildAid/D5.lean:2
+    Formalism/LocalToGlobal/IndefiniteReal/HeckeNonvanishing/Imports.lean:1
+    Formalism/LocalToGlobal/NumberFieldFamilies/OwnStruct.lean:1
+
+  open Lean  (4 hits)
+    Formalism/HermitianCurvature/HermitianCurvatureProofs/CutCptCopy.lean:12
+    Formalism/LocalToGlobal/IndefiniteReal/HeckeNonvanishing/Imports.lean:3
+    Formalism/LocalToGlobal/NumberFieldFamilies/OwnStruct.lean:5
+    Formalism/SharpRestriction/RamificationFrobenius/TotientGaloisClasses/EvalFrameOrd.lean:5
+
+  infixl  (27 hits)
+    Development/AbelianVarietyTheory/Definitions/TwistedInnerProducts/CovolOneIntegralAdd.lean:21
+    Development/AbelianVarietyTheory/Proofs/DecoratedLatticeProofs/RationalIsometryNormalisesIsotropicUnipotentRadi.lean:19
+    Development/AbelianVarietyTheory/Proofs/IwasawaDecomposition/BesselCharacterGenericCharacterLaws.lean:252
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/AnisotropicTermsMeanZeroUnipotentRadical.lean:94
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/AnisotropicTermsMeanZeroUnipotentRadical.lean:259
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/AnisotropicTermsMeanZeroUnipotentRadical.lean:427
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/BesselCharacterRealPlaceUnipotentEqTrace.lean:147
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/ExistsHomSpaceDualIsotropicMiddleDecomposition.lean:14
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/ExistsUnitaryEmbeddingStabilizer.lean:97
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/IsotropicDualMiddlePartsSymplecticOrthogonal.lean:14
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/IsotropicMeanThetaProductConjEqRestrictionProduc.lean:17
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/IsotropicTermMeanInvariantUnipotentRadical.lean:85
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/IsotropicTermMeanInvariantUnipotentRadical.lean:148
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/IsotropicTermMeanInvariantUnipotentRadical.lean:160
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/IsotropicTermMeanInvariantUnipotentRadical.lean:212
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/IsotropicTermMeanInvariantUnipotentRadical.lean:261
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/MixedModelTermHeisenbergIsotropicCharacter.lean:15
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/RationalFrameStabiliserNormalisesUnipotentRadica.lean:16
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/RestrictedHeisenbergTermsPermutedRationalUnitary.lean:16
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/RestrictedHeisenbergTermsPermutedRationalUnitary.lean:108
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/SymplecticFormIsotropicPartAddMiddlePart.lean:16
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/ThetaRestrictionInvariantRationalLeviGL.lean:16
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/ThetaRestrictionInvariantRationalLeviGL.lean:48
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/ThetaRestrictionInvariantRationalLeviScaling.lean:14
+    Development/AbelianVarietyTheory/Proofs/TwistedOperators/WittTowerRestrictionWeilCharacterRationalEqOne.lean:16
+    GroundTheory/HeightsAndTheta/Theta/EisensteinZeta/AdicFrames/ContinuousFramePairLeft.lean:28
+    GroundTheory/HeightsAndTheta/Theta/EisensteinZeta/AdicFrames/FramePairAddRight.lean:21
+

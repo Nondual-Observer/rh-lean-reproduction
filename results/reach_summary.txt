@@ -1,0 +1,30 @@
+source dir : PROJECT/src  (lakefile.toml srcDir = src)
+lean files : 175,187
+
+==================================================================
+root module                     : Main
+files   total / reachable / not : 175,187 / 175,187 / 0  (100.0% reachable)
+lines   total / reachable / not : 17,374,215 / 17,374,215 / 0  (100.0% reachable)
+longest import chain from root  : 203 modules
+files with bare `import Mathlib`: 136,003 total, 136,003 reachable
+external libraries imported by reachable files (import statements):
+    Mathlib         156,238
+    Lean                 12
+    Batteries             3
+==================================================================
+
+top-level folder                      files        lines  reach files  reach lines
+Development                         141,928   12,232,663      141,928   12,232,663
+Formalism                            18,254    3,200,748       18,254    3,200,748
+GroundTheory                          8,507    1,119,138        8,507    1,119,138
+ReciprocityTheory                     3,845      563,016        3,845      563,016
+CompanionTheory                       2,027      194,218        2,027      194,218
+PositivityTheory                        449       55,130          449       55,130
+Lemmata                                 167        9,232          167        9,232
+(root)                                    2           28            2           28
+Supplements                               3           22            3           22
+BuildAid                                  5           20            5           20
+
+no unreachable files: every file under the source dir is in the closure of Main
+
+wrote /tmp/reach_tmp/reach_modules.csv and reach_by_dir.csv

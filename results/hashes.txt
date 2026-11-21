@@ -1,0 +1,4 @@
+Verified by me against published values (2026-11-20):
+source archive (lean.tar.gz, 14 parts from alpo.ge): sha256 9631b4f020199e580ba86178cb56c6e9b09f690c2369a80dc4334aa93f49c7fc, 239,275,554 bytes. Matches the values on Sutherland's page.
+challenge export (challenge.ndjson, unpacked): sha256 bd484ac9886a96f26b1d9a7a59ebd45b7a70d102c015d4f31f9302bbdd6ab2b9. Matches the published value.
+olean manifest (project-oleans.sha256, Sutherland): sha256 375cbee2fc3fc0f5088ef2e6dc9a5ac5530924310dc62422ec65aac9dc4c1d25, 175,187 entries. Matches the value on his page.

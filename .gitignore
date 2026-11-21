@@ -1,0 +1,5 @@
+*.olean
+*.ndjson
+*.export
+*.zst
+.lake/
