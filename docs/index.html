@@ -2101,7 +2101,9 @@ axiom declarations, <code>native_decide</code>, <code>reduceBool</code>;
 <td style="text-align: left;">76<span>,</span>968 byte-identical to
 Sutherland’s manifest, including <code>Main.olean</code>;
 98<span>,</span>219 differ, every one embedding the absolute build path;
-0 differ without a path</td>
+0 differ without a path. Recompiled at Sutherland’s build path, a random
+sample of 300 of the 98<span>,</span>219 is byte-identical to the
+manifest, 300 of 300</td>
 </tr>
 <tr class="even">
 <td style="text-align: left;">Export hash</td>
@@ -2129,6 +2131,18 @@ only declarations, and our re-export matches the published 61.6 GB
 export byte for byte, confirming that the differences cannot touch the
 proof.</p>
 </div>
+<p><span class="tag verified">Verified</span> The path is the only difference. Sutherland’s build
+passed sources to <code>lean</code> as
+<code>/home/ubuntu/grh/src/lean/src/&lt;Module&gt;.lean</code> (his
+comment in the community repository’s issue #6, where patunz first
+reported the path dependence). We replayed, for a random sample of 300
+of the 98<span>,</span>219 differing modules (seed 20261121), the exact
+<code>lean</code> command that Lake recorded for each module in its
+<code>.trace</code> file, changing only the output location and the
+source prefix to his path. All 300 outputs are byte-identical to his
+manifest. Before the sample, the same replay at our own path reproduced
+our own <code>.olean</code> files exactly, so the replay is faithful to
+the build (<code>scripts/11_path_sample.sh</code>).</p>
 <h1 data-number="11" id="sec:open"><span
 class="header-section-number">11</span> Open questions, and what we
 could settle</h1>

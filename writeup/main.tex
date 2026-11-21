@@ -1358,7 +1358,7 @@ Source scan & 0 \texttt{sorry}, \texttt{admit}, axiom declarations, \texttt{nati
 Full build & 175{,}187 modules, 183{,}893 jobs, OK, 401 minutes on 94 cores\\
 Statement & identical to Mathlib's \lean{RiemannHypothesis} (\lean{Mathlib.NumberTheory.LSeries.RiemannZeta})\\
 Axioms & \lean{propext}, \lean{Quot.sound}, \lean{Classical.choice} only; \texttt{OVERALL: CLEAN}\\
-Olean comparison & 76{,}968 byte-identical to Sutherland's manifest, including \texttt{Main.olean}; 98{,}219 differ, every one embedding the absolute build path; 0 differ without a path\\
+Olean comparison & 76{,}968 byte-identical to Sutherland's manifest, including \texttt{Main.olean}; 98{,}219 differ, every one embedding the absolute build path; 0 differ without a path. Recompiled at Sutherland's build path, a random sample of 300 of the 98{,}219 is byte-identical to the manifest, 300 of 300\\
 Export hash & byte-identical match to the published export: 61{,}570{,}595{,}788 bytes, sha256 \texttt{5ea74b91\ldots 244e} (\texttt{lean4export} v4.33.0, commit \texttt{15f6055e}, 89 minutes)\\
 Kernel replay & \texttt{Main} with imports trusted: done; full \texttt{--fresh} replay not run by us (others report full replays: Sutherland's \texttt{leanchecker}, 175{,}187 of 175{,}187 modules; Simon DeDeo, likewise)\\
 \bottomrule
@@ -1385,6 +1385,15 @@ The differing oleans store the source path (for example
 The kernel export holds only declarations, and our re-export matches the published 61.6 GB export
 byte for byte, confirming that the differences cannot touch the proof.
 \end{remark}
+
+\Verified{} The path is the only difference. Sutherland's build passed sources to \texttt{lean} as
+\lean{/home/ubuntu/grh/src/lean/src/<Module>.lean} (his comment in the community repository's
+issue~\#6, where patunz first reported the path dependence). We replayed, for a random sample of 300 of
+the 98{,}219 differing modules (seed 20261121), the exact \texttt{lean} command that Lake recorded for
+each module in its \texttt{.trace} file, changing only the output location and the source prefix to his
+path. All 300 outputs are byte-identical to his manifest. Before the sample, the same replay at our own
+path reproduced our own \texttt{.olean} files exactly, so the replay is faithful to the build
+(\texttt{scripts/11\_path\_sample.sh}).
 
 % ======================================================================
 \section{Open questions, and what we could settle}\label{sec:open}

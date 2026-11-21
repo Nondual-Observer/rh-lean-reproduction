@@ -1,0 +1,21 @@
+11_path_sample.sh: recompile a random sample of the path-differing modules at Sutherland's build path
+rh-vm, 21 Nov 2026 (runs finished 12:32 UTC and, for the retry, about 12:46 UTC)
+
+Population : 98,219 modules whose .olean differs from Sutherland's manifest (all store the build path)
+Sample     : 300, drawn with seed 20261121 from results of 7_compare.sh (reproducible)
+Method     : for each module, replay the exact lean command Lake recorded in its .trace file,
+             changing only the output paths (to a scratch directory) and the source prefix to
+             /home/ubuntu/grh/src/lean (Sutherland's build directory, per issue #6), via a symlink.
+
+Calibration 1 (replay at our own path must equal our own lake-built .olean): 3 of 3 identical
+Calibration 2 (path-free modules must equal the manifest)                  : 2 of 2 identical
+
+First run     : 298 byte-identical, 0 different, 2 did not compile
+               (both had been built by Lake from a RAM-disk copy, /mnt/rh_ram/lean, which no longer
+               exists; the script now maps that prefix back to the project)
+Retry of the 2: 2 byte-identical, 0 different
+
+RESULT: 300 of 300 sampled modules are byte-identical to Sutherland's manifest when compiled at his
+build path. Combined with the full comparison (76,968 identical, 98,219 differing only by the stored
+path, 0 differing without one), this indicates the build reproduces his compiled files exactly once
+the build directory is the same.

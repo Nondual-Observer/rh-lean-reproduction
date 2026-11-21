@@ -14,3 +14,4 @@ OVERALL: CLEAN
 
 replay (Main only, imports trusted): run by hand, see 5_replay.sh
 export hash (8_export_hash.sh): MATCH, byte-identical to published export (sha256 5ea74b912147c5c93cc2b6d70cc727cf908df2f62ac6a20480a3fa02f6be244e, 61570595788 bytes, 89 min; see results/export_result.txt)
+path sample (11_path_sample.sh): 300 of 300 sampled path-differing modules byte-identical to the manifest when compiled at Sutherland's build path (see results/path_sample_result.txt)
