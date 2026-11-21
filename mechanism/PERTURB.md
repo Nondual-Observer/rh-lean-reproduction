@@ -2,34 +2,35 @@
 
 **Question.** The trace (TRACE.md sections 12 to 15) says m ≈ √x is a *chosen* literal in `RankVal`, and that only the balance x/m + m needs it. If that is right, raising m should break only the size windows that feed the balance, plus hardcoded numbers that a rescaling repairs. If the arithmetic side (Bloch–Kato counts, divisibility, the theta lifts) needed m ≤ √x for its own reasons, we would see real failures there. Lean can decide this: patch the literal, rebuild, and read the errors.
 
-## Design (Variant A)
+## Design (Variant A0: loosen the upper bound on m only)
 
-| Quantity | Original window (`RankVal`) | Patched window | Why |
-|---|---|---|---|
-| m | √(x·δ1) ≤ m ≤ 2√(x·δ1) | √(x·δ1)·x^(1/40) ≤ m ≤ 2·√(x·δ1)·x^(1/40) | m ≈ x^0.525 |
-| k | x^(9/2+10ε) ≤ k ≤ 2x^(9/2+10ε) | x^(37/8+10ε) ≤ k ≤ 2x^(37/8+10ε) | keeps the m⁵ word count k ≳ m⁵·n (section 12) |
-| n | x^(2+8ε) ≤ n ≤ 2x^(2+8ε) | unchanged | n is set by the host frame, outside `RankVal` |
-
-Every *lower* bound gets stronger, so proofs that only use lower bounds compile unchanged. What can break is any proof that needs m or k to be at most their old sizes. δ = 1/40 is a fixed constant, so for small ε it exceeds every ε-sized slack in the windows.
-
-The constructor `exists_ranks_rankVal_frame` is patched to pick m and k in the new windows; its new proof uses only the bounds m ≤ 2x² and k ≥ x⁴. Files: `scripts/perturb/perturb_patch.py` (apply / revert, with `.orig` backups), `scripts/10_perturb.sh` (apply / build / report / revert), `scripts/perturb/perturb_report.py`.
-
-## Prediction (written before running, 20 Nov, 21:10 local)
-
-Arithmetic at the exponent level (m = x^(1/2+δ), n = x^(2+8ε), k = x^(9/2+5δ+10ε)):
-
-| Constraint | Holds after the patch? | Expected failure |
+| Quantity | Original window (`RankVal`) | Patched window |
 |---|---|---|
-| m ≥ x^(1/2−ε) (`winL`) | yes | none |
-| **m ≤ x^(1/2+ε/2) (`winA`)** | **no** (δ > ε/2) | **WINDOW**: the balance's T3, the "+m" side |
-| x·m ≤ k (`winB`) | yes | none |
-| **k ≤ n²·x^(1/2−ε) (`winM`, from `k_up`)** | **no** for 5δ > 5ε | **WINDOW**: T4, because n was not raised (Variant B would raise n by x^(5δ)) |
-| k ≳ m⁵·f·L (word count) | yes, by construction | LITERAL failures only: `m_pow_five_mul_f_mul_L_le` states the old bound 128·x^(9/2+9ε) |
-| n ≤ 2x^(9/4) (`n_le'`) and other crude bounds | yes | none |
+| m | √(x·δ1) ≤ m ≤ 2√(x·δ1) | √(x·δ1) ≤ m ≤ **2·√(x·δ1)·x^(1/40)** (the constructor picks m ≈ x^0.525) |
+| n, k | unchanged | unchanged |
 
-**Expected first round.** Up to about 25 modules downstream of `RankVal` mention the old m bound or the literal exponent 9/2 + 10ε (mostly in `Proofs/GlobalInterpolation`, the size bookkeeping: `MPowFiveMulFMulLLe`, `SzRow*`, `ExistsExplicitParameters`, `DimVRowPos`, `WindowLower`, …). We expect them to fail as **LITERAL**: a rescaled exponent makes each one true again. Several rounds of "patch the literal, rerun" are expected before the windows are reached.
+The lower bound on m and all bounds on n and k are unchanged **word for word**, so proofs that use only those (including the many that restate them with explicit types) compile as before. **A proof fails exactly when it needs m ≲ √x.** One certain LITERAL is pre-fixed: `rank_basic_bounds` used m ≤ x^0.501 only for crude bounds (m ≤ x, N(m) ≤ x^402); it now uses m ≤ x^0.527, and its conjunct 17 restates the loosened window. None of its five users takes conjunct 17 (Exact: read).
 
-**The claim under test.** After the literal failures are repaired, the **only** remaining failures are `winA` and `winM`, i.e. the size windows of the balance. Any failure classified **REAL** (false at the new exponent, in the arithmetic or automorphic layers) would contradict section 12 and would be the more interesting result.
+Files: `scripts/perturb/perturb_patch.py` (apply / revert, with `.orig` backups; 3 files), `scripts/10_perturb.sh`, `scripts/perturb/perturb_report.py`.
+
+**Design history (before running).** A first draft also raised every lower bound; reading the consumers showed that dozens of proofs restate the old lower bounds with explicit types, so they would fail as noise. A second draft also raised k by x^(1/8) to keep the word count; reading `rank_basic_bounds` showed that k's polynomial bookkeeping is tuned to ε < 1/52 (for example r ≤ x^4.694 against k ≤ 2x^(9/2+10ε)), so it would set off a cascade of exponent failures unrelated to √x.
+
+## A structural fact found while designing (Exact arithmetic from the stated windows)
+
+m and k are locked together by the m⁵ word count. With k fixed, `m_pow_five_mul_f_mul_L_le` (m⁵·f·L ≤ 128·x^(9/2+9ε), against k ≥ x^(9/2+10ε)) leaves m about **x^(0.3ε)** of headroom above √(x·δ1). The balance window `winA` (m ≤ x^(1/2+ε/2)) has x^(ε/2 + ε/16) of headroom. So **m cannot be raised far enough to break the balance window without first breaking the word count**, unless k is raised too. In the construction as written, the word count, not the window, is the first wall a larger m hits.
+
+## Prediction for round 1 (written before running, 20 Nov, 21:25 local)
+
+| Where | Expected | Label |
+|---|---|---|
+| `szRow_rankSizes` (`SzRowRankSizes.lean`, proves `SizeM` from `RankVal`): m ≤ x^(ε/100)·√(x·δ1) | fails | **WINDOW** (feeds `winA`, the "+m" side of the balance) |
+| `m_pow_five_mul_f_mul_L_le` and `sizeKRel_of_rankVal` (k ≳ m⁵·f·L) | fail | **COUPLING** (expected; blocks about 13,000 downstream modules) |
+| `rankVal_crude`, `f_mul_r_mul_L_le_pow_fourteen`, `objOn_narrow_iff_scheme` and other crude uses of √(x·δ1) ≤ x | may fail | LITERAL |
+| anything in the arithmetic or automorphic layers | not reached in round 1 (blocked behind the word count) | |
+
+**What round 1 can and cannot show.** It can confirm that `SizeM` is where m ≲ √x enters and list every first-layer consumer of the m upper bound. It **cannot** test the arithmetic layers, because they sit behind the word-count failure. Testing them needs Variant A (raise k as well), which means rewriting the size bookkeeping in `GlobalInterpolation` for the new exponents: a multi-round job.
+
+The source-level answer to that question is already in TRACE.md sections 14 to 16 and in the table of consumers read for this design: every consumer of the m upper bound outside `SizeM` uses it only in crude forms (m ≤ x) that survive m ≈ x^0.525.
 
 ## Results
 

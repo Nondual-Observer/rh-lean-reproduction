@@ -1,12 +1,12 @@
 #!/usr/bin/env bash
-# 10_perturb.sh: the m-perturbation experiment (Variant A).
+# 10_perturb.sh: the m-perturbation experiment (Variant A0).
 #
-# Moves the chain length from m ~ sqrt(x) to m ~ x^(1/2 + 1/40) in RankVal (and k up
-# by x^(1/8) so the m^5 word count still fits), rebuilds what depends on it, and lists
+# Loosens the upper bound on m in RankVal to m ~ x^(1/2 + 1/40) (Variant A0; n, k unchanged),
+# rebuilds what depends on it, and lists
 # exactly which proofs break. See mechanism/PERTURB.md for the design and the prediction.
 #
 # Run ONLY after the receipts are done (4_check, 6_report, 7_compare, 9_dead_code):
-# this changes two source files and rebuilds about 13,000 modules in place.
+# this changes three source files and rebuilds about 13,000 modules in place.
 #
 #   bash 10_perturb.sh apply     # back up and patch the two files
 #   bash 10_perturb.sh build     # rebuild in the background; failures do not stop other jobs
