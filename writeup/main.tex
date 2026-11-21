@@ -1447,12 +1447,11 @@ match the published theorems at full strength?
   representation $W$ with determinant the quadratic character $\theta$ of $K$, ordinary at $\ell$,
   residually Eisenstein (trace $\equiv\theta\cdot\chi^e\psi+(\chi^e\psi)^{-1}$), irreducible over the
   cyclotomic extension of $K$ and attached to a newform of weight $2e+1$: the Bloch--Kato Selmer
-  groups of $W$ and of $W\otimes\theta$ vanish. \Reading{} This is not a verbatim published theorem.
-  There is no hypothesis on an $L$-value; the class-number condition $\ell\nmid h_K$ plays that role,
-  as in residually reducible (Eisenstein-ideal) arguments. It is the kind of statement that follows
-  from Kato's Euler system~\cite{kato} together with a main-conjecture input, and a specialist should confirm the
-  exact strength. It is proved in Lean (\lean{katoTwoW_of_printsH_of_rT_of_quadBC2}), so this affects
-  how to describe it, not whether the proof is correct.
+  groups of $W$ and of $W\otimes\theta$ vanish. \Reading{} As David Loeffler pointed out on Zulip
+  (21 November 2026), this matches Kato's theorem~\cite{kato} directly without needing an explicit
+  $L$-value hypothesis: in this setting the relevant critical $L$-value sits at $s = 1$ in the
+  analytic normalisation (to the right of the central point $s = 1/2$), where non-vanishing is
+  automatic. It is proved in Lean (\lean{katoTwoW_of_printsH_of_rT_of_quadBC2}).
 \item \emph{CM inputs.} \Exact{} Read statement by statement:
   Shimura's main theorem of complex multiplication for imaginary quadratic $K$
   (\lean{EllipticMainTheoremCM}); $K(j(\Oc_K))$ is the Hilbert class field, of degree $h_K$, with

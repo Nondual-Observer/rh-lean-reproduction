@@ -2245,16 +2245,16 @@ irreducible over the cyclotomic extension of <span
 class="math inline">\(K\)</span> and attached to a newform of weight
 <span class="math inline">\(2e+1\)</span>: the Bloch–Kato Selmer groups
 of <span class="math inline">\(W\)</span> and of <span
-class="math inline">\(W\otimes\theta\)</span> vanish. <span class="tag reading">Reading</span> This
-is not a verbatim published theorem. There is no hypothesis on an <span
-class="math inline">\(L\)</span>-value; the class-number condition <span
-class="math inline">\(\ell\nmid h_K\)</span> plays that role, as in
-residually reducible (Eisenstein-ideal) arguments. It is the kind of
-statement that follows from Kato’s Euler
-system <a class="cite" href="#bib-kato">[7]</a> together with a main-conjecture
-input, and a specialist should confirm the exact strength. It is proved
-in Lean (<code>katoTwoW_of_printsH_of_rT_of_quadBC2</code>), so this
-affects how to describe it, not whether the proof is correct.</p></li>
+class="math inline">\(W\otimes\theta\)</span> vanish. <span class="tag reading">Reading</span> As
+David Loeffler pointed out on Zulip (21 November 2026), this matches
+Kato’s theorem <a class="cite" href="#bib-kato">[7]</a> directly without
+needing an explicit <span class="math inline">\(L\)</span>-value
+hypothesis: in this setting the relevant critical <span
+class="math inline">\(L\)</span>-value sits at <span
+class="math inline">\(s = 1\)</span> in the analytic normalisation (to
+the right of the central point <span class="math inline">\(s = 1/2\)</span>),
+where non-vanishing is automatic. It is proved in Lean
+(<code>katoTwoW_of_printsH_of_rT_of_quadBC2</code>).</p></li>
 <li><p><em>CM inputs.</em> <span class="tag exact">Exact</span> Read statement by statement:
 Shimura’s main theorem of complex multiplication for imaginary quadratic
 <span class="math inline">\(K\)</span>
