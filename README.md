@@ -1,10 +1,16 @@
 # Reproducing and examining the Lean proof of the Riemann Hypothesis
 
-Ishaan Dixit, 20 November 2026. Work in progress; my build is still running.
+Ishaan Dixit, November 2026. The build is complete and clean, and the proof is now traced end to end.
 
 On 20 November 2026 Levent Alpöge released a four-page note ([alpo.ge/remark.pdf](https://alpo.ge/remark.pdf)) and a Lean 4 project of 175,187 files and 17.4 million lines that claims to prove the Riemann Hypothesis and the Generalized Riemann Hypothesis for Dirichlet L-functions. Within hours several people had compiled it, and independent kernels (nanoda, con-leche, lean4lean, Pestka, con-agua, nanoclo, tenet) accepted it; see [Andrew Sutherland's page](https://math.mit.edu/~drew/grh/).
 
 This repository is my independent look at the release. It does **not** claim to verify the proof; the kernel checks above do that. What it adds is a set of smaller, checkable facts: about the statement, the structure of the code, the numerical computations inside it, the reproducibility of the build, and how the ideas in the note show up in the code. It also has two interactive pages that explain the structure and the mathematics.
+
+## Start here
+
+- **[The readable account](https://ishaan2006.github.io/rh-lean-reproduction/)** (also as a [PDF](docs/rh_lean_proof_readable.pdf), LaTeX source in `writeup/main.tex`): the whole proof top down, in six steps, with 15 figures. Every claim is labelled Exact, Verified, Reading or Ours.
+- **[`mechanism/TRACE.md`](mechanism/TRACE.md)**: the evidence, 26 sections, every declaration with file and line.
+- **[`scripts/`](scripts/)**: rebuild and re-check everything yourself.
 
 ## Summary of findings
 
@@ -14,9 +20,12 @@ This repository is my independent look at the release. It does **not** claim to 
 | 2 | Every one of the 175,187 files is in the import closure of `Main`; nothing is dead at the file level. About 72% of the 1,061,531 declarations are used by the top theorem. | Files: my scan. Declarations: tamnd's index, approximate |
 | 3 | No `sorry`, `axiom`, `native_decide`, `unsafe`, `implemented_by`, `extern` or `opaque`. Metaprogramming is small and confined to a few helper files. | Text census; agrees with Deicyde's scan |
 | 4 | All the heavy computations the proof asks Lean's kernel to run (124 `decide +kernel` sites) give the claimed results when re-run independently in Python. | Re-run with cross-checks and negative tests |
-| 5 | Compiled `.olean` files with no embedded source path match Sutherland's published hashes byte for byte (20,625 of 20,625 so far). Every mismatch carries an absolute source path. | Partial (25% of the build); open question below |
+| 5 | My independent build is clean: 175,187 modules, Mathlib's own statement, axioms `propext`, `Quot.sound`, `Classical.choice` only. 76,968 compiled files are byte-identical to Sutherland's manifest, including `Main.olean`; the other 98,219 all store the absolute build path, and 0 differ without one. | Full build and full comparison |
 | 6 | Several key words of the note (Stepanov, Guinand–Weil, relative trace formula, Vandiver) never appear in the code, while theta lifts, seesaws and covolumes appear in thousands of files. | Name search only |
 | 7 | The √X is one inequality: per unit of main term the error is about x/m + m, where m is the length of the chain of lifts. m ≈ √x is set by hand in `RankVal`; the other two sizes (n ≈ x², k ≈ x^(9/2)) follow from it. Nothing in the construction of the family forces m ≈ √x. | Read in source; every declaration checked against the exact list the proof uses |
+| 8 | Both sides of the balance are paid by one inequality, the divisibility bound `DIV`. The energy and slope charges of the same nominal size are slack, and the signature drift is an artefact smaller than its bound by a factor of x^1131. What is left is `Eb`: m lifts times a Bloch–Kato rank m, one m used twice. | Each step checked against the used-declaration list |
+| 9 | The outline's 2/3 is reproduced exactly by charging each lift for the whole chain below it (x/m + m²). The code avoids it by charging every local piece to exactly one lift; no 2/3 route survives in the archive. | Reconstruction from the code's own quantities |
+| 10 | The last analytic step is a windowed Landau theorem, and the Ш window rests on Lean proofs of Ferrero–Washington, Poitou–Tate and CM theory, all proved in the project, none assumed. | Checked against the used-declaration list |
 
 ## 1. Source and provenance
 
@@ -68,18 +77,20 @@ Lean checks proofs symbolically and never evaluates ζ. In a few places, though,
 
 I built the project with `lake build Main` on a Google Cloud VM (377 GB RAM, 94 parallel jobs), using the scripts in `scripts/`. `scripts/7_compare.sh` hashes every compiled `.olean` and compares it with Sutherland's manifest, whose caveats note that only a 77-module sample of his build had been compared with a real `lake build`.
 
-Partial result (43,717 files, about 25% of the build; `results/olean_comparison_partial.txt`):
+Full result (all 175,187 files; `results/olean_comparison.txt`):
 
 | | No source path in file | Source path in file |
 |---|---:|---:|
-| Identical to manifest | 20,625 | 0 |
-| Different | 0 | 23,092 |
+| Identical to manifest | 76,968 | 0 |
+| Different | 0 | 98,219 |
+
+`Main.olean` is identical. The build itself took 401 minutes on 94 cores and the check step reports `OVERALL: CLEAN` (`results/build_check_summary.txt`).
 
 The two groups do not overlap. In the one module I examined by hand, the only differing text was the stored source path (`/mnt/rh_ram/lean/src/…` in my build against a relative path in a rebuild), which shifts everything after it. My working explanation is that `.olean` files store messages such as linter warnings, and those carry the absolute path of the build directory, so they cannot match a build made elsewhere.
 
-**Open question.** Jack McCarthy reported on Zulip that two independent builds of his match the sha256 reported by Sutherland's build exactly. If that refers to the per-file hashes, his builds do not embed machine paths, and my explanation needs revisiting (for example, his builds may use a different working directory layout or relative paths). Until that is resolved I treat the path explanation as a hypothesis. The final comparison will be rerun when my build finishes.
+**Open question.** Jack McCarthy reported on Zulip that two independent builds of his match the sha256 reported by Sutherland's build exactly. If that refers to the per-file hashes, his builds do not embed machine paths, and my explanation needs revisiting (for example, his builds may use a different working directory layout or relative paths). The full comparison keeps the split exact (every differing file stores a path, no identical file does), so the path explanation holds for all 175,187 files. Whether the path is the only difference is settled by the export hash below.
 
-`scripts/8_export_hash.sh` will export my build with `lean4export` (v4.33.0, commit `15f6055e`, built and ready) and compare it with the published export hash `5ea74b91…244e`. The export records only kernel declarations, so it should be comparable across machines. My build is not sandboxed, so this does not close the "sandboxed re-export" gap on Sutherland's page.
+`scripts/8_export_hash.sh` exports my build with `lean4export` (v4.33.0, commit `15f6055e`) and compares it with the published export hash `5ea74b91…244e`. Result: TODO, fill in when the run finishes. The export records only kernel declarations, so it should be comparable across machines. My build is not sandboxed, so this does not close the "sandboxed re-export" gap on Sutherland's page.
 
 ## 7. The note's vocabulary against the code
 
@@ -107,14 +118,20 @@ One small numerical note from building plate 1: the simple form |ψ(x) − x| < 
 - **The sizes are chosen.** `RankVal` sets m ∈ [√(x·δ1), 2√(x·δ1)] with δ1 = x^(−ε/8), n ≈ x^(2+8ε) and k ≈ x^(9/2+10ε), and `exists_ranks_rankVal_frame` picks them. The constructor accepts any even m with 2 ≤ m ≤ 2n ≤ k, and a host exists for every choice. n and k are tied to m: the family needs about exp(m⁵·n) words, coded in k bits, so k ≳ m⁵·n (`exists_injective_words`); and the balance needs k ≤ n²·√x. With m = √x this gives n ≈ x² and k ≈ x^(9/2).
 - **Who pays the m.** Inside the divisibility inequality `DIV` only two error terms use the full m·B0 budget: a signature drift, bounded in absolute value although its signed sum is exactly zero, and a hypothesis `Eb` on the per-lift charges. Since Gz(x) = Ω(√x), the m cost cannot be removable everywhere. `Eb` turns out to carry a genuine m²: m lifts, each charged a Selmer colength whose rank is a Bloch–Kato count of m Hodge–Tate weights (fixed by equality in the family). The small Ш loss is a separate additive term (trace section 13).
 
-The balance x/m + m was stated independently, from other sources, in Jonas Whidden's Zulip reading and in Bartosz Naskręcki's proof guide (section 12). What the trace adds is the exact location of each step in the code, the fact that the sizes are chosen rather than forced, and where the m cost is charged.
+- **Slack and artefacts.** The energy charge is really about 2fb per lift (no factor m) and the slope upper bound `ClaimHigh` has no error term. The signature drift is bounded term by term in absolute value; its signed size is below that bound by a factor of at least x^1131 (trace section 16). So the "+m" rests on `Eb` alone: one m used twice, since the starting signature is (k−1, m) and the chain walks the m side down to 0 (section 18).
+- **The 2/3.** Charging each lift for the whole chain below it gives x/m + m², minimised at x^(1/3) with value x^(2/3), exactly the outline's barrier. The code avoids it with `NData.locs_mem` and per-lift blocks (section 19).
+- **The common lattice.** `exists_divStage_of_pk` builds the shared lattice `RR` with `prescribedRowLat`, place by place from each place's own twist, and intersects them (section 17).
+- **The degree identity.** Four used statements, `NprimeMuR`, `LinkG_at`, `LinkDIV_at`, `Frame_at`: the finite places give the prime counts, the infinite places the Chowla–Selberg periods (section 20).
+- **The rest of the chain.** Local divisibility through a √p trick (`key_minor_dvd`), near-orthogonality of the words (`LinkS`), Fourier isolation with auxiliary characters chosen by a zero-density estimate, and the Ш window with its formal Ferrero–Washington (sections 21 to 25).
+
+The balance x/m + m was stated independently, from other sources, in Jonas Whidden's Zulip reading and in Bartosz Naskręcki's proof guide (section 12). What the trace adds is the exact location of each step in the code, the fact that the sizes are chosen rather than forced, where the m cost is charged, and why it stops at √X rather than 2/3.
 
 ## 11. What this does not show
 
 - Nothing here checks the logic of the proof. That is done by the independent kernels and by `lake comparator --paranoid`.
 - The trace explains where √X sits in the inequalities, not why the automorphic objects (theta lifts, Hida theory, slopes) satisfy them. `Eb` is now traced to its source (section 13), and it is connected to the "+m" side of the size balance: both balance terms sit in the error of the divisibility hypothesis `DIV`, whose m-term is the drift plus `Eb` (section 14). The other two charges of the same size (energy, slope) are slack in the family, the drift is an artefact of bounding term by term (section 16), so the "+m" rests on `Eb` alone, and every per-lift cost is at most one factor m, which is why the balance stops at √X and not at the 2/3 the outline says a naive count gives (section 15). Charging each lift for the whole chain below it reproduces that 2/3 exactly; the code avoids it by charging every piece to one lift, each lift on its own block (section 19). Claims in `mechanism/TRACE.md` are labelled Verified, Exact, Index or Reading.
 - Declaration-level numbers depend on tamnd's approximate index.
-- The `.olean` comparison is partial and has an open question (section 6).
+- The classical inputs (Ferrero–Washington, Poitou–Tate, CM theory) are proved in Lean; whether each formal statement is as strong as the published theorem is for specialists to judge.
 
 ## 12. Related work by others
 
@@ -128,6 +145,7 @@ The balance x/m + m was stated independently, from other sources, in Jonas Whidd
 - [Infatoshi/rh-verification-receipts](https://github.com/Infatoshi/rh-verification-receipts): an independent build and nanoda run.
 - [DevinWatson/rh-weil-bound-toy](https://github.com/DevinWatson/rh-weil-bound-toy): the note's toy finite-field argument.
 - [friederrr/riemann-review](https://github.com/friederrr/riemann-review): a pooled AI-written informal write-up.
+- Also used or checked against: the dead-code counts by Sonoda and by James Shore (256,620 of 1,061,531 declarations unused), patunz's report on path-dependent `.olean` hashes, the expositions by Yao Xu and jae-63, and JoseClaudioSJr's reader's map (community issue #5).
 
 ## 13. Reproduce
 
@@ -156,6 +174,12 @@ python3 more.py ~/rh/lean/src && python3 cyclo.py ~/rh/lean/src
 - `mechanism/TRACE.md`: the mechanism trace of section 10.
 - `analysis/dead_code/`: the exact dead-code count, to be run on the finished build.
 - `visuals/`: the two interactive pages and the script for their data.
+- `docs/`: the GitHub Pages site with the readable account, its figures and the PDF.
+- `writeup/`: the LaTeX source of the readable account.
+
+## License
+
+MIT, for everything in this repository. The Lean proof itself is Levent Alpöge's and is not covered by this licence.
 
 ## How this was made
 

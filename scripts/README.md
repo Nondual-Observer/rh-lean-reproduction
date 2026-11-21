@@ -20,14 +20,17 @@ Or run each step individually from Terminal in this folder with `bash <script>`:
 | 3 | `3_status.sh` | No: progress, ETA, swap/memory | instant |
 | 3 | `3_stop.sh` | No: stops safely; rerun step 3 to resume | instant |
 | 4 | `4_check.sh` | Yes (the check file) | a few minutes |
-| 5 | `5_replay.sh` | Yes (optional kernel re-check, background) | long; `FRESH=1` is longer |
+| 5 | `5_replay.sh` | Yes (optional kernel re-check, background) | about a minute (`Main` only); `FRESH=1` takes hours |
+| 7 | `7_compare.sh` | No: hashes every `.olean` against Sutherland's manifest | about 10 min |
+| 8 | `8_export_hash.sh` | Yes (`lean4export`, background) | hours |
+| 10 | `10_perturb.sh` | Yes: patches the size windows and rebuilds what depends on them | see `mechanism/PERTURB.md` |
 | 6 | `6_report.sh` | No: writes `~/rh/out/REPORT.md` | instant |
 
 Optional kernel replay after `run_all.sh` finishes (using the same `WORK` directory):
 
 ```bash
-bash 5_replay.sh          # check all compiled modules in parallel (background)
-FRESH=1 bash 5_replay.sh  # replay Main in a fresh environment (single-threaded)
+bash 5_replay.sh          # re-check Main only, imports trusted (fast, about a minute)
+FRESH=1 bash 5_replay.sh  # replay Main and everything it imports in a fresh environment (single-threaded, hours)
 ```
 
 Watch replay progress with `bash 3_status.sh`, stop with `bash 3_stop.sh`, and re-run `bash 6_report.sh` afterward to include `replay_result` in `REPORT.md`.

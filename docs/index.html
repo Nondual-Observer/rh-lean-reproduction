@@ -1,0 +1,2473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Lean proof of the Riemann Hypothesis, explained</title>
+<meta name="description" content="A human-readable account of Levent Alpöge's Lean proof of GRH for Dirichlet L-functions: where the square root is paid, why it does not stall at 2/3, and an independent clean build.">
+<script>
+window.MathJax = { tex: { inlineMath: [['\\(','\\)']], displayMath: [['\\[','\\]']] }, svg: { fontCache: 'global' } };
+</script>
+<script defer src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js"></script>
+<style>
+:root{--bg:#fbfaf7;--fg:#1d1d1f;--muted:#5f6368;--rule:#e3e0d8;--accent:#1f4e9c;--card:#ffffff;
+--exact:#1b5fa8;--verified:#1d7a46;--reading:#9a5b00;--ours:#9b1c6c;}
+@media (prefers-color-scheme: dark){:root{--bg:#141414;--fg:#e8e6e1;--muted:#a8a59d;--rule:#2d2c29;--accent:#8fb3ff;--card:#1e1e1e;
+--exact:#7fb2f0;--verified:#7fd1a0;--reading:#f0b45a;--ours:#f08cc8;}}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--fg);font:18px/1.62 "Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:2px}
+code{font:0.84em/1.4 ui-monospace,"SF Mono",Menlo,Consolas,monospace;background:color-mix(in srgb,var(--rule) 55%,transparent);padding:0.05em 0.3em;border-radius:4px;overflow-wrap:anywhere}
+.wrap{display:grid;grid-template-columns:260px minmax(0,760px);gap:56px;max-width:1120px;margin:0 auto;padding:0 28px}
+@media (max-width:1000px){.wrap{grid-template-columns:minmax(0,1fr)}#side{display:none}}
+#side{position:sticky;top:0;height:100vh;overflow:auto;padding:36px 0;font:14px/1.45 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
+#side ul{list-style:none;padding-left:0;margin:0}
+#side ul ul{padding-left:14px;margin:2px 0 6px}
+#side li{margin:3px 0}
+#side a{color:var(--muted);text-decoration:none}
+#side a:hover{color:var(--fg)}
+#side .toc-section-number{display:inline-block;min-width:2.2em;color:var(--muted)}
+main{padding:40px 0 120px}
+header.hero{border-bottom:1px solid var(--rule);padding-bottom:28px;margin-bottom:28px}
+.kicker{font:600 13px/1 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1.title{font-size:40px;line-height:1.15;margin:12px 0 10px;font-weight:600}
+.byline{color:var(--muted);font-size:16px}
+.links{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px;font:14px/1 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
+.links a{border:1px solid var(--rule);border-radius:999px;padding:8px 14px;text-decoration:none;background:var(--card)}
+.tldr{background:var(--card);border:1px solid var(--rule);border-left:4px solid var(--accent);border-radius:8px;padding:18px 22px;margin:26px 0}
+.tldr h2{margin:0 0 8px;font-size:18px;font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
+.tldr ul{margin:0;padding-left:20px}
+.status{width:100%;border-collapse:collapse;font:15px/1.4 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
+h1,h2,h3,h4{font-family:-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;line-height:1.25}
+main h1{font-size:28px;margin:56px 0 12px;padding-top:12px;border-top:1px solid var(--rule)}
+main h2{font-size:21px;margin:36px 0 8px}
+main h3{font-size:17px;margin:26px 0 6px}
+h4 .header-section-number,h5 .header-section-number{display:none}
+.header-section-number,.toc-section-number{color:var(--muted);margin-right:.35em}
+table{border-collapse:collapse;width:100%;margin:18px 0;font:15px/1.4 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif;display:block;overflow-x:auto}
+th,td{border-bottom:1px solid var(--rule);padding:7px 10px;text-align:left;vertical-align:top}
+th{font-weight:600;border-bottom:2px solid var(--fg)}
+figure{margin:30px 0;background:#fff;border:1px solid var(--rule);border-radius:10px;padding:18px 18px 12px}
+figure img{display:block;width:100%;height:auto;max-height:560px;object-fit:contain}
+figcaption{color:#3c3c3c;font:14.5px/1.5 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif;margin-top:12px}
+.theorem,.proposition,.lemma,.corollary,.definition,.remark,.question,.proof{margin:18px 0;padding:12px 18px;border-radius:8px;background:var(--card);border:1px solid var(--rule)}
+.theorem,.proposition,.lemma,.corollary{border-left:4px solid var(--accent)}
+.definition{border-left:4px solid var(--muted)}
+.proof{border-style:dashed}
+.tag{display:inline-block;font:600 11.5px/1 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif;letter-spacing:.03em;padding:3px 7px 3px;border-radius:4px;border:1px solid currentColor;vertical-align:2px;margin:0 2px}
+.tag.exact{color:var(--exact)}.tag.verified{color:var(--verified)}.tag.reading{color:var(--reading)}.tag.ours{color:var(--ours)}
+mjx-container[display="true"]{overflow-x:auto;overflow-y:hidden;padding:4px 0}
+.abstract{font-style:italic}
+footer{margin-top:64px;padding-top:18px;border-top:1px solid var(--rule);color:var(--muted);font:14px/1.5 -apple-system,"Segoe UI",Helvetica,Arial,sans-serif}
+</style>
+</head>
+<body>
+<div class="wrap">
+<aside id="side">
+<nav id="TOC" role="doc-toc">
+<ul>
+<li><a href="#introduction" id="toc-introduction"><span
+class="toc-section-number">1</span> Introduction</a>
+<ul>
+<li><a href="#what-is-proved" id="toc-what-is-proved"><span
+class="toc-section-number">1.1</span> What is proved</a></li>
+<li><a href="#what-this-document-is-and-is-not"
+id="toc-what-this-document-is-and-is-not"><span
+class="toc-section-number">1.2</span> What this document is, and is
+not</a></li>
+<li><a href="#the-idea-in-one-paragraph"
+id="toc-the-idea-in-one-paragraph"><span
+class="toc-section-number">1.3</span> The idea in one paragraph</a></li>
+<li><a href="#structure-of-the-proof"
+id="toc-structure-of-the-proof"><span
+class="toc-section-number">1.4</span> Structure of the proof</a></li>
+</ul></li>
+<li><a href="#sec:notation" id="toc-sec:notation"><span
+class="toc-section-number">2</span> Notation and parameters</a></li>
+<li><a href="#sec:A" id="toc-sec:A"><span
+class="toc-section-number">3</span> Step A: from a bound on windows to
+the absence of zeros</a>
+<ul>
+<li><a href="#the-quantity-bounded" id="toc-the-quantity-bounded"><span
+class="toc-section-number">3.1</span> The quantity bounded</a></li>
+<li><a href="#the-windowed-landau-theorem"
+id="toc-the-windowed-landau-theorem"><span
+class="toc-section-number">3.2</span> The windowed Landau
+theorem</a></li>
+<li><a href="#the-square-root-bound-and-the-assembly"
+id="toc-the-square-root-bound-and-the-assembly"><span
+class="toc-section-number">3.3</span> The square-root bound and the
+assembly</a></li>
+</ul></li>
+<li><a href="#sec:B" id="toc-sec:B"><span
+class="toc-section-number">4</span> Step B: isolating the target
+character</a>
+<ul>
+<li><a href="#the-group-and-its-characters"
+id="toc-the-group-and-its-characters"><span
+class="toc-section-number">4.1</span> The group and its
+characters</a></li>
+<li><a href="#an-exact-identity" id="toc-an-exact-identity"><span
+class="toc-section-number">4.2</span> An exact identity</a></li>
+<li><a href="#the-growth-inequality"
+id="toc-the-growth-inequality"><span
+class="toc-section-number">4.3</span> The growth inequality</a></li>
+<li><a href="#the-auxiliary-characters-are-chosen-not-controlled"
+id="toc-the-auxiliary-characters-are-chosen-not-controlled"><span
+class="toc-section-number">4.4</span> The auxiliary characters are
+chosen, not controlled</a></li>
+<li><a href="#the-thick-set" id="toc-the-thick-set"><span
+class="toc-section-number">4.5</span> The thick set</a></li>
+</ul></li>
+<li><a href="#sec:C" id="toc-sec:C"><span
+class="toc-section-number">5</span> Step C: the size bound, where <span
+class="math inline">\(\sqrt{x}\)</span> is paid</a>
+<ul>
+<li><a href="#the-balance" id="toc-the-balance"><span
+class="toc-section-number">5.1</span> The balance</a></li>
+<li><a href="#sec:windows" id="toc-sec:windows"><span
+class="toc-section-number">5.2</span> The windows are chosen, not
+forced</a></li>
+</ul></li>
+<li><a href="#sec:D" id="toc-sec:D"><span
+class="toc-section-number">6</span> Step D: the divisibility layer</a>
+<ul>
+<li><a href="#the-abstract-data-and-the-pointwise-bound"
+id="toc-the-abstract-data-and-the-pointwise-bound"><span
+class="toc-section-number">6.1</span> The abstract data and the
+pointwise bound</a></li>
+<li><a href="#the-slope-layer-and-the-cancellation-of-the-main-terms"
+id="toc-the-slope-layer-and-the-cancellation-of-the-main-terms"><span
+class="toc-section-number">6.2</span> The slope layer and the
+cancellation of the main terms</a></li>
+<li><a href="#the-local-energy-and-why-its-budget-is-slack"
+id="toc-the-local-energy-and-why-its-budget-is-slack"><span
+class="toc-section-number">6.3</span> The local energy and why its
+budget is slack</a></li>
+<li><a href="#the-divisibility-inequality"
+id="toc-the-divisibility-inequality"><span
+class="toc-section-number">6.4</span> The divisibility
+inequality</a></li>
+<li><a href="#the-signature-drift-is-an-artefact"
+id="toc-the-signature-drift-is-an-artefact"><span
+class="toc-section-number">6.5</span> The signature drift is an
+artefact</a></li>
+<li><a href="#the-rank-bound-e_b-where-the-m2-really-lives"
+id="toc-the-rank-bound-e_b-where-the-m2-really-lives"><span
+class="toc-section-number">6.6</span> The rank bound <span
+class="math inline">\(E_b\)</span>: where the <span
+class="math inline">\(m^2\)</span> really lives</a></li>
+<li><a href="#the-m-side-of-the-balance-is-the-divisibility-error"
+id="toc-the-m-side-of-the-balance-is-the-divisibility-error"><span
+class="toc-section-number">6.7</span> The <span
+class="math inline">\(+m\)</span> side of the balance is the
+divisibility error</a></li>
+<li><a href="#sec:RR" id="toc-sec:RR"><span
+class="toc-section-number">6.8</span> The common lattice</a></li>
+<li><a
+href="#the-degree-identity-how-a-slope-becomes-mathrmask-mathrmmain"
+id="toc-the-degree-identity-how-a-slope-becomes-mathrmask-mathrmmain"><span
+class="toc-section-number">6.9</span> The degree identity: how a slope
+becomes <span
+class="math inline">\(\mathrm{ASK}-\mathrm{MAIN}\)</span></a></li>
+<li><a href="#local-divisibility-the-sqrt-p-trick"
+id="toc-local-divisibility-the-sqrt-p-trick"><span
+class="toc-section-number">6.10</span> Local divisibility: the <span
+class="math inline">\(\sqrt p\)</span> trick</a></li>
+</ul></li>
+<li><a href="#sec:E" id="toc-sec:E"><span
+class="toc-section-number">7</span> Step E: near-orthogonality of the
+words</a></li>
+<li><a href="#sec:F" id="toc-sec:F"><span
+class="toc-section-number">8</span> Step F: the <span
+class="math inline">\(\text{Ш}\)</span> window and the classical
+inputs</a></li>
+<li><a href="#sec:23" id="toc-sec:23"><span
+class="toc-section-number">9</span> Why the <span
+class="math inline">\(2/3\)</span> barrier does not appear</a>
+<ul>
+<li><a href="#what-the-code-charges"
+id="toc-what-the-code-charges"><span
+class="toc-section-number">9.1</span> What the code charges</a></li>
+<li><a href="#accounting-1-compounding-gives-exactly-23"
+id="toc-accounting-1-compounding-gives-exactly-23"><span
+class="toc-section-number">9.2</span> Accounting 1: compounding gives
+exactly <span class="math inline">\(2/3\)</span></a></li>
+<li><a href="#accounting-2-no-gcd-does-not-give-23"
+id="toc-accounting-2-no-gcd-does-not-give-23"><span
+class="toc-section-number">9.3</span> Accounting 2: no gcd does not give
+<span class="math inline">\(2/3\)</span></a></li>
+<li><a href="#sec:no23" id="toc-sec:no23"><span
+class="toc-section-number">9.4</span> No <span
+class="math inline">\(2/3\)</span> route in the archive</a></li>
+<li><a href="#a-planned-test" id="toc-a-planned-test"><span
+class="toc-section-number">9.5</span> A planned test</a></li>
+</ul></li>
+<li><a href="#sec:verify" id="toc-sec:verify"><span
+class="toc-section-number">10</span> The verification record</a></li>
+<li><a href="#sec:open" id="toc-sec:open"><span
+class="toc-section-number">11</span> Open questions, and what we could
+settle</a></li>
+<li><a href="#acknowledgements"
+id="toc-acknowledgements">Acknowledgements</a></li>
+<li><a href="#map-from-steps-to-lean-declarations"
+id="toc-map-from-steps-to-lean-declarations"><span
+class="toc-section-number">12</span> Map from steps to Lean
+declarations</a></li>
+</ul>
+</nav></aside>
+<main>
+<header class="hero">
+<div class="kicker">Reading the formal proof</div>
+<h1 class="title">The Riemann Hypothesis via a chain of theta lifts: a human-readable account of the Lean proof</h1>
+<div class="byline">Ishaan Dixit · November 2026</div>
+<div class="links">
+<a href="rh_lean_proof_readable.pdf">PDF version</a>
+<a href="https://github.com/ishaan2006/rh-lean-reproduction">Repository</a>
+<a href="https://github.com/ishaan2006/rh-lean-reproduction/blob/main/mechanism/TRACE.md">Line-by-line trace</a>
+<a href="https://github.com/ishaan2006/rh-lean-reproduction/tree/main/scripts">Build scripts</a>
+</div>
+</header>
+
+<section class="tldr">
+<h2>In short</h2>
+<ul>
+<li>The Lean theorem proves GRH for every Dirichlet character; RH is the trivial-character case. Our independent build is clean: 175,187 modules, Mathlib's own statement, only the three standard axioms.</li>
+<li>The whole square-root saving is one balance: relative to the main term the error is about <em>x/m + m</em> for a chain of <em>m</em> theta lifts, smallest at <em>m ≈ √x</em>.</li>
+<li>Both sides of that balance are paid by one inequality, the divisibility bound. Of the charges of the same nominal size, the energy and slope budgets are slack, and the "signature drift" is an artefact smaller than its bound by a factor of <em>x</em><sup>1131</sup>.</li>
+<li>The real cost is one <em>m</em> used twice: <em>m</em> lifts, each charged a Bloch–Kato rank of <em>m</em>. Charging each lift for the whole chain below it would give <em>x/m + m²</em> and stop at <em>x</em><sup>2/3</sup>, the barrier in the author's outline; the code avoids it by charging every local piece to exactly one lift.</li>
+<li>The last step is a windowed Landau theorem: a one-sided bound on windows [<em>Y</em>, <em>Y</em>²] rules out zeros. The Tate–Shafarevich step rests on formal proofs of Ferrero–Washington, Poitou–Tate and CM theory, all proved in Lean.</li>
+</ul>
+</section>
+
+<p><b>How to read the labels.</b> <span class="tag exact">Exact</span> checked against the list of declarations the final theorem uses. <span class="tag verified">Verified</span> read directly in the source. <span class="tag reading">Reading</span> our interpretation; a specialist should confirm it. <span class="tag ours">Ours</span> a finding from this trace that we had not seen posted elsewhere as of 20 November 2026.</p>
+
+
+<h1 data-number="1" id="introduction"><span
+class="header-section-number">1</span> Introduction</h1>
+<h2 data-number="1.1" id="what-is-proved"><span
+class="header-section-number">1.1</span> What is proved</h2>
+<div id="thm:main" class="theorem">
+<p><strong>Theorem 1</strong> (Main theorem,
+<code>UpperTheory.EveryCharacter</code>). <em>For every modulus <span
+class="math inline">\(N\ge 1\)</span>, every Dirichlet character <span
+class="math inline">\(\chi \bmod N\)</span> and every <span
+class="math inline">\(s\in\mathbb{C}\)</span> with <span
+class="math inline">\(\operatorname{Re}s &gt; 1/2\)</span>, if <span
+class="math inline">\(\chi\neq 1\)</span> or <span
+class="math inline">\(s\neq 1\)</span> then <span
+class="math inline">\(L(s,\chi)\neq 0\)</span>.</em></p>
+</div>
+<p>The Riemann Hypothesis is the trivial-character case. In the Lean
+source: <span class="math display">\[\begin{gathered}
+\texttt{riemannHypothesis} := \texttt{rhOfAll},\qquad
+\texttt{rhOfAll} := \texttt{rh}\_\texttt{of}\_\texttt{every allChi},\\
+\texttt{allChi} := \texttt{FinalTheorems.everyCharacter}.
+\end{gathered}\]</span> <span class="tag exact">Exact</span> (files <code>Main.lean</code>,
+<code>MainTheorems.lean</code> and
+<code>MainConclusion.lean</code>).</p>
+<h2 data-number="1.2" id="what-this-document-is-and-is-not"><span
+class="header-section-number">1.2</span> What this document is, and is
+not</h2>
+<p>This is an account of the <em>formal</em> proof. Every statement
+below is either a paraphrase of a Lean statement, a summary of a Lean
+proof, or our interpretation, and we say which. It is not an independent
+proof: we have not re-derived the classical inputs (Ferrero–Washington,
+Poitou–Tate duality, CM theory and others), which are proved inside the
+development and checked by the Lean kernel, and some proofs are
+summarised rather than reproduced line by line. Where we have not traced
+something, we say so (Section <a href="#sec:open"
+data-reference-type="ref" data-reference="sec:open">11</a>).</p>
+<h4 data-number="1.2.0.1" id="evidence-labels."><span
+class="header-section-number">1.2.0.1</span> Evidence labels.</h4>
+<ul>
+<li><p><span class="tag exact">Exact</span>: checked against the list of declarations the final
+theorem uses (<code>used_decls.txt</code>, extracted from the published
+kernel export: 1<span>,</span>468<span>,</span>419 declarations plus
+16<span>,</span>314 constructors and recursors).</p></li>
+<li><p><span class="tag verified">Verified</span>: read directly in the source (archive sha256
+<code>9631b4f0…c7fc</code>).</p></li>
+<li><p><span class="tag reading">Reading</span>: interpretation; a specialist should confirm
+it.</p></li>
+<li><p><span class="tag ours">Ours</span>: a finding from our trace that we have not seen posted
+elsewhere as of 20 November 2026.</p></li>
+</ul>
+<h2 data-number="1.3" id="the-idea-in-one-paragraph"><span
+class="header-section-number">1.3</span> The idea in one paragraph</h2>
+<p>Fix a character <span class="math inline">\(\chi\)</span> and a large
+<span class="math inline">\(x\)</span>. The proof attaches to <span
+class="math inline">\(\chi\)</span>, and to two auxiliary primes <span
+class="math inline">\(q\equiv 3 \pmod 8\)</span>, <span
+class="math inline">\(d\equiv 7\pmod{16}\)</span>, a family of
+arithmetic objects: Hermitian lattices indexed by <em>words</em> <span
+class="math inline">\(u\)</span>, carried along a chain of <span
+class="math inline">\(m\)</span> theta lifts between unitary groups
+whose signature moves from <span class="math inline">\((k-1,m)\)</span>
+to <span class="math inline">\((k+m-1,0)\)</span>, one step per lift.
+One quantity, <span class="math inline">\(\mathrm{ASK}\)</span>, is
+computed twice. At the finite places it is a sum over primes of
+Legendre-type counts weighted by <span
+class="math inline">\(\chi\)</span>; at the infinite places it is
+controlled by Chowla–Selberg periods, giving a main term <span
+class="math inline">\(\mathrm{MAIN}\)</span>. A slope inequality for one
+common lattice joins the two and yields <span
+class="math inline">\(\mathrm{ASK}\le \mathrm{MAIN}+
+\mathrm{Err}\)</span>, with <span
+class="math inline">\(\mathrm{Err}/(\text{main}) \approx x/m +
+m\)</span>. With <span class="math inline">\(m\approx\sqrt{x}\)</span>
+this gives a bound of size <span
+class="math inline">\(x^{1/2+O(\varepsilon)}\)</span> for a weighted
+prime sum. Fourier analysis on a small group isolates the prime sum of
+<span class="math inline">\(\chi\)</span>, and a windowed Landau theorem
+converts the one-sided bound into zero-freeness.</p>
+<p>The author’s outline describes the chain of lifts as playing the role
+of multiplicity in Stepanov’s method, and says that charging the lifts
+one by one would stop at exponent <span
+class="math inline">\(2/3\)</span>. Section <a href="#sec:23"
+data-reference-type="ref" data-reference="sec:23">9</a> reconstructs
+that <span class="math inline">\(2/3\)</span> from the code’s own
+quantities and shows how the code avoids it.</p>
+<h2 data-number="1.4" id="structure-of-the-proof"><span
+class="header-section-number">1.4</span> Structure of the proof</h2>
+<figure id="fig-steps"><img src="fig/steps.svg" alt="Figure 1" loading="lazy"><figcaption><b>Figure 1.</b> The six steps. The square root is paid once, in the balance of step
+C, by the divisibility error of step D. Steps E and F have room to
+spare.</figcaption></figure>
+<ol>
+<li><p><strong>Windowed Landau</strong> (Section <a href="#sec:A"
+data-reference-type="ref" data-reference="sec:A">3</a>). A one-sided
+bound on windows <span class="math inline">\([Y,Y^{1+\delta}]\)</span>
+rules out zeros.</p></li>
+<li><p><strong>Fourier isolation</strong> (Section <a href="#sec:B"
+data-reference-type="ref" data-reference="sec:B">4</a>). Averaging over
+a thick set isolates the prime sum of the target character; the
+auxiliary characters are made harmless by choosing <span
+class="math inline">\(q,d\)</span> with a zero-density
+estimate.</p></li>
+<li><p><strong>The size bound</strong> (Section <a href="#sec:C"
+data-reference-type="ref" data-reference="sec:C">5</a>). The error
+relative to the main term is about <span
+class="math inline">\(x/m+m\)</span>.</p></li>
+<li><p><strong>The divisibility layer</strong> (Section <a href="#sec:D"
+data-reference-type="ref" data-reference="sec:D">6</a>). The degree
+identity, the common lattice, the rank bound and local
+divisibility.</p></li>
+<li><p><strong>Near-orthogonality</strong> (Section <a href="#sec:E"
+data-reference-type="ref" data-reference="sec:E">7</a>). The words are
+orthogonal up to <span
+class="math inline">\(\exp(-x^{\varepsilon/8})\)</span>.</p></li>
+<li><p><strong>The <span class="math inline">\(\text{Ш}\)</span>
+window</strong> (Section <a href="#sec:F" data-reference-type="ref"
+data-reference="sec:F">8</a>). Tate–Shafarevich losses over cyclotomic
+layers of degree about <span class="math inline">\(x^2\)</span>, resting
+on formal Iwasawa theory.</p></li>
+</ol>
+<h1 data-number="2" id="sec:notation"><span
+class="header-section-number">2</span> Notation and parameters</h1>
+<p>Throughout, <span
+class="math inline">\(\varepsilon\in(0,1/52)\)</span> is fixed and <span
+class="math inline">\(x\)</span> is large.</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Symbol</th>
+<th style="text-align: left;">Value or window</th>
+<th style="text-align: left;">Meaning</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span
+class="math inline">\(b\)</span></td>
+<td style="text-align: left;"><span
+class="math inline">\(\exp(x^{\varepsilon})\)</span></td>
+<td style="text-align: left;">common weight; every polynomial loss is
+negligible against it</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span
+class="math inline">\(a\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(x\cdot
+b\)</span></td>
+<td style="text-align: left;">top weights (<code>Scale.a</code>)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span
+class="math inline">\(\delta_1\)</span></td>
+<td style="text-align: left;"><span
+class="math inline">\(x^{-\varepsilon/8}\)</span></td>
+<td style="text-align: left;"></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span
+class="math inline">\(m\)</span></td>
+<td style="text-align: left;"><span
+class="math inline">\(\sqrt{x\delta_1}\le m\le
+2\sqrt{x\delta_1}\)</span>, even</td>
+<td style="text-align: left;">number of lifts; <span
+class="math inline">\(m\approx x^{1/2-\varepsilon/16}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span
+class="math inline">\(n=|H|\)</span></td>
+<td style="text-align: left;"><span
+class="math inline">\(x^{2+8\varepsilon}\le n\le
+2x^{2+8\varepsilon}\)</span></td>
+<td style="text-align: left;">order of the character group of the
+host</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span
+class="math inline">\(f\)</span></td>
+<td style="text-align: left;"><span
+class="math inline">\(2n\)</span></td>
+<td style="text-align: left;">number of archimedean places (CM
+degree)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span
+class="math inline">\(k\)</span></td>
+<td style="text-align: left;"><span
+class="math inline">\(x^{9/2+10\varepsilon}\le k\le
+2x^{9/2+10\varepsilon}\)</span>, even</td>
+<td style="text-align: left;">second size parameter; word length</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span
+class="math inline">\(t\)</span></td>
+<td style="text-align: left;">odd, <span
+class="math inline">\(3m&lt;t\)</span>, <span class="math inline">\(t\ge
+x^{377}\)</span></td>
+<td style="text-align: left;">size of the cyclotomic twist block</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span
+class="math inline">\(r\)</span></td>
+<td style="text-align: left;"><span
+class="math inline">\(k+m-1\)</span></td>
+<td style="text-align: left;">starting rank</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span
+class="math inline">\(B_0\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(f\cdot m\cdot
+b\cdot x^{\varepsilon}\)</span></td>
+<td style="text-align: left;">per-lift budget
+(<code>sizeBudget</code>)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(n_T,\
+n_{T2}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(n_T\ge
+x^{-\varepsilon/8}n/2\)</span>, <span class="math inline">\(n_{T2}/n\ge
+x^{-\varepsilon}\)</span></td>
+<td style="text-align: left;">numbers of top and thick points</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span
+class="math inline">\(\eta=\eta_{Sz}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\le b/(t^3 f
+k^3)\)</span></td>
+<td style="text-align: left;">spread of the weights across lifts</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><span class="tag exact">Exact</span> The windows for <span
+class="math inline">\(m,n,k\)</span> are the literal content of
+<code>RankVal</code>
+(<code>.../GlobalTwisting/PairRowIffQdRows.lean:28</code>); <span
+class="math inline">\(m\)</span> and <span
+class="math inline">\(k\)</span> are picked as even numbers in their
+windows by <code>exists_ranks_rankVal_frame</code>. <span
+class="math inline">\(B_0\)</span> is a definition, not an estimate:
+<code>SizeData_2.B0 := sizeBudget D.R x eps</code>, and the hypothesis
+<code>BNBounds</code> is proved by equality (<span
+class="math inline">\(B_0 = 2|H|\cdot m\cdot b\cdot
+x^\varepsilon\)</span>).</p>
+<figure id="fig-ladder"><img src="fig/ladder.svg" alt="Figure 2" loading="lazy"><figcaption><b>Figure 2.</b> The sizes of the family as powers of <span
+class="math inline">\(x\)</span> (up to <span
+class="math inline">\(x^{O(\varepsilon)}\)</span>). Only <span
+class="math inline">\(m\approx\sqrt x\)</span> is chosen; the exponents
+<span class="math inline">\(2\)</span> and <span
+class="math inline">\(9/2\)</span> of <span
+class="math inline">\(n\)</span> and <span
+class="math inline">\(k\)</span> follow from it (the text). The weight
+<span class="math inline">\(b=\exp(x^\varepsilon)\)</span> is larger
+than every power of <span class="math inline">\(x\)</span>, so every
+polynomial loss is negligible against it.</figcaption></figure>
+<h4 data-number="2.0.0.1" id="ranks-and-signatures."><span
+class="header-section-number">2.0.0.1</span> Ranks and signatures.</h4>
+<p><span class="tag verified">Verified</span>
+(<code>Formalism/LocalRingCardinality/Params.lean</code>) <span
+class="math display">\[N(j) = k + j(t+1),\qquad \operatorname{rankY}(j)
+= r + jt,\qquad
+\operatorname{sig}(j) = (k+j-1,\ m-j),\qquad j=0,\dots,m.\]</span> So
+the chain starts at signature <span
+class="math inline">\((k-1,m)\)</span> and ends at the definite
+signature <span class="math inline">\((k+m-1,0)\)</span>; each lift
+moves one unit across and adds <span class="math inline">\(t+1\)</span>
+rows.</p>
+<figure id="fig-chain"><img src="fig/chain.svg" alt="Figure 3" loading="lazy"><figcaption><b>Figure 3.</b> The chain of theta lifts. Each lift moves the signature one step
+towards the definite group and adjoins one block of <span
+class="math inline">\(t+1\)</span> rows. The indefinite part <span
+class="math inline">\(m\)</span> of the start is both the number of
+lifts and, in the text, the Bloch–Kato rank of every piece.</figcaption></figure>
+<h1 data-number="3" id="sec:A"><span
+class="header-section-number">3</span> Step A: from a bound on windows
+to the absence of zeros</h1>
+<h2 data-number="3.1" id="the-quantity-bounded"><span
+class="header-section-number">3.1</span> The quantity bounded</h2>
+<div class="definition">
+<p><strong>Definition 2</strong> (<code>Deduction.Gchi</code>,
+<code>Formalism.Gz</code>). For <span class="math inline">\(y\ge
+1\)</span> let <span
+class="math inline">\(\operatorname{ramp}_\chi(y)=\sum_{n\le
+y}\Lambda(n)\chi(n)\,(y/n-1)\)</span>. Put <span
+class="math display">\[G_\chi(y) =
+\begin{cases}
+\operatorname{ramp}_\chi(y) - y\log y + (1+\gamma)y, &amp; \chi =
+1,\\[2pt]
+\operatorname{ramp}_\chi(y) + y\,\dfrac{L&#39;(1,\chi)}{L(1,\chi)},
+&amp; \chi\neq 1.
+\end{cases}\]</span> For <span class="math inline">\(\chi=1\)</span>
+this is <span class="math inline">\(G_\zeta(x) = \sum_{n\le
+x}\Lambda(n)(x/n-1) - x\log x + (1+\gamma)x\)</span>
+(<code>Formalism/StatementOC.lean:13</code>).</p>
+</div>
+<p><span class="math inline">\(\operatorname{ramp}_\chi(y) = \int_1^y
+\psi(t,\chi)\,dt/t\)</span> is the logarithmic Riesz mean of the
+Chebyshev function, and <span class="math inline">\(G_\chi\)</span> is
+its remainder after the main term. RH is equivalent to <span
+class="math inline">\(G_\zeta(x) = O(x^{1/2+\varepsilon})\)</span>.</p>
+<div class="remark">
+<p><strong>Remark 3</strong> (<span class="tag verified">Verified</span>). In one place in the
+development the von Mangoldt function appears under the name
+<code>abelian_2</code>, defined as
+<code>ArithmeticFunction.vonMangoldt</code>. Searches for the usual
+names miss it; Step 5 of the author’s timeline (“definitively switch to
+<span class="math inline">\(\Lambda\)</span>”) is exactly the expression
+<span class="math inline">\(G_\zeta\)</span> above.</p>
+</div>
+<h2 data-number="3.2" id="the-windowed-landau-theorem"><span
+class="header-section-number">3.2</span> The windowed Landau
+theorem</h2>
+<div class="definition">
+<p><strong>Definition 4</strong> (<code>CharFamily</code>). A character
+family is a finite set of Dirichlet characters <span
+class="math inline">\(\chi_i \bmod N_i\)</span> with weights <span
+class="math inline">\(a_i&gt;0\)</span>, the trivial character occurring
+only with modulus <span class="math inline">\(1\)</span>. Put <span
+class="math inline">\(G_m(y) = \sum_i a_i
+\operatorname{Re}G_{\chi_i}(y)\)</span>.</p>
+</div>
+<div id="thm:landau" class="theorem">
+<p><strong>Theorem 5</strong> (Windowed Landau,
+<code>zeroFree_of_rpow_window</code>, <span class="tag exact">Exact</span>). <em>Let <span
+class="math inline">\(0&lt;\theta&lt;1\)</span>, <span
+class="math inline">\(\delta&gt;0\)</span>, <span
+class="math inline">\(C\)</span> real. Suppose that for every <span
+class="math inline">\(Y_0\)</span> there is <span
+class="math inline">\(Y\ge Y_0\)</span> with <span
+class="math display">\[G_m(y)\le C\,y^{\theta}\qquad\text{for all }
+y\in[Y,\,Y^{1+\delta}].\]</span> Then <span
+class="math inline">\(L(s,\chi_i)\neq 0\)</span> for every <span
+class="math inline">\(i\)</span> and every <span
+class="math inline">\(\operatorname{Re}s&gt;\theta\)</span>.</em></p>
+</div>
+<div class="proof">
+<p><em>Proof sketch (from the Lean proof).</em> The proof goes through
+<code>lemmaL</code> and <code>landau_window</code>.
+<code>poleData</code> builds a function <span
+class="math inline">\(\Phi\)</span> (the Mellin transform of <span
+class="math inline">\(G_m\)</span>, assembled from the characters and
+their inverses) whose poles in <span
+class="math inline">\(\operatorname{Re}s&gt;0\)</span> are exactly the
+zeros of the <span class="math inline">\(L(s,\chi_i)\)</span> and of
+their conjugates, and shows the zeros are isolated and have real part at
+most <span class="math inline">\(2\)</span>
+(<code>landau_pole_re_le</code>). Suppose a zero <span
+class="math inline">\(\rho_0\)</span> has <span
+class="math inline">\(\operatorname{Re}\rho_0&gt;\theta\)</span>.
+<code>landau_window_key</code> produces, from the window hypothesis (in
+the integrated form <code>WindowHypU</code>), a real <span
+class="math inline">\(\sigma\)</span> and a growth bound for the Mellin
+integral restricted to windows. <code>landau_dichotomy</code> then
+splits into two cases: either there is a zero-free disc around a real
+point with a zero on its boundary, or there is an isolated real zero
+<span class="math inline">\(\beta\)</span> in the region;
+<code>landau_nearest</code> picks the nearest pole. In both cases the
+window bound contradicts the growth forced by the pole
+(<code>landau_growth_contra</code>,
+<code>landau_window_contra</code>). ◻</p>
+</div>
+<figure id="fig-windows"><img src="fig/windows.svg" alt="Figure 4" loading="lazy"><figcaption><b>Figure 4.</b> The hypothesis of the windowed Landau theorem (on a <span
+class="math inline">\(\log\log\)</span> scale each window <span
+class="math inline">\([Y,Y^2]\)</span> has the same length <span
+class="math inline">\(\log 2\)</span>). A sequence of windows reaching
+to infinity is enough to rule out zeros with <span
+class="math inline">\(\operatorname{Re}s&gt;\theta\)</span>.</figcaption></figure>
+<div class="remark">
+<p><strong>Remark 6</strong> (Why one sign is enough, <span class="tag reading">Reading</span>
+checked by arithmetic). In the levels actually used,
+<code>Level.cyc psi</code> is the cyclic group generated by a primitive
+<span class="math inline">\(\psi\)</span>, each of its <span
+class="math inline">\(o-1\)</span> nontrivial members weighted <span
+class="math inline">\(1/(3o+1)\)</span>. Every Dirichlet coefficient of
+the combined series is then at least <span
+class="math inline">\(\Lambda(n)\bigl(1-\tfrac{o-1}{3o+1}\bigr)&gt;0\)</span>.
+Positive coefficients are exactly what Landau’s argument needs, so an
+upper bound on <span class="math inline">\(G_m\)</span> alone forces
+zero-freeness. The classical theorem needs the bound for all large <span
+class="math inline">\(y\)</span>; here a sequence of windows reaching to
+infinity suffices.</p>
+</div>
+<div class="remark">
+<p><strong>Remark 7</strong> (<span class="tag verified">Verified</span>). A different Landau
+theorem, <code>zero_free_of_Chebyshev_growth</code> in the namespace
+<code>Formalism.HC.Landau</code>, is proved in the archive but not
+used.</p>
+</div>
+<h2 data-number="3.3" id="the-square-root-bound-and-the-assembly"><span
+class="header-section-number">3.3</span> The square-root bound and the
+assembly</h2>
+<div id="thm:coregm" class="theorem">
+<p><strong>Theorem 8</strong>
+(<code>UpperTheory.Comparison_2.core_gm</code>, <span class="tag exact">Exact</span>). <em>For
+every level <span class="math inline">\(\Lambda\)</span> and <span
+class="math inline">\(\varepsilon&gt;0\)</span> there is <span
+class="math inline">\(x_1\)</span> such that for all <span
+class="math inline">\(x\ge x_1\)</span>, every frame and host satisfying
+the hypotheses <code>EAtH</code> and <code>CoreAtH</code>, <span
+class="math display">\[\Lambda.G_m(x)\le
+x^{1/2+(e_D+e_L+7)\varepsilon}.\]</span></em></p>
+</div>
+<p><code>CoreAtH</code> packages the data record of Section <a
+href="#sec:D" data-reference-type="ref" data-reference="sec:D">6</a>
+together with the size windows, in particular <code>RestSize</code>:
+<span class="math inline">\(x^{1/2-\varepsilon}\le m\)</span> and <span
+class="math inline">\(k\le n^2x^{1/2-\varepsilon}\)</span>. The chain
+from Theorem <a href="#thm:coregm" data-reference-type="ref"
+data-reference="thm:coregm">8</a> to Theorem <a href="#thm:main"
+data-reference-type="ref" data-reference="thm:main">1</a> is
+(<span class="tag verified">Verified</span>): <code>formB</code> <span
+class="math inline">\(\to\)</span> <code>zeroFree_of_rpow_window</code>
+<span class="math inline">\(\to\)</span> <code>level_of_tiedWin</code>,
+<code>zeroFreeOn_of_tiedWin_cyc</code> <span
+class="math inline">\(\to\)</span> <code>zeroFreeAll_of_topG</code>
+<span class="math inline">\(\to\)</span> <code>imprimitive</code> <span
+class="math inline">\(\to\)</span> <code>EveryCharacter</code>.</p>
+<div class="corollary">
+<p><strong>Corollary 9</strong>. <em>Every later step only has to hold
+for <span class="math inline">\(x\)</span> in windows <span
+class="math inline">\([Y,Y^2]\)</span> with <span
+class="math inline">\(Y\ge X^{1/J}\)</span>, which is exactly how the
+<span class="math inline">\(\text{Ш}\)</span> window of Section <a
+href="#sec:F" data-reference-type="ref" data-reference="sec:F">8</a> is
+stated (<span class="math inline">\(\delta=1\)</span>).</em></p>
+</div>
+<h1 data-number="4" id="sec:B"><span
+class="header-section-number">4</span> Step B: isolating the target
+character</h1>
+<h2 data-number="4.1" id="the-group-and-its-characters"><span
+class="header-section-number">4.1</span> The group and its
+characters</h2>
+<p>The host comes with a finite abelian group <span
+class="math inline">\(H\)</span> and a group <span
+class="math inline">\(E_0\)</span> with four characters <span
+class="math inline">\(0,\psi,\chi,\chi\psi\)</span> (<code>psC</code>,
+<code>chC</code>, <code>chpsC</code>). <span class="tag exact">Exact</span>
+(<code>CharacterSignsAtBaseClass</code>) At the base class <span
+class="math inline">\(g_0\)</span>: <span
+class="math display">\[\chi(g_0)=-1,\qquad \psi(g_0)=+1,\qquad
+\chi\psi(g_0)=-1.\]</span> Define <span
+class="math display">\[G_{\mathrm{sig}}= G_0 + G_\psi - G_\chi -
+G_{\chi\psi}.\]</span> This is the Fourier projection onto the class of
+<span class="math inline">\(g_0\)</span>; its trivial part <span
+class="math inline">\(G_0\)</span> carries the prime sum of the
+target.</p>
+<figure id="fig-signs"><img src="fig/signs.svg" alt="Figure 5" loading="lazy"><figcaption><b>Figure 5.</b> Fourier isolation on <span class="math inline">\(E_0\)</span>. The
+signs of <span class="math inline">\(G_{\mathrm{sig}}\)</span> are the
+conjugate character values at the base class, so averaging keeps exactly
+the class of <span class="math inline">\(g_0\)</span>. The three
+nontrivial terms are bounded by <span
+class="math inline">\(x^{1/2+\varepsilon}\)</span> each, because the
+auxiliary primes were chosen to make them so.</figcaption></figure>
+<h2 data-number="4.2" id="an-exact-identity"><span
+class="header-section-number">4.2</span> An exact identity</h2>
+<div id="prop:chbalance" class="proposition">
+<p><strong>Proposition 10</strong> (<code>Deduction.ch_balance</code>,
+<span class="tag exact">Exact</span>). <em>For every <span class="math inline">\(a&gt;0\)</span>,
+<span class="math inline">\(t\in H\)</span>, weights <span
+class="math inline">\(w&gt;0\)</span> on the admissible set and <span
+class="math inline">\(N\)</span> large enough, <span
+class="math display">\[\mathrm{ASK}(D,N,a,t,w) - \mathrm{MAIN}(\ell,a,w)
+= \operatorname{De}(D,\ell,a,t,w),\]</span> where <span
+class="math inline">\(\operatorname{De}\)</span> is an explicit
+combination of the <span class="math inline">\(G_\psi\)</span> evaluated
+at <span class="math inline">\(a/w\)</span>.</em></p>
+</div>
+<p>This is an identity, not an inequality: it expands the counted
+quantity <span class="math inline">\(\mathrm{ASK}\)</span> over all
+characters of <span class="math inline">\(E_0\times H\)</span>
+(<code>askExp</code>). Averaging over the thick set collapses the
+character sum.</p>
+<div class="proposition">
+<p><strong>Proposition 11</strong> (<code>ThickPartTranslateMean</code>,
+<span class="tag exact">Exact</span>). <em>For a thick set <span
+class="math inline">\(T_2\)</span> of density <span
+class="math inline">\(\delta_2 = |T_2|/|H|\)</span>, <span
+class="math display">\[\frac{1}{|H|}\sum_{u_0\in
+H}\frac{1}{|\Phi|}\sum_{\substack{g\notin\Phi\\ g \text{ thick at }
+u_0}}
+\sum_{\psi}\overline{\psi(g)}\, b\,G_\psi(A/b) \;=\; \frac{\delta_2\,
+b}{2}\,G_{\mathrm{sig}}(A/b).\]</span></em></p>
+</div>
+<h2 data-number="4.3" id="the-growth-inequality"><span
+class="header-section-number">4.3</span> The growth inequality</h2>
+<div id="thm:growth" class="theorem">
+<p><strong>Theorem 12</strong> (<code>GrowthInequalityExplicit</code>,
+<span class="tag exact">Exact</span>). <em>Under <code>GrowthInequalityHypotheses</code> (which
+include <span class="math inline">\(\mathrm{topExcess}\le
+\mathrm{Err}\)</span> and <code>ValuesAtX</code>), <span
+class="math display">\[|T_T|\, m\, b\,\frac{\delta_2}{2}\Bigl(G_\zeta(x)
+- 3x^{1/2+\varepsilon} - \mathrm{moveCost}\Bigr)
+\le \mathrm{Err}+ |T_T|\, m\cdot 2f_{Pl}(x+1)\,b\,\theta + |T_T|\,
+m\cdot 6f_{Pl}(x+1)(\eta+1),\]</span> where <span
+class="math inline">\(\mathrm{topExcess} =
+\frac{1}{|H|}\sum_{u_0}\sum_{t\in T_T}\sum_{j}\bigl(\mathrm{ASK}-
+\operatorname{Re}\mathrm{MAIN}\bigr)\)</span> and <span
+class="math inline">\(\mathrm{moveCost} = C_d + 3(\log(x+1)+C_d+C_L\log
+x)\)</span>.</em></p>
+</div>
+<p>The term <span class="math inline">\(3x^{1/2+\varepsilon}\)</span>
+comes from <code>signal_term</code>: for <span
+class="math inline">\(|y-x|\le 1\)</span>, <span
+class="math display">\[G_\zeta(x) - 3x^{1/2+\varepsilon} -
+\mathrm{moveCost} \le \operatorname{Re}G_{\mathrm{sig}}(y),\]</span>
+using <code>ValuesAtX</code>: <span
+class="math inline">\(\|G_\psi(x)\|\le x^{1/2+\varepsilon}\)</span> and
+<span class="math inline">\(\|\ell(\psi)\|\le C_L\log x\)</span> for the
+three nontrivial characters of <span class="math inline">\(E_0\)</span>,
+and a Lipschitz bound (<code>DerivInt</code>).</p>
+<div class="remark">
+<p><strong>Remark 13</strong> (<span class="tag reading">Reading</span>). Dividing Theorem <a
+href="#thm:growth" data-reference-type="ref"
+data-reference="thm:growth">12</a> by <span
+class="math inline">\(|T_T|\,m\,b\,\delta_2/2\)</span> gives <span
+class="math display">\[G_\zeta(x)\le 3x^{1/2+\varepsilon} +
+\frac{\mathrm{Err}}{|T_T|\,m\,b\,\delta_2/2}+\dots\]</span> So the whole
+problem is to prove <span class="math inline">\(\mathrm{Err}\lesssim
+|T_T|\,m\,b\,x^{1/2+O(\varepsilon)}\)</span>. Sections <a href="#sec:C"
+data-reference-type="ref" data-reference="sec:C">5</a> and <a
+href="#sec:D" data-reference-type="ref" data-reference="sec:D">6</a> do
+exactly that.</p>
+</div>
+<h2 data-number="4.4"
+id="the-auxiliary-characters-are-chosen-not-controlled"><span
+class="header-section-number">4.4</span> The auxiliary characters are
+chosen, not controlled</h2>
+<p>The characters <span
+class="math inline">\(\psi,\chi,\chi\psi\)</span> are twists by the
+quadratic characters of the auxiliary primes <span
+class="math inline">\(q\equiv 3\pmod 8\)</span> and <span
+class="math inline">\(d\equiv 7\pmod{16}\)</span>
+(<code>PrimePair</code>). Their bounds in <code>ValuesAtX</code> come
+from the following chain, all <span class="tag exact">Exact</span>: <code>QH.pairEx</code> <span
+class="math inline">\(\leftarrow\)</span> <code>pair_exists</code> <span
+class="math inline">\(\leftarrow\cdots\leftarrow\)</span>
+<code>count_bad_core</code> <span
+class="math inline">\(\leftarrow\)</span>
+<code>ZD.zero_density_box</code>.</p>
+<div class="definition">
+<p><strong>Definition 14</strong> (<code>Box</code>). For a character
+<span class="math inline">\(\psi\)</span>, <span
+class="math inline">\(\mathrm{Box}(Q,C,\tau,Y,X,\psi)\)</span> means:
+<span class="math inline">\(\psi\)</span> has a good conductor, <span
+class="math inline">\(\|L&#39;/L(1,\psi)\|\le C\log Y\)</span>, and
+<span class="math inline">\(\|G_\psi(y)\|\le y^{1/2+\tau}\)</span> for
+all <span class="math inline">\(y\in[Y,X]\)</span>.</p>
+</div>
+<div class="theorem">
+<p><strong>Theorem 15</strong> (<code>count_bad_core</code>,
+<span class="tag exact">Exact</span>). <em>There is <span class="math inline">\(C\ge 0\)</span>
+such that for <span class="math inline">\(Q\ge 3\)</span> and any set
+<span class="math inline">\(S\)</span> of primes <span
+class="math inline">\(q&gt;F\)</span> each carrying a primitive
+character of conductor <span class="math inline">\(fq\le Q\)</span>,
+<span class="math inline">\(f\le F\)</span>, without a zero-free box,
+<span class="math inline">\(|S|\le C\,Q^{1/4}\)</span>.</em></p>
+</div>
+<p>The zero-density estimate <code>zero_density_box</code> is assembled
+from a coefficient square bound, zero detection by a mollifier identity,
+a duality inequality and a pair-twist bound.</p>
+<div class="remark">
+<p><strong>Remark 16</strong> (<span class="tag reading">Reading</span>). The auxiliary <span
+class="math inline">\(L\)</span>-functions are not proved to satisfy
+GRH. The proof picks <span class="math inline">\(q\)</span> and <span
+class="math inline">\(d\)</span> outside the few bad moduli. The target
+character is the only one whose <span
+class="math inline">\(L\)</span>-function is not controlled in
+advance.</p>
+</div>
+<h2 data-number="4.5" id="the-thick-set"><span
+class="header-section-number">4.5</span> The thick set</h2>
+<div class="theorem">
+<p><strong>Theorem 17</strong> (<code>hostThickExists</code>,
+<span class="tag exact">Exact</span>). <em>There is <span class="math inline">\(C&gt;0\)</span>
+such that for all <span class="math inline">\(n\)</span> and <span
+class="math inline">\(L\ge 2\)</span> there is <span
+class="math inline">\(T\subset\mathbb{N}\)</span> with <span
+class="math inline">\(4Ls&lt;n\)</span> for <span
+class="math inline">\(s\in T\)</span>, no relation <span
+class="math inline">\(j(s_2-s_1)=i(s_3-s_1)\)</span> with distinct <span
+class="math inline">\(s_1,s_2,s_3\in T\)</span>, <span
+class="math inline">\(0&lt;|i|,|j|\le L\)</span>, <span
+class="math inline">\(i\neq j\)</span>, and <span
+class="math display">\[|T|\ \ge\ \frac{n\,e^{-C\sqrt{\log n\,\log
+L}}}{L}.\]</span></em></p>
+</div>
+<p><span class="tag reading">Reading</span> The density <span
+class="math inline">\(\delta_2\)</span> enters only through the division
+above and costs <span class="math inline">\(x^{o(1)}\)</span>.</p>
+<h1 data-number="5" id="sec:C"><span
+class="header-section-number">5</span> Step C: the size bound, where
+<span class="math inline">\(\sqrt{x}\)</span> is paid</h1>
+<h2 data-number="5.1" id="the-balance"><span
+class="header-section-number">5.1</span> The balance</h2>
+<div id="thm:size" class="theorem">
+<p><strong>Theorem 18</strong> (<code>proposition_size_bound</code>,
+<span class="tag exact">Exact</span>). <em>In the abstract setting of
+<code>GrowthSizeBound</code>, <span
+class="math display">\[n_T\,m\,b\,\frac{\delta_2}{2}\bigl(G(x)-4x^{1/2+\varepsilon}\bigr)\le
+\mathrm{Err}+ \frac{2n_T m b}{x},\]</span> <span
+class="math display">\[\mathrm{Err}\le x^{C\varepsilon}\Bigl[n_T
+a_E\Bigl(1+\frac{m^2}{k}\Bigr) + m\cdot B_0 +
+m\cdot\frac{n_{T2}\,k\,b\,x^{\varepsilon}}{n^2x^{-\varepsilon}}\Bigr],\]</span>
+and under the windows below, <span class="math inline">\(G(x)\le
+x^{1/2+(C+3)\varepsilon}\)</span>.</em></p>
+</div>
+<p>Dividing each error term by the size <span
+class="math inline">\(n_T\,m\,b\)</span> of the main term (lemmas
+<code>SZ.T1</code>–<code>SZ.T4</code>, <span class="tag verified">Verified</span>):</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term</th>
+<th style="text-align: left;">After dividing</th>
+<th style="text-align: left;">Bound</th>
+<th style="text-align: left;">Needs</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(n_T
+a_E\)</span></td>
+<td style="text-align: left;"><span
+class="math inline">\(a_E/(mb)\approx \mathbf{x/m}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\le
+x^{1/2+\varepsilon}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(m\ge
+\sqrt{x}\)</span> (T1)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(n_T a_E
+m^2/k\)</span></td>
+<td style="text-align: left;"><span
+class="math inline">\(xm/k\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\le
+2\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(k\ge
+xm\)</span> (T2)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(m\cdot
+B_0\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(2nm/n_T\approx
+\mathbf{m}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\le
+x^{1/2+\dots}\)</span></td>
+<td style="text-align: left;"><span
+class="math inline">\(m\le\sqrt{x}\)</span> (T3)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span
+class="math inline">\(m\cdot(k\text{-term})\)</span></td>
+<td style="text-align: left;"><span
+class="math inline">\(k/(n\,n_T)\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\le
+x^{1/2+\dots}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(k\le
+n^2\sqrt{x}\)</span> (T4)</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>So, relative to the main term, the error is about <span
+class="math inline">\(x/m+m\)</span>, and both pieces are <span
+class="math inline">\(\sqrt{x}\)</span> exactly when <span
+class="math inline">\(m\asymp\sqrt{x}\)</span>.</p>
+<figure id="fig-balance"><img src="fig/balance.svg" alt="Figure 6" loading="lazy"><figcaption><b>Figure 6.</b> The balance. Lengthening the chain lowers <span
+class="math inline">\(x/m\)</span> but raises the divisibility cost.
+With the code’s accounting (one budget <span
+class="math inline">\(B_0\)</span> per lift) the optimum is <span
+class="math inline">\(m=\sqrt x\)</span> and the bound is <span
+class="math inline">\(x^{1/2}\)</span>. Charging each lift for the whole
+chain below it would make the cost <span
+class="math inline">\(m^2\)</span> and stop at <span
+class="math inline">\(x^{2/3}\)</span> (the text).</figcaption></figure>
+<h4 data-number="5.1.0.1" id="credit."><span
+class="header-section-number">5.1.0.1</span> Credit.</h4>
+<p>The balance <span class="math inline">\(x/m+m\)</span> at <span
+class="math inline">\(m\asymp\sqrt{X}\)</span> was stated independently
+by Jonas Whidden (Lean Zulip) and in Bartosz Naskręcki’s proof guide
+(<code>nasqret/riemann-rev</code>, §4). What follows in this section and
+the next (where each side is paid, which charges are slack, how the
+exponents of <span class="math inline">\(n\)</span> and <span
+class="math inline">\(k\)</span> arise) is <span class="tag ours">Ours</span>.</p>
+<h2 data-number="5.2" id="sec:windows"><span
+class="header-section-number">5.2</span> The windows are chosen, not
+forced</h2>
+<p><span class="tag verified">Verified</span> The windows used by the size layer are proved from
+<code>RankVal</code>:</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Window</th>
+<th style="text-align: left;">Lemma</th>
+<th style="text-align: left;">Source</th>
+<th style="text-align: left;">Slack in the family</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(m\ge
+x^{1/2-\varepsilon}\)</span></td>
+<td style="text-align: left;"><code>winL</code></td>
+<td style="text-align: left;"><code>SizeM</code></td>
+<td style="text-align: left;"><span class="math inline">\(\approx
+x^{0.93\varepsilon}\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(m\le
+x^{1/2+\varepsilon/2}\)</span></td>
+<td style="text-align: left;"><code>winA</code></td>
+<td style="text-align: left;"><code>SizeM</code></td>
+<td style="text-align: left;"><span class="math inline">\(\approx
+x^{0.55\varepsilon}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(xm\le
+k\)</span></td>
+<td style="text-align: left;"><code>winB</code></td>
+<td style="text-align: left;"><code>SizeM</code>,
+<code>SizeK</code></td>
+<td style="text-align: left;"><span class="math inline">\(\approx
+x^3\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(k\le
+n^2x^{1/2-\varepsilon}\)</span></td>
+<td style="text-align: left;"><code>winM</code></td>
+<td style="text-align: left;"><code>k_up</code></td>
+<td style="text-align: left;"><span class="math inline">\(\approx
+x^{5\varepsilon}\)</span></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><span class="tag verified">Verified</span> The constructor <code>exists_ranks_of_frame</code>
+accepts any even <span class="math inline">\(k,m\)</span> with <span
+class="math inline">\(2\le m\)</span>, <span
+class="math inline">\(m+3\le k\)</span>, <span
+class="math inline">\(m\le 2n\le k\)</span>; the host construction
+<code>admissible_ranks_of_CMDatum</code> works for every rank datum,
+needing only <span class="math inline">\(q,d&gt;4tr+1\)</span>. So <span
+class="math inline">\(m\approx\sqrt{x}\)</span> is a literal in
+<code>RankVal</code>: nothing in the arithmetic construction asks for
+it.</p>
+<h4 data-number="5.2.0.1"
+id="why-napprox-x2-and-kapprox-x92-the-word-count.-tagourstag"><span
+class="header-section-number">5.2.0.1</span> Why <span
+class="math inline">\(n\approx x^2\)</span> and <span
+class="math inline">\(k\approx x^{9/2}\)</span>: the word count.
+<span class="tag ours">Ours</span></h4>
+<p>The one arithmetic link between <span
+class="math inline">\(m\)</span> and <span
+class="math inline">\(k\)</span> is the number of words. <span class="tag verified">Verified</span>:
+<span class="math inline">\(\log\Gamma = C_\Gamma\, m^5 f L\)</span>
+(<code>gamB</code>, <code>RowsConc.lean:52</code>), the number of words
+is <span class="math inline">\(\lceil 3\Gamma^2x^{C_F}\rceil\)</span>,
+words are coded injectively by <span class="math inline">\(k-2\)</span>
+bits (<code>exists_injective_words</code>), and <code>Win_at</code>
+requires <span class="math inline">\(\log|W|\le(k-3)\log 2\)</span>.
+Hence <span class="math inline">\(k\gtrsim m^5 f L\)</span>. Writing
+<span class="math inline">\(m=x^\mu\)</span>, <span
+class="math inline">\(n=x^\nu\)</span>, <span
+class="math inline">\(k=x^\kappa\)</span>: <span
+class="math display">\[\kappa\ge 5\mu+\nu\ \ (\text{word count}),\qquad
+\kappa\le 2\nu+\tfrac12\ \ (\text{T4}),\qquad
+\Rightarrow\ \nu\ge 5\mu-\tfrac12.\]</span> With <span
+class="math inline">\(\mu=1/2\)</span>: <span
+class="math inline">\(\nu=2\)</span> and <span
+class="math inline">\(\kappa=9/2\)</span>. So the exponents of <span
+class="math inline">\(n\)</span> and <span
+class="math inline">\(k\)</span> are derived from <span
+class="math inline">\(m\approx\sqrt{x}\)</span> and the <span
+class="math inline">\(m^5\)</span> word count.
+<code>m_pow_five_mul_f_mul_L_le</code> proves <span
+class="math inline">\(m^5 fL\le 128\,x^{9/2+9\varepsilon}\)</span>
+against <span class="math inline">\(k\ge x^{9/2+10\varepsilon}\)</span>:
+the tightest window in the family.</p>
+<figure id="fig-exponents"><img src="fig/exponents.svg" alt="Figure 7" loading="lazy"><figcaption><b>Figure 7.</b> Exponent bookkeeping. The word count (<span
+class="math inline">\(\kappa\ge 5\mu+\nu\)</span>) and term T4 (<span
+class="math inline">\(\kappa\le
+2\nu+\tfrac12\)</span>) only require <span class="math inline">\(\nu\ge
+5\mu-\tfrac12\)</span>; any point of the shaded region is a valid
+family. Only the balance of Figure 6 picks <span
+class="math inline">\(\mu=\tfrac12\)</span>.</figcaption></figure>
+<div class="remark">
+<p><strong>Remark 19</strong> (<span class="tag reading">Reading</span>). Since <span
+class="math inline">\(G_\zeta(x)=\Omega(\sqrt{x})\)</span>, no valid
+argument can push <span class="math inline">\(m\)</span> beyond <span
+class="math inline">\(\sqrt{x}\)</span> and win. As far as the
+constraints above go, the family could be built with <span
+class="math inline">\(m=x^{1/2+\delta}\)</span>; so the barrier must be
+paid on the error side, in T3. Section <a href="#sec:D"
+data-reference-type="ref" data-reference="sec:D">6</a> locates it.</p>
+</div>
+<h1 data-number="6" id="sec:D"><span
+class="header-section-number">6</span> Step D: the divisibility
+layer</h1>
+<h2 data-number="6.1"
+id="the-abstract-data-and-the-pointwise-bound"><span
+class="header-section-number">6.1</span> The abstract data and the
+pointwise bound</h2>
+<p>The size layer works with a record <code>Data</code> of real numbers
+and a bundle of hypotheses <code>SizeData_2</code>: <code>DIV</code>,
+<code>EComp5</code>, <code>HComp</code>, <code>Count5</code>,
+<code>Slopes</code>, <code>QuotientSlopeBoundsWith</code>,
+<code>LossBounds</code>, <code>SlopeIneq</code>, <code>HHBound</code>,
+<code>FParams</code>. No automorphic objects appear there.
+<code>ChainTied</code> (<code>TieGlobal.lean:97</code>) attaches the
+record to an arithmetic family <code>FamP</code> through
+<code>TiePts</code>, <code>TieGlobal</code>, <code>TieLocal</code>,
+<code>TieArith</code>; it is produced by <code>linkCore</code> from
+fourteen family hypotheses, and only the caller
+<code>linkGLOBAL7_items</code> is used (<span class="tag exact">Exact</span>).</p>
+<div class="theorem">
+<p><strong>Theorem 20</strong> (<code>each_unit_bound_statement</code>,
+<span class="tag exact">Exact</span>). <em>For every point <span
+class="math inline">\(u_0\)</span>: <span
+class="math inline">\(\mathrm{ASK}(u_0)\le\mathrm{MAIN}(u_0)+\mathrm{ErrX5at}(u_0)\)</span>.</em></p>
+</div>
+<figure id="fig-charges"><img src="fig/charges.svg" alt="Figure 8" loading="lazy"><figcaption><b>Figure 8.</b> What each per-lift charge really costs (the text). Only <span
+class="math inline">\(E_b\)</span> uses its budget; the drift’s full
+size is an artefact of taking absolute values, and the energy and slope
+budgets are almost empty. Bars are schematic: the energy bar would be
+invisible at true scale.</figcaption></figure>
+<p>The terms of <span class="math inline">\(\mathrm{ErrX5at}\)</span>
+that matter (<span class="tag verified">Verified</span>,
+<code>QuotientSlopeBoundsWith.lean:45</code>):</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Term</th>
+<th style="text-align: left;">From</th>
+<th style="text-align: left;">After dividing by <span
+class="math inline">\(n_Tmb\)</span></th>
+<th style="text-align: left;">Balance</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span
+class="math inline">\(c_{Div}\,n_T\,a\,L_a\)</span></td>
+<td style="text-align: left;"><code>DIV</code></td>
+<td style="text-align: left;"><span class="math inline">\(\approx
+x/m\)</span></td>
+<td style="text-align: left;">T1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span
+class="math inline">\(c_{Div}\,m(B_0+N_c)x^{e_{Div}\varepsilon}\)</span></td>
+<td style="text-align: left;"><code>DIV</code></td>
+<td style="text-align: left;"><span class="math inline">\(\approx
+m\)</span></td>
+<td style="text-align: left;">T3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span
+class="math inline">\(m\,c_E\,B_0\)</span></td>
+<td style="text-align: left;"><code>EComp5</code></td>
+<td style="text-align: left;">same order</td>
+<td style="text-align: left;">(slack)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span
+class="math inline">\(c_{Sl1}\,m\,B_0\)</span></td>
+<td style="text-align: left;"><code>QuotientSlopeBoundsWith</code></td>
+<td style="text-align: left;">same order</td>
+<td style="text-align: left;">(slack)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(c_{Slope}\,n_T
+a L_a(1+m/k)\)</span></td>
+<td style="text-align: left;">bookkeeping</td>
+<td style="text-align: left;"><span
+class="math inline">\(x/m(1+m/k)\)</span></td>
+<td style="text-align: left;">T1, T2</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 data-number="6.2"
+id="the-slope-layer-and-the-cancellation-of-the-main-terms"><span
+class="header-section-number">6.2</span> The slope layer and the
+cancellation of the main terms</h2>
+<p><span class="tag verified">Verified</span> <code>EComp5</code> says <span
+class="math inline">\(|E_e(u_0,u)-m\cdot\mathrm{sumA}\cdot\mathrm{lg}|\le
+c_E\, m\, B_0\)</span>: the chain energy is <span
+class="math inline">\(m\)</span> copies of one step’s slope, <span
+class="math inline">\(\mathrm{lg}=\log(g_0g_1)\)</span> for the two host
+primes. <code>Ga_bound5</code> combines the upper bound <span
+class="math inline">\(E_e\le
+m(\mathrm{sumA}\cdot\mathrm{lg}+c_EB_0)\)</span> with
+<code>key_identity5</code>, which contains <span
+class="math inline">\(+m\cdot\mathrm{sumA}\cdot\mathrm{lg}\)</span>; the
+main terms cancel exactly and the proof ends in <code>linarith</code>.
+This is the “cancellation of order-<span
+class="math inline">\(m\)</span> terms” of the outline (entry 9).</p>
+<h2 data-number="6.3"
+id="the-local-energy-and-why-its-budget-is-slack"><span
+class="header-section-number">6.3</span> The local energy and why its
+budget is slack</h2>
+<p><span class="tag verified">Verified</span> The energy is pinned by <code>SizeData_2.EDef</code>:
+<span class="math inline">\(E(u,j,w)=\mathrm{Eval}(u,j,w)\)</span>, a
+case split on the residue characteristic of the place <span
+class="math inline">\(w\)</span>:</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;"><span class="math inline">\(w\)</span>
+lies over</th>
+<th style="text-align: left;"><span
+class="math inline">\(E(u,j,w)\)</span></th>
+<th style="text-align: left;">depends on <span
+class="math inline">\(j\)</span>?</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(T_u\)</span>
+(auxiliary prime of <span class="math inline">\(u\)</span>)</td>
+<td style="text-align: left;">twice the weight deviation <span
+class="math inline">\(+\ f\cdot N_m + \dots\)</span></td>
+<td style="text-align: left;">no</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(g_0\)</span>
+or <span class="math inline">\(g_1\)</span> (host primes)</td>
+<td style="text-align: left;"><span
+class="math inline">\(v_p(D_\Gamma)+\mathrm{FTypeG}(j)+v_{NN}+c_g
+f(N_m^2+m^2\eta_{Sz})\)</span></td>
+<td style="text-align: left;">yes</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">ramified class at <span
+class="math inline">\(d\)</span></td>
+<td style="text-align: left;"><span
+class="math inline">\(v_p(D_\Gamma)+\mathrm{FRamD}(j)+\dots\)</span></td>
+<td style="text-align: left;">yes</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">small <span class="math inline">\(p\le
+X&#39;&#39;\)</span></td>
+<td style="text-align: left;"><span
+class="math inline">\(v_p(D_\Gamma)+\)</span> log terms</td>
+<td style="text-align: left;">yes</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">other</td>
+<td style="text-align: left;"><span
+class="math inline">\(v_p(D_\Gamma)\)</span></td>
+<td style="text-align: left;">no</td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>At <span class="math inline">\(g_i\)</span>, with <span
+class="math inline">\(\pi_{g_i}\bar\pi_{g_i}=g_i\)</span> in the CM
+field, <span class="math inline">\(v_{NN}=\bigl(\sum_\tau
+\mathrm{nuAbs}(u,j,\tau)\,v_w(\tau(\bar\pi_{g_i}))\bigr)/e_w\)</span>.</p>
+<div class="proposition">
+<p><strong>Proposition 21</strong> (Per-lift energy, <span class="tag exact">Exact</span> chain).
+<em><code>EComp</code> per lift (<code>adm11</code>) follows
+from</em></p>
+<ul>
+<li><p><em><code>NormDecompositionCond</code>: <span
+class="math inline">\(\sum_{w\mid g_i} sz(w,v_{NN}) =
+\bigl(\sum_\tau\mathrm{nuAbs}(u,j,\tau)\bigr)\log g_i\)</span> (an exact
+equality);</em></p></li>
+<li><p><em><code>factEtaMean</code>: <span
+class="math inline">\(\sum_{w\mid \ell}\mathrm{lw}(w)e_w = \log
+\ell\)</span> (product formula);</em></p></li>
+<li><p><em><code>DegreeCountBound</code>: <span
+class="math inline">\(\bigl|\sum_\tau\mathrm{nuAbs} -
+\mathrm{fockDeg}(j) - \sum_t a_T(t)\bigr|\le
+\mathrm{errG}(j)\)</span>;</em></p></li>
+<li><p><em><code>TypePrimeSizeBound</code> and the off-<span
+class="math inline">\(g\)</span> bounds.</em></p></li>
+</ul>
+</div>
+<h4 data-number="6.3.0.1" id="the-row-structure."><span
+class="header-section-number">6.3.0.1</span> The row structure.</h4>
+<p><span class="tag verified">Verified</span> (<code>nuAbs_place_fine</code>) At lift <span
+class="math inline">\(j=i+1\)</span> and an archimedean place <span
+class="math inline">\(\tau\)</span>, nuAbs sums <span
+class="math inline">\(N(j-1)=k+i(t+1)\)</span> rows <span
+class="math inline">\(\mathrm{nuRow}(u,j,\tau,r)=\mathrm{srcPar}(u,\tau,r)+w_{Sz}(j,\tau)-\tfrac12(N(j-1)+N(j)-1-2r)\)</span>:
+the two end rows carry top and off-top weights, the middle rows are
+<span class="math inline">\(\approx w_j(j,\tau)\)</span>, and the <span
+class="math inline">\(i(t+1)\)</span> block rows are <span
+class="math inline">\(\approx 0\)</span> up to <span
+class="math inline">\(2\eta_{Sz}\)</span>. <span class="tag reading">Reading</span> A parameter
+plus a weight minus a <span class="math inline">\(\rho\)</span>-type
+half-sum looks like the Harish-Chandra parameters at lift <span
+class="math inline">\(j\)</span>; <code>kerPlace</code> sums <span
+class="math inline">\(\phi(\nu)=\nu\log\nu-\nu\)</span> over the rows, a
+Stirling shape.</p>
+<div class="proposition">
+<p><strong>Proposition 22</strong> (<span class="tag ours">Ours</span>). <em>The real per-lift
+energy error is <span class="math inline">\(\mathrm{errG}(j)\approx
+2\sum_\tau w_j(j,\tau)\approx 2fb\)</span>, with no factor <span
+class="math inline">\(m\)</span>, against a budget <span
+class="math inline">\(B_0=f\,m\,b\,x^\varepsilon\)</span>. The energy
+charge <span class="math inline">\(m\,c_E B_0\)</span> therefore has a
+spare factor of about <span class="math inline">\(m
+x^\varepsilon\)</span>. The slope upper bound is <code>ClaimHigh</code>:
+<span
+class="math inline">\(\mu_{\max}(N)\le\mu_{\max}(M)+G_a+F_o-E_e\)</span>
+with <em>no</em> error term; <code>slopesN_at_of</code> adds the <span
+class="math inline">\(m B_0\)</span> allowance from <span
+class="math inline">\(0\le C m B_0\)</span> alone.</em></p>
+</div>
+<h2 data-number="6.4" id="the-divisibility-inequality"><span
+class="header-section-number">6.4</span> The divisibility
+inequality</h2>
+<div id="thm:DIV" class="theorem">
+<p><strong>Theorem 23</strong> (<code>Data.DIV</code>, <span class="tag exact">Exact</span>).
+<em><span class="math display">\[\begin{gathered}
+\mu_{CC}+h(u)-F_o \le
+\sum_t\Bigl(m\bigl(\phi(a_T(t))-a_T(t)\log\Omega\bigr)-a_T(t)\log
+T(u)\Bigr)\\
++ c_{Div}\,n_T\,a\,L_a + c_{Div}\,m\,(B_0+N_c)\,x^{e_{Div}\varepsilon}.
+\end{gathered}\]</span></em></p>
+</div>
+<h4 data-number="6.4.0.1" id="the-height-of-a-chain."><span
+class="header-section-number">6.4.0.1</span> The height of a chain.</h4>
+<p><span class="tag verified">Verified</span> (<code>height_chain_atR</code>) The pairing map <span
+class="math inline">\(B_u\)</span> factors through a chain of <span
+class="math inline">\(m\)</span> maps <span
+class="math inline">\(K_j\)</span>, one per lift, with <span
+class="math inline">\(\|K_j\|_v^2\le\exp(h_K(j,v))\)</span>, and <span
+class="math display">\[\log\|B_u\|_v^2\le h_P+\sum_{j=1}^m
+h_K(j,v)-\log\kappa_v-\min_p\sum_j\log\lambda_j(p,v).\]</span> This is
+submultiplicativity of operator norms along the chain. <span class="tag reading">Reading</span> It
+is where “a chain of theta lifts” becomes an inequality.</p>
+<h4 data-number="6.4.0.2" id="the-per-lift-charge-is-built-in."><span
+class="header-section-number">6.4.0.2</span> The per-lift charge is
+built in.</h4>
+<p><span class="tag verified">Verified</span> (<code>ZscOfNum</code>, <code>errB_of_units</code>)
+The scale data sets, per lift, an error unit <span
+class="math inline">\(E_{1u}=x^\varepsilon(B_0+N_c)\)</span>, a main
+term <span
+class="math inline">\(l_{3m}(j)=\sum_\rho[(k+j-1)-(m-j)]\,w(j,\rho)\log\Omega\)</span>
+(the signature difference <span class="math inline">\(p_j-q_j\)</span>
+times the weights) and <span class="math inline">\(l_{3u}=B_0\log\log
+x\)</span>. Summing over <span class="math inline">\(m\)</span> lifts
+gives the <span class="math inline">\(m\,x^\varepsilon(B_0+N_c)\)</span>
+term.</p>
+<h4 data-number="6.4.0.3" id="absorption."><span
+class="header-section-number">6.4.0.3</span> Absorption.</h4>
+<p><span class="tag verified">Verified</span> (<code>divisor_inequality_assembly</code>,
+<code>error_absorption</code>) Every error term inside <code>DIV</code>
+is bounded against <span
+class="math inline">\(m(B_0+N_c)x^\varepsilon\)</span>:</p>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Error term</th>
+<th style="text-align: left;">Bound used</th>
+<th style="text-align: left;">Versus the budget <span
+class="math inline">\(mB_0x^\varepsilon\)</span></th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(\sum
+e_E\)</span> (place heights)</td>
+<td style="text-align: left;"><span class="math inline">\(15C_0 f m b
+L\)</span></td>
+<td style="text-align: left;">spare factor <span
+class="math inline">\(\approx m\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span
+class="math inline">\(\sum|\delta||\log\Omega|\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(15C_0fmbL +
+C_0n_TaL_a\)</span></td>
+<td style="text-align: left;">spare factor <span
+class="math inline">\(\approx m\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(\sum
+e_K\)</span> (per-lift polynomial)</td>
+<td style="text-align: left;"><span class="math inline">\(5C_0 m f b
+L\)</span></td>
+<td style="text-align: left;">spare factor <span
+class="math inline">\(\approx m\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span
+class="math inline">\(e_6,e_P,L_{pass}\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\le
+B_0\)</span></td>
+<td style="text-align: left;">spare factor <span
+class="math inline">\(\ge m\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span
+class="math inline">\(\sum|pq_j-k||w||\log\Omega|\)</span> (drift)</td>
+<td style="text-align: left;"><span
+class="math inline">\(6mB_0\)</span></td>
+<td style="text-align: left;">full budget</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;"><span class="math inline">\(E_b\)</span>
+(rank charges)</td>
+<td style="text-align: left;">hypothesis <span
+class="math inline">\(C_0mx^\varepsilon(B_0+N_c)\)</span></td>
+<td style="text-align: left;">full budget</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h2 data-number="6.5" id="the-signature-drift-is-an-artefact"><span
+class="header-section-number">6.5</span> The signature drift is an
+artefact</h2>
+<div id="prop:drift" class="proposition">
+<p><strong>Proposition 24</strong> (<span class="tag ours">Ours</span>). <em>The drift term is
+smaller than the bound used for it by a factor of at least <span
+class="math inline">\(x^{1131}\)</span>.</em></p>
+</div>
+<div class="proof">
+<p><em>Proof.</em> <span class="tag verified">Verified</span>: <span
+class="math inline">\(pq_j=(k+j-1)-(m-j)\)</span>, so <span
+class="math inline">\(pq_j-k=2j-1-m\)</span>
+(<code>NumbersLink.lean:574</code>). The proof bounds each term <span
+class="math inline">\((pq_j-k)\,w(j,\rho)\log\Omega\)</span> by its
+absolute value <em>before</em> summing (step <code>hA</code> of
+<code>divisor_inequality_assembly</code>). By
+<code>SizeData_2.be_close</code>, <span
+class="math inline">\(|w(j,\rho)-w(j&#39;,\rho)|\le 2\eta\)</span> for
+all lifts, and <code>szRow_eta_bounds</code> gives <span
+class="math inline">\(\eta\le b/(t^3fk^3)\)</span>. Since <span
+class="math inline">\(\sum_{j=1}^m(2j-1-m)=0\)</span>, <span
+class="math display">\[\sum_j\sum_\rho(2j-1-m)\,w(j,\rho)\log\Omega=\log\Omega\sum_\rho\sum_j(2j-1-m)\bigl(w(j,\rho)-w(1,\rho)\bigr),\]</span>
+so the signed drift is at most <span class="math inline">\(L_a
+f(m^2/2)2\eta=fm^2\eta L_a\)</span>, while the absolute bound used is
+<span class="math inline">\(2fm^2bL_a\)</span>. The ratio is at most
+<span class="math inline">\(\eta/(2b)\le 1/(2t^3fk^3)\le
+x^{-1131}\)</span> since <span class="math inline">\(t\ge
+x^{377}\)</span>. ◻</p>
+</div>
+<figure id="fig-drift"><img src="fig/drift.svg" alt="Figure 9" loading="lazy"><figcaption><b>Figure 9.</b> The signature drift. Its coefficients sum to zero and the weights
+<span class="math inline">\(w(j,\rho)\)</span> agree across lifts up to
+<span class="math inline">\(2\eta\)</span>, so the signed drift nearly
+cancels. The proof bounds each bar by its absolute value instead, which
+is where its nominal <span class="math inline">\(m^2\)</span> comes
+from.</figcaption></figure>
+<h2 data-number="6.6"
+id="the-rank-bound-e_b-where-the-m2-really-lives"><span
+class="header-section-number">6.6</span> The rank bound <span
+class="math inline">\(E_b\)</span>: where the <span
+class="math inline">\(m^2\)</span> really lives</h2>
+<div id="thm:Eb" class="theorem">
+<p><strong>Theorem 25</strong> (<span class="tag ours">Ours</span>, each step <span class="tag verified">Verified</span>).
+<em><span class="math inline">\(E_b\approx m\cdot B_0\)</span>, and both
+factors of <span class="math inline">\(m\)</span> are
+structural.</em></p>
+</div>
+<div class="proof">
+<p><em>Proof sketch (from the Lean proof).</em></p>
+<ol>
+<li><p><em>The outer <span class="math inline">\(m\)</span> is the
+number of lifts.</em> <code>errB_of_units</code> sums over <span
+class="math inline">\(J\)</span> with <span
+class="math inline">\(|J|=m\)</span>
+(<code>RecNums.p12</code>).</p></li>
+<li><p><em>The real obligation.</em> <span
+class="math inline">\(E_{1u}\)</span> is set by definition; the content
+is the field <code>IndefData.ON</code>: for each lift <span
+class="math inline">\(j\)</span>, <span class="math inline">\(\sum_{w\in
+T_w}\log w\,(\mathrm{ram}_w\,\mathrm{err}_0(w,j)+\mathrm{ram}_w
+J_0(w,j))\le E_1(j)\)</span>, supplied on the family side by
+<code>DIVinN_at</code> and <code>LinkN_at</code>: <span
+class="math inline">\(\mathrm{etaSum}(j)\le
+d_{Z0}(j)\bigl(C(fmbL^2+\log^2x\,N_c)+\sum_\ell\mathrm{vvTerm}(\ell)\bigr)\)</span>.
+The last sum is the <span class="math inline">\(\text{Ш}\)</span> loss
+of Section <a href="#sec:F" data-reference-type="ref"
+data-reference="sec:F">8</a>, added once and bounded by <span
+class="math inline">\(\sqrt b\)</span>.</p></li>
+<li><p><em>No double counting.</em> <code>linkN_of_gd</code> bounds
+<span class="math inline">\(\mathrm{etaSum}(j)\)</span> through <span
+class="math inline">\(\mathrm{etaJ}(j,w)=\sum_{i\in\mathrm{locs}(j,w)}\mathrm{etaLoc}(i)\)</span>,
+and by <code>NData.locs_mem</code>, <span
+class="math inline">\(i\in\mathrm{locs}(j,w)\iff j(i)=j\wedge
+w(i)=w\)</span>: every local piece belongs to exactly one lift.</p></li>
+<li><p><em>The inner <span class="math inline">\(m\)</span> is a
+Bloch–Kato rank.</em> The allowance at a small prime <span
+class="math inline">\(\ell\)</span> is <span
+class="math inline">\(\mathrm{costC}(\ell)=6000\,f\,m\,h_B\,\mathrm{sl}(\ell)+30000f^2t^2n_V\,(\dots)\)</span>
+with <span
+class="math inline">\(h_B=b+S_c+\eta_{Sz}+t+2\in[b,6b]\)</span>. The
+colength bound behind it calls <code>rank_le_row</code> with <span
+class="math inline">\(m:=D.R.m\)</span>: <span
+class="math display">\[\dim H^1_f(K_w,T)\le\mathrm{locDeg}(w)\cdot
+m,\]</span> the Bloch–Kato count <span class="math inline">\(\dim
+H^1_f=\sum_\tau\#\{\text{non-negative Hodge--Tate weights}\}\)</span>,
+and the family supplies the hypothesis <span
+class="math inline">\(|L_o|\le m\)</span> by <em>equality</em>
+(<code>le_of_eq</code>), from its weight pattern
+<code>ShapeJumps k m t</code>.</p></li>
+</ol>
+<p> ◻</p>
+</div>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Factor of <span
+class="math inline">\(E_b\)</span></th>
+<th style="text-align: left;">Source</th>
+<th style="text-align: left;">Size</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">number of lifts</td>
+<td style="text-align: left;"><span
+class="math inline">\(|J|=m\)</span></td>
+<td style="text-align: left;"><span
+class="math inline">\(m\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">rank per piece</td>
+<td style="text-align: left;">Bloch–Kato, fixed by equality</td>
+<td style="text-align: left;"><span
+class="math inline">\(m\cdot\mathrm{locDeg}\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">exponent per piece</td>
+<td style="text-align: left;">lift exponent <span
+class="math inline">\(e&#39;\)</span></td>
+<td style="text-align: left;"><span class="math inline">\(\approx
+b\)</span></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">primes</td>
+<td style="text-align: left;"><span
+class="math inline">\(\sum\log\ell\)</span> over small primes</td>
+<td style="text-align: left;"><span class="math inline">\(\approx
+x^\varepsilon\)</span></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span
+class="math inline">\(\text{Ш}\)</span> loss</td>
+<td style="text-align: left;"><span
+class="math inline">\(\sum\mathrm{vvTerm}\le\sqrt b\)</span>, once per
+lift</td>
+<td style="text-align: left;">negligible</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h4 data-number="6.6.0.1"
+id="why-the-two-ms-are-one-m.-tagourstag"><span
+class="header-section-number">6.6.0.1</span> Why the two <span
+class="math inline">\(m\)</span>’s are one <span
+class="math inline">\(m\)</span>. <span class="tag ours">Ours</span></h4>
+<p><span class="tag verified">Verified</span> <code>ShapeJumps k m t</code>
+(<code>EmbeddingTypes.lean:99</code>), required by <code>admG2</code> at
+every small prime, place and embedding, says the Hodge–Tate multiplicity
+of the twisted lifted representation is the indicator of <span
+class="math inline">\(C\cup L\cup[0,t)\)</span>: <span
+class="math inline">\(k-1\)</span> weights in a far cloud <span
+class="math inline">\(C\)</span>, exactly <span
+class="math inline">\(m\)</span> weights <span
+class="math inline">\(L\)</span> near <span
+class="math inline">\(0\)</span>, and the <span
+class="math inline">\(t\)</span>-block <span
+class="math inline">\([0,t)\)</span> from cyclotomic twists <span
+class="math inline">\(\chi^c\)</span>, <span
+class="math inline">\(c=1,\dots,t\)</span>. With <span
+class="math inline">\(r=k+m-1\)</span> and <span
+class="math inline">\(n_V=r+t\)</span>, the weights <span
+class="math inline">\(C\cup L\)</span> have sizes <span
+class="math inline">\((k-1,m)\)</span>: the starting signature.
+<span class="tag reading">Reading</span> The <span class="math inline">\(m\)</span> low weights are
+the indefinite side of the signature, and the chain has exactly <span
+class="math inline">\(m\)</span> lifts because it walks that side down
+to <span class="math inline">\(0\)</span>. So <span
+class="math inline">\(E_b\)</span>’s <span
+class="math inline">\(m^2\)</span> is one <span
+class="math inline">\(m\)</span> used twice, by construction.</p>
+<figure id="fig-weights"><img src="fig/weights.svg" alt="Figure 10" loading="lazy"><figcaption><b>Figure 10.</b> The weight pattern <code>ShapeJumps k m t</code> (schematic, not to
+scale). The <span class="math inline">\(m\)</span> low weights are both
+the indefinite part of the starting signature and the Bloch–Kato rank of
+each piece.</figcaption></figure>
+<h4 data-number="6.6.0.2" id="where-b-enters.-tagverifiedtag"><span
+class="header-section-number">6.6.0.2</span> Where <span
+class="math inline">\(b\)</span> enters. <span class="tag verified">Verified</span></h4>
+<p>The lift exponent is <span
+class="math inline">\(e&#39;=e_L(\ell,N,h)=32(2h\,s_N(\ell,N)+1)+\lambda_N(\ell,N,h)\)</span>
+with <span class="math inline">\(h=\lfloor h_B\rfloor\)</span>, linear
+in a height <span class="math inline">\(h_B\in[b,6b]\)</span>.
+<span class="tag reading">Reading</span> A lifting exponent growing linearly with the Hodge–Tate
+height, as in Fontaine–Laffaille-type bounds. Since both the main term
+<span class="math inline">\(n_Tmb\)</span> and the cost <span
+class="math inline">\(mB_0\)</span> are linear in <span
+class="math inline">\(b\)</span>, <strong><span
+class="math inline">\(b\)</span> cancels in the balance</strong>: <span
+class="math inline">\(e&#39;\approx b\)</span> sets the absolute size of
+<span class="math inline">\(E_b\)</span>, not its dependence on <span
+class="math inline">\(m\)</span>.</p>
+<h2 data-number="6.7"
+id="the-m-side-of-the-balance-is-the-divisibility-error"><span
+class="header-section-number">6.7</span> The <span
+class="math inline">\(+m\)</span> side of the balance is the
+divisibility error</h2>
+<div class="theorem">
+<p><strong>Theorem 26</strong> (<span class="tag ours">Ours</span>, pieces <span class="tag verified">Verified</span>).
+<em>Both sides of the balance <span class="math inline">\(x/m+m\)</span>
+come from <code>DIV</code>: the <span class="math inline">\(x/m\)</span>
+term from <span class="math inline">\(c_{Div}n_TaL_a\)</span> (top
+weights <span class="math inline">\(a=xb\)</span>), the <span
+class="math inline">\(m\)</span> term from <span
+class="math inline">\(c_{Div}m(B_0+N_c)x^{e_{Div}\varepsilon}\)</span>,
+which on the lattice side is <span
+class="math inline">\(\mathrm{errB}=\text{drift}+E_b\)</span>.</em></p>
+</div>
+<div class="remark">
+<p><strong>Remark 27</strong> (<span class="tag verified">Verified</span>, unused route).
+<code>exists_data_completion</code> (<code>PChain.lean:306</code>),
+proved but not used, builds from the single bound <span
+class="math inline">\(\mathrm{ASK}\le\mathrm{MAIN}+c_{Div}n_TaL_a+c_{Div}m(B_0+N_c)x^{e_{Div}\varepsilon}+L_{oP}\)</span>
+a degenerate data record (one word per point, zero energy) satisfying
+all of <code>SizeData_2</code>. So even with zero energy and slope
+charges, the divisibility error alone gives T3.</p>
+</div>
+<div class="corollary">
+<p><strong>Corollary 28</strong> (<span class="tag reading">Reading</span>). <em>With the drift an
+artefact (Proposition <a href="#prop:drift" data-reference-type="ref"
+data-reference="prop:drift">24</a>) and the energy and slope budgets
+slack, the reason the chain is cut at <span
+class="math inline">\(m\approx\sqrt{x}\)</span> rests on one term: <span
+class="math inline">\(E_b\)</span>, <span
+class="math inline">\(m\)</span> lifts times a Bloch–Kato rank of <span
+class="math inline">\(m\)</span> per piece. This is consistent with
+<span
+class="math inline">\(G_\zeta(x)=\Omega(\sqrt{x})\)</span>.</em></p>
+</div>
+<h2 data-number="6.8" id="sec:RR"><span
+class="header-section-number">6.8</span> The common lattice</h2>
+<div class="proposition">
+<p><strong>Proposition 29</strong> (<code>exists_divStage_of_pk</code>,
+<span class="tag exact">Exact</span>; <span class="tag ours">Ours</span> as the answer to Whidden’s question). <em>The
+single lattice <span class="math inline">\(RR\)</span> shared by all
+words is <span class="math display">\[x\in RR.L\iff \forall w\ \exists
+d\in\mathcal{O}_{LL},\ d\notin\mathfrak p_w,\ \
+d\,x\in\mathcal{O}_{LL}\text{-span}\{y : j_E y\in
+\mathrm{RRset}(\mu_w)\},\]</span> where <span
+class="math inline">\(\mathrm{RRset}(\mu)=\iota_\mu(\Lambda_\mu)\)</span>,
+<span
+class="math inline">\(\iota_\mu=\mathrm{multZero}\circ\mathrm{downTo}_{\mu,m}\circ\mathrm{multTop}^{-1}\)</span>
+is the composite of the <span class="math inline">\(m\)</span> lift
+steps, and <span class="math inline">\(\mu_w=\texttt{muAt }w\)</span> is
+the <span class="math inline">\(\xi\)</span>-twist data at <span
+class="math inline">\(w\)</span>
+(<code>prescribedRowLat</code>).</em></p>
+</div>
+<p>So <span class="math inline">\(RR\)</span> is the intersection over
+places of the localisations built from each place’s own character twist:
+a lattice gcd. Every family carries it as the field
+<code>FamP.rrDef : DV.RRDef</code>.</p>
+<figure id="fig-RR"><img src="fig/RR.svg" alt="Figure 11" loading="lazy"><figcaption><b>Figure 11.</b> The common lattice <span class="math inline">\(RR\)</span>
+(<code>prescribedRowLat</code>). Each place contributes the image of its
+own integral points under the composite of the <span
+class="math inline">\(m\)</span> lift steps, built from its own
+character twist; <span class="math inline">\(RR\)</span> is their
+intersection.</figcaption></figure>
+<p><span class="tag reading">Reading</span> This matches the outline’s entry 15 (“glue an integral
+structure across Hecke characters for a gcd”). Its only visible cost is
+<span class="math inline">\(\log\#W\)</span> in the frame
+inequality.</p>
+<h2 data-number="6.9"
+id="the-degree-identity-how-a-slope-becomes-mathrmask-mathrmmain"><span
+class="header-section-number">6.9</span> The degree identity: how a
+slope becomes <span
+class="math inline">\(\mathrm{ASK}-\mathrm{MAIN}\)</span></h2>
+<p>There is no single lemma; it is a chain of four used statements.</p>
+<figure id="fig-degree"><img src="fig/degree.svg" alt="Figure 12" loading="lazy"><figcaption><b>Figure 12.</b> The degree identity. The Arakelov degree of the divisible lattice is
+computed at the finite places (where the prime counts <span
+class="math inline">\(\ASK\)</span> enter) and at the infinite places
+(where the periods <span class="math inline">\(\MAIN\)</span> enter);
+the slope inequality on the one common lattice joins them.</figcaption></figure>
+<ol>
+<li><p><strong>Slope <span class="math inline">\(=\)</span> reference
+<span class="math inline">\(+\)</span> local indices</strong>
+(<code>NprimeMuR</code>, supplied through <code>LinkMu</code> <span
+class="math inline">\(\Leftarrow\)</span>
+<code>J.linkMu_of_linkDIV</code> <span
+class="math inline">\(\Leftarrow\)</span> <code>LinkDIV</code>): <span
+class="math display">\[\begin{gathered}
+  \Bigl|\mu(Nu\,u)-\mu(NuH\,u)-\sum_{w\in\mathrm{supp}}
+sz(w,sg(u,w))\Bigr|\le C X&#39;&#39;,\\
+  sg(u,w)=\sum_j\bigl(\mathrm{gain}_j(w)+F_j(w)-E(u,j,w)\bigr),
+  
+\end{gathered}\]</span> with <span
+class="math inline">\(sz(w,y)=2\,\mathrm{lw}(w)\,e_w\,y\)</span>.
+Summed: <span
+class="math inline">\(\mu(Nu\,u)\approx\mu(NuH\,u)+G_a+F_o-E_e(u)\)</span>.</p></li>
+<li><p><strong>Gain <span class="math inline">\(\ge\)</span> prime
+count</strong> (<code>LinkG_at</code>, where <span
+class="math inline">\(\mathrm{ASK}\)</span> enters). At an inert place
+<span class="math inline">\(w\)</span> over <span
+class="math inline">\(p\le X&#39;&#39;\)</span>: <span
+class="math display">\[\sum_j\sum_t\bigl(\mathrm{vMCS}_{j,t}(p)-\mathrm{loss}\bigr)-m\,\mathrm{fl}(p)\le\sum_j\mathrm{gain}_j(w)-\tau(w),\]</span>
+<span class="math display">\[\mathrm{vMCS}_{j,t}(p)=\sum_{i\text{
+odd}}\max\bigl(0,\,a_t/p^i-\mathrm{wPart}(j,t,p,i)\bigr).\]</span> This
+is a Legendre-type count, like <span
+class="math inline">\(v_p(a!)=\sum_i\lfloor a/p^i\rfloor\)</span> but
+over odd <span class="math inline">\(i\)</span> with weights removed.
+Since <span
+class="math inline">\(\mathrm{ASK}=\sum_j\sum_t\bigl(\sum_{p\text{
+inert}}2\log p\cdot\mathrm{vMCS}_{j,t}(p)+\dots\bigr)\)</span>, summing
+over <span class="math inline">\(w\mid p\)</span> with the product
+formula gives <span class="math inline">\(\mathrm{ASK}-G_a\le
+L_{oP}\)</span> (<code>loss_bound_at</code>).</p></li>
+<li><p><strong>Dual slope <span class="math inline">\(\le\)</span>
+period term</strong> (<code>LinkDIV_at</code>, where <span
+class="math inline">\(\mathrm{MAIN}\)</span> enters): <span
+class="math display">\[\mu_{dual}(RR)+h(u)-F_o\le\mathrm{MAIN}(u)+C|T_T|aL_a+Cm(B_0+N_c)x^{C_{abs}\varepsilon},\]</span>
+<span
+class="math display">\[\mathrm{MAIN}(u)=\sum_t\bigl[m(\phi(a_t)-a_t\log\Omega)-a_t\log
+T_u\bigr],\qquad
+  \log\Omega=\gamma+\log(\pi/v)-\frac{L&#39;}{L}(1,\chi_d),\]</span> the
+Chowla–Selberg period (<code>meanPeriod</code>), and <span
+class="math inline">\(\phi(a)=a\log a-a\)</span>.</p></li>
+<li><p><strong>Slope inequality</strong> (<code>Frame_at</code>): the
+rank-weighted mean <span class="math inline">\(s\)</span> of <span
+class="math inline">\(\mu(Nu\,u)-h_u\)</span> satisfies <span
+class="math inline">\(s-\log\#W-(\text{small})\le\mu_{dual}(RR)\)</span>,
+for the one lattice <span class="math inline">\(RR\)</span> of
+Section <a href="#sec:RR" data-reference-type="ref"
+data-reference="sec:RR">6.8</a>.</p></li>
+</ol>
+<div class="theorem">
+<p><strong>Theorem 30</strong> (Assembled, <span class="tag reading">Reading</span> with each step
+<span class="tag verified">Verified</span>). <em><span class="math display">\[\mathrm{ASK}-L_{oP}\le
+G_a,\qquad
+\mu(Nu\,u)\approx\mu(NuH\,u)+G_a+F_o-E_e(u),\]</span> <span
+class="math display">\[\operatorname{mean}_u[\mu(Nu\,u)-h_u]\le\mu_{dual}(RR)+\log\#W,\]</span>
+<span
+class="math display">\[\mu_{dual}(RR)+h(u)-F_o\le\mathrm{MAIN}(u)+\text{errors}
+\quad\Longrightarrow\quad
+\mathrm{ASK}-\mathrm{MAIN}\le\text{errors},\]</span> after the <span
+class="math inline">\(m\cdot\mathrm{sumA}\cdot\mathrm{lg}\)</span> main
+terms cancel in <code>Ga_bound5</code>. The finite part of the Arakelov
+degree of the divisible lattice is a sum of local indices bounded below
+by the prime counts; the archimedean part is bounded by the CM period
+main term.</em></p>
+</div>
+<h2 data-number="6.10" id="local-divisibility-the-sqrt-p-trick"><span
+class="header-section-number">6.10</span> Local divisibility: the <span
+class="math inline">\(\sqrt p\)</span> trick</h2>
+<div class="lemma">
+<p><strong>Lemma 31</strong> (<code>key_minor_dvd</code>, <span class="tag exact">Exact</span>).
+<em>Let <span class="math inline">\(A\)</span> be a commutative ring,
+<span class="math inline">\(p\)</span> prime, <span
+class="math inline">\(w\in A\)</span> with <span
+class="math inline">\(w^2=p\)</span>. Let <span
+class="math inline">\(M,N&#39;\)</span> be <span
+class="math inline">\((k+1)\times(k+1)\)</span> matrices over <span
+class="math inline">\(A\)</span> with <span
+class="math inline">\(M_{ba}^{p^e}\equiv N&#39;_{ba}\pmod p\)</span> for
+all <span class="math inline">\(b,a\)</span>, and let <span
+class="math inline">\(u,u&#39;\in A^{k+1}\)</span> with <span
+class="math inline">\(w\mid u_b\)</span> and <span
+class="math inline">\(w\mid u&#39;_b\)</span> for <span
+class="math inline">\(b\neq0\)</span>. Then for every column <span
+class="math inline">\(c\)</span>, <span class="math display">\[w\ \Big|\
+\Bigl(\sum_b u&#39;_bN&#39;_{bc}\Bigr)\Bigl(\sum_b
+u_bM_{b0}\Bigr)^{p^e}-\Bigl(\sum_b
+u&#39;_bN&#39;_{b0}\Bigr)\Bigl(\sum_bu_bM_{bc}\Bigr)^{p^e}.\]</span></em></p>
+</div>
+<p><span class="tag exact">Exact</span> Used chain: <code>key_minor_dvd</code> <span
+class="math inline">\(\to\)</span> <code>kW_ord</code> <span
+class="math inline">\(\to\)</span> <code>key3Ord</code>
+(<code>CoarseMultiplicityOrderBound</code>: for <span
+class="math inline">\(g\in GL\)</span> over the Witt vectors <span
+class="math inline">\(W(\mathbb F_{p^{n&#39;}})\)</span>, the key
+polynomials after the lift substitution lie in <span
+class="math inline">\(W_1\)</span>) <span
+class="math inline">\(\to\)</span> <code>third_key_of_order</code> <span
+class="math inline">\(\to\)</span> <code>restRawTail1_of</code> <span
+class="math inline">\(\to\)</span> <code>stmtEExt_of_15c</code>
+(<code>ExtendedClosedForm</code>) <span
+class="math inline">\(\to\)</span> <code>extendedClosedForm</code>.
+<code>LinkG</code> is assembled by <code>link_of_local_closed</code>
+from the first and second closed-form theorems and the local model
+results, all instantiated from one structure <code>Loc</code>, proved by
+<code>loc_proved</code> from <code>TraceSpectra.stmtE</code>.</p>
+<h4 data-number="6.10.0.1" id="the-gain-orbit-by-orbit."><span
+class="header-section-number">6.10.0.1</span> The gain, orbit by
+orbit.</h4>
+<p><span class="tag exact">Exact</span> The gain clause of <code>LinkG_at</code> is
+<code>AuxBlock8.Conclusion1</code>. It is proved from
+<code>St.starAll_of</code>, one inequality per prime <span
+class="math inline">\(p\)</span>, lift <span
+class="math inline">\(j\)</span> and orbit representative <span
+class="math inline">\(t_0\)</span>, <span
+class="math display">\[\sum_{s\in\mathrm{tops}(t_0)}(\mathrm{askP}-\mathrm{lo})\le
+g_U+d_l-P_r-\lceil t_v\rceil-D_p-1,
+\qquad
+g_U=\gamma_p\sum_s\alpha(s)-\sum_s\sum_{e\text{
+odd}}\min\bigl(\alpha(s)/p^e,\mathrm{cap}\bigr)-d_l,\]</span> then
+summed (<code>gain_bound_all_of_star</code>,
+<code>gainBoundAll_add_one_of_gainBoundAllRequired</code>).</p>
+<div class="remark">
+<p><strong>Remark 32</strong> (<span class="tag reading">Reading</span>). A congruence mod <span
+class="math inline">\(p\)</span> gives whole units of <span
+class="math inline">\(p\)</span>. Working where <span
+class="math inline">\(p\)</span> has a square root extracts half a unit
+per place, and the only valuation corrections in the gain are sums over
+<em>odd</em> exponents, the ones where a half unit shows. We did not
+trace the direct call from <code>key3Ord</code> into <span
+class="math inline">\(g_U\)</span>.</p>
+</div>
+<h1 data-number="7" id="sec:E"><span
+class="header-section-number">7</span> Step E: near-orthogonality of the
+words</h1>
+<div class="theorem">
+<p><strong>Theorem 33</strong> (<code>LinkS_at</code>,
+<code>LinkS</code>, <span class="tag exact">Exact</span>). <em>If every word <span
+class="math inline">\(u\)</span> is comparable, <span
+class="math inline">\(C_0^{-1}\le d_u(u)\Gamma^2/D^*\le C_0\)</span>,
+then</em></p>
+<ol>
+<li><p><em><span
+class="math inline">\(\|K(u,u&#39;)\|_{HS}^2\le(1+\eta_0)\,d_u(u)d_u(u&#39;)/D^*\)</span>
+for <span class="math inline">\(u\neq u&#39;\)</span>;</em></p></li>
+<li><p><em><span class="math inline">\(\|K(u,u)-\mathrm{id}\|_{HS}^2\le
+e_0\,d_u(u)\)</span>;</em></p></li>
+<li><p><em><span
+class="math inline">\(D_{all}\le(1+\eta_1)D^*\)</span>;</em></p></li>
+</ol>
+<p><em>with <span
+class="math inline">\(\eta_0,\eta_1,\sqrt{e_0}\le\exp(-x^{\varepsilon/8})\)</span>
+and <span class="math inline">\(\Gamma=\exp(C_\Gamma
+m^5fL)\)</span>.</em></p>
+</div>
+<p><span class="tag verified">Verified</span> The comparability premise is discharged where
+<code>LinkS</code> is consumed: <code>matKF_of</code> feeds it
+<code>ChosenProviso</code>, proved by <code>chosenProviso_min</code>
+from the class number formula (<code>ClassNumberFormula_2</code>) and
+<code>RankTiesF</code>. The bound itself comes from
+<code>theoremS_link_concrete</code>, from <code>ResidEv</code>,
+<code>RowsTieP</code>, <code>CountAllPointsClass</code> and four
+hypotheses <code>ClKppOff</code> (the correction <span
+class="math inline">\(K_{pp}\)</span> vanishes off the diagonal),
+<code>ClKppDiag</code>, <code>ClOff</code>, <code>ClDiag</code>.</p>
+<p><span class="tag reading">Reading</span> The normalised Gram matrix of the words is the identity
+up to <span class="math inline">\(\exp(-x^{\varepsilon/8})\)</span>. The
+<span class="math inline">\(m^5\)</span> in <span
+class="math inline">\(\Gamma\)</span> is the same <span
+class="math inline">\(m^5\)</span> as the word count of Section <a
+href="#sec:windows" data-reference-type="ref"
+data-reference="sec:windows">5.2</a>. This is the “approximate
+orthogonality of columns” of the outline (entry 16), and it does not
+touch the balance.</p>
+<h1 data-number="8" id="sec:F"><span
+class="header-section-number">8</span> Step F: the <span
+class="math inline">\(\text{Ш}\)</span> window and the classical
+inputs</h1>
+<div class="definition">
+<p><strong>Definition 34</strong> (<code>IsChiField</code>,
+<code>VVle</code>). For <span class="math inline">\(e,q,d\)</span> and a
+character <span class="math inline">\(\psi\)</span>, a field <span
+class="math inline">\(E\subset\mathbb{Q}(\zeta_N)\)</span> is a <span
+class="math inline">\(\chi\)</span>-field if it is fixed exactly by the
+<span class="math inline">\(a\)</span> with <span
+class="math inline">\(a\equiv\pm1\pmod{2^{e+2}}\)</span>, <span
+class="math inline">\(\psi(a)=1\)</span>, <span
+class="math inline">\((a/q)=(a/d)=1\)</span>. <span
+class="math inline">\(\mathrm{VVle}(E,t,B)\)</span> means: for every
+prime <span class="math inline">\(\ell\)</span> and <span
+class="math inline">\(0&lt;e&lt;t\)</span> the Tate–Shafarevich group
+<span class="math inline">\(\text{Ш}_\ell(e)\)</span> has finite length,
+and <span class="math display">\[\sum_{\ell\in S}\log\ell\sum_{1\le
+e&lt;t}\operatorname{len}\text{Ш}_\ell(e)\le B\qquad\text{for every
+finite set } S.\]</span></p>
+</div>
+<div class="theorem">
+<p><strong>Theorem 35</strong> (<code>VWinAt psi 401</code>,
+<span class="tag exact">Exact</span>). <em>For every <span
+class="math inline">\(\varepsilon\in(0,1/52)\)</span> and page choice
+<span class="math inline">\(e(x)\)</span> with <span
+class="math inline">\(x^{2+8\varepsilon}\le 2^{e}\le
+2x^{2+8\varepsilon}\)</span>, there are <span
+class="math inline">\(J\ge1\)</span> and <span
+class="math inline">\(X_0\)</span> such that for <span
+class="math inline">\(X\ge X_0\)</span> and every window pair <span
+class="math inline">\((q,d)\)</span> there is <span
+class="math inline">\(Y\)</span> with <span
+class="math inline">\(X^{1/J}\le Y\)</span>, <span
+class="math inline">\(Y^2\le X\)</span>, and for every <span
+class="math inline">\(x\in[Y,Y^2]\)</span> every <span
+class="math inline">\(\chi\)</span>-field <span
+class="math inline">\(E\)</span> satisfies <span
+class="math inline">\(\mathrm{VVle}\bigl(E,\lfloor
+x^{401}\rfloor,\sqrt{\exp(x^\varepsilon)}\bigr)\)</span>.</em></p>
+</div>
+<p><span class="tag reading">Reading</span> <span class="math inline">\(E\)</span> is the real
+<span class="math inline">\(2^{e+2}\)</span>-cyclotomic layer cut by
+<span class="math inline">\(\psi\)</span> and the two auxiliary
+quadratic characters, of degree about <span
+class="math inline">\(2^e\approx x^{2+8\varepsilon}\approx n\)</span>,
+matching the host. <code>supplyChi</code> turns the window into host
+existence for each character.</p>
+<h4 data-number="8.0.0.1" id="the-proof-chain."><span
+class="header-section-number">8.0.0.1</span> The proof chain.</h4>
+<p><span class="tag exact">Exact</span> One chain, all used: <code>vwin_of_row</code> <span
+class="math inline">\(\to\)</span>
+<code>automorphic_window_of_inputs</code> <span
+class="math inline">\(\to\)</span>
+<code>v_window_of_depth_zero_residual_bc_cm</code> <span
+class="math inline">\(\to\)</span>
+<code>v_window_of_literal_automorphy_n</code> <span
+class="math inline">\(\to\)</span>
+<code>v_window_of_automorphy_csd_ss_mono_odd</code> <span
+class="math inline">\(\to\)</span>
+<code>vwin_of_hypotheses_H_E_alt</code> <span
+class="math inline">\(\to\)</span> <code>of_four_alt</code> <span
+class="math inline">\(\to\)</span> <code>vwin_of_counts</code> <span
+class="math inline">\(\to\)</span> <code>vwin_of_joint</code> <span
+class="math inline">\(\to\)</span> <code>vwinAt_of_joint</code>.</p>
+<figure id="fig-sha"><img src="fig/sha.svg" alt="Figure 13" loading="lazy"><figcaption><b>Figure 13.</b> What the <span class="math inline">\(\text{Ш}\)</span> window rests
+on. All yellow and grey inputs are proved in Lean from one
+<code>OpenImageCondition</code>; none is assumed.</figcaption></figure>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Input</th>
+<th style="text-align: left;">Rests on</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">bounded-height part
+(<code>ThmBab</code>)</td>
+<td style="text-align: left;"><code>thmBab_of_lemmaK</code> with
+<code>ferreroWashington</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">minus part (<code>ThmBcFree</code>)</td>
+<td style="text-align: left;">a Stickelberger-type bound <span
+class="math inline">\(\operatorname{len}\text{Ш}^-\log\ell\le
+C\ell[E:\mathbb{Q}]^2(e+1)\log(e\ell N)^2\)</span>, via
+<code>ML.iv</code> (Poitou–Tate and unramified orthogonality)</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">plus part (<code>ThmHV</code>)</td>
+<td style="text-align: left;">counts I, II, III, V, Z and
+<code>LemmaK</code>: Kato-type bounds, <span
+class="math inline">\(\mathrm{Sp}_4\)</span> inputs, unitary lifts</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">duality (<code>LitCoh</code>)</td>
+<td style="text-align: left;">Poitou–Tate, local Tate duality, local and
+global Euler characteristics, local and global finiteness,
+Greenberg–Wiles</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">CM inputs
+(<code>LiteratureCMHypothesis</code>)</td>
+<td style="text-align: left;">Grothendieck deformation, de Rham
+comparison, Serre–Tate, CM main theorem, Hilbert class field via <span
+class="math inline">\(j\)</span>, Siegel–Klingen and Deligne–Ribet,
+functional equation of partial zeta</td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="theorem">
+<p><strong>Theorem 36</strong> (Ferrero–Washington,
+<code>UpperTheory.V.FW.ferreroWashington</code>, <span class="tag exact">Exact</span>). <em>For a
+prime <span class="math inline">\(\ell\)</span> and an abelian number
+field <span class="math inline">\(K\)</span> containing <span
+class="math inline">\(\mu_\ell\)</span> (<span
+class="math inline">\(\mu_4\)</span> if <span
+class="math inline">\(\ell=2\)</span>) there is <span
+class="math inline">\(r\)</span> such that every layer <span
+class="math inline">\(K&#39;\)</span> of the cyclotomic <span
+class="math inline">\(\mathbb{Z}_\ell\)</span>-tower over <span
+class="math inline">\(K\)</span> satisfies <span
+class="math inline">\(|\operatorname{Cl}(K&#39;)/\operatorname{Cl}(K&#39;)^\ell|\le\ell^r\)</span>.</em></p>
+</div>
+<p><span class="tag reading">Reading</span> Bounded <span class="math inline">\(\ell\)</span>-rank
+up the tower is the statement <span
+class="math inline">\(\mu=0\)</span>. The proof occupies a 62-file
+folder (<code>GaloisLibrary/FerreroWashingtonIndex</code>).</p>
+<h4 data-number="8.0.0.2" id="provenance."><span
+class="header-section-number">8.0.0.2</span> Provenance.</h4>
+<p>The literature structures are filled by Lean proofs
+(<code>..._from_literature</code>, <code>..._of_open</code>) from one
+<code>OpenImageCondition</code>, which comes from <code>Row0b</code>.
+That in turn is proved by the theorem
+<code>galoisLocalGlobalStrong_recParameter</code>. The clean axiom check
+means none is assumed.</p>
+<h4 data-number="8.0.0.3" id="budget.-tagreadingtag"><span
+class="header-section-number">8.0.0.3</span> Budget. <span class="tag reading">Reading</span></h4>
+<p>The minus part is polynomial in <span
+class="math inline">\(t=x^{401}\)</span>, <span
+class="math inline">\([E:\mathbb{Q}]\approx x^{2+8\varepsilon}\)</span>
+and logarithms; the plus part is at most <span
+class="math inline">\(\exp(x^{4\varepsilon/5})\)</span> times a
+polynomial. Both are far below <span class="math inline">\(\sqrt
+b=\exp(x^\varepsilon/2)\)</span>, so the window does not touch the
+square root.</p>
+<h1 data-number="9" id="sec:23"><span
+class="header-section-number">9</span> Why the <span
+class="math inline">\(2/3\)</span> barrier does not appear</h1>
+<p>The outline (entry 14) says a calculation of the cost of each lift
+shows one would “stop at <span class="math inline">\(2/3\)</span> a
+priori”. That calculation is not in the archive (Section <a
+href="#sec:no23" data-reference-type="ref"
+data-reference="sec:no23">9.4</a>). Here it is reconstructed from the
+code’s own quantities. <span class="tag ours">Ours</span>.</p>
+<h2 data-number="9.1" id="what-the-code-charges"><span
+class="header-section-number">9.1</span> What the code charges</h2>
+<p><span class="tag verified">Verified</span> <span
+class="math display">\[\mathrm{charge}(j)=\sum_{\ell\text{
+small}}\log\ell\sum_{\text{pieces at }j}\mathrm{colength}
+\approx f\,m\,b\,x^\varepsilon=B_0,\qquad
+E_b=\sum_{j=1}^m\mathrm{charge}(j)\approx m B_0.\]</span> Each piece
+belongs to one lift (<code>NData.locs_mem</code>), and each lift is
+charged on its own block: the family is <code>DefFam</code> with <span
+class="math inline">\(L:J\to T\to\mathrm{BlockDat}\)</span>
+(<code>RowLat.lean:213</code>), and the exponents and lengths of lift
+<span class="math inline">\(j\)</span> are read from <span
+class="math inline">\(L(j,t)\)</span> alone
+(<code>LiftLat.lean:147--151</code>).</p>
+<h2 data-number="9.2"
+id="accounting-1-compounding-gives-exactly-23"><span
+class="header-section-number">9.2</span> Accounting 1: compounding gives
+exactly <span class="math inline">\(2/3\)</span></h2>
+<p>If lift <span class="math inline">\(j\)</span> were charged for the
+whole composite <span
+class="math inline">\(\Theta_j\circ\dots\circ\Theta_1\)</span>, then
+<span class="math display">\[\mathrm{charge}&#39;(j)=\sum_{j&#39;\le
+j}\mathrm{charge}(j&#39;)\approx jB_0,\qquad
+E_b&#39;=\sum_{j=1}^m jB_0\approx\frac{m^2}{2}B_0,\qquad
+\frac{E_b&#39;}{n_Tmb}\approx m^2x^\varepsilon,\]</span> and the balance
+becomes <span class="math inline">\(x/m+m^2\)</span>, minimised at <span
+class="math inline">\(m=x^{1/3}\)</span>, giving <span
+class="math inline">\(x^{2/3}\)</span>. This is the outline’s <span
+class="math inline">\(2/3\)</span> exactly. The two facts above remove
+the extra factor of <span class="math inline">\(m\)</span>.</p>
+<figure id="fig-compound"><img src="fig/compound.svg" alt="Figure 14" loading="lazy"><figcaption><b>Figure 14.</b> Two accountings of the same chain. The code assigns every local piece
+to exactly one lift (<code>NData.locs_mem</code>) and reads each lift’s
+charge from its own block (<code>DefFam.L</code>); the compounding
+accounting adds a factor of <span class="math inline">\(m\)</span> and
+gives the outline’s <span class="math inline">\(2/3\)</span>.</figcaption></figure>
+<h2 data-number="9.3" id="accounting-2-no-gcd-does-not-give-23"><span
+class="header-section-number">9.3</span> Accounting 2: no gcd does not
+give <span class="math inline">\(2/3\)</span></h2>
+<p>Without the common lattice, the averaging over words in
+<code>Frame_at</code> would be lost. Its only visible cost is <span
+class="math inline">\(\log\#W\le(k-3)\log2\approx
+x^{9/2+10\varepsilon}\)</span>, negligible against <span
+class="math inline">\(n_Tmb\)</span>. So in this bookkeeping the gcd
+does not save a factor of <span class="math inline">\(m\)</span>; its
+role is to make one divisibility statement hold for all words.</p>
+<h2 data-number="9.4" id="sec:no23"><span
+class="header-section-number">9.4</span> No <span
+class="math inline">\(2/3\)</span> route in the archive</h2>
+<p><span class="tag exact">Exact</span> About twenty unused variants of the final growth bound
+exist, among them:</p>
+<ul>
+<li><p><code>ChainAt</code>, <code>Chain6At</code>,
+<code>ChainAt7</code>;</p></li>
+<li><p><code>FixedEpsilonGrowthBound</code>;</p></li>
+<li><p><code>GrowthBracketBoundAtPoint</code>;</p></li>
+<li><p><code>PowerBoundGivesRiemannHypothesis</code>.</p></li>
+</ul>
+<p>Every one concludes <span class="math inline">\(G(x)\le
+x^{1/2+O(\varepsilon)}\)</span>. No <span
+class="math inline">\(m^2B_0\)</span> budget, no per-word or
+per-character dual lattice, and no balance with exponent <span
+class="math inline">\(2/3\)</span> or <span
+class="math inline">\(1/3\)</span> appears anywhere. The only “<span
+class="math inline">\(2/3\)</span>” constants are factors like <span
+class="math inline">\((2/3)^f\)</span> in volume bounds.</p>
+<h2 data-number="9.5" id="a-planned-test"><span
+class="header-section-number">9.5</span> A planned test</h2>
+<p>We designed a perturbation experiment
+(<code>mechanism/PERTURB.md</code>): loosen only the upper bound on
+<span class="math inline">\(m\)</span> in <code>RankVal</code> by <span
+class="math inline">\(x^{1/40}\)</span>, rebuild the roughly
+13<span>,</span>000 dependent modules, and record which proofs fail. Our
+prediction, written before running it: the failures appear in the window
+lemmas (<code>szRow_rankSizes</code>, <code>winA</code>) and in the
+<span class="math inline">\(m^5\)</span> word-count lemma, not in the
+arithmetic layers, because <span class="math inline">\(m\)</span> and
+<span class="math inline">\(k\)</span> are locked with only about <span
+class="math inline">\(x^{0.26\varepsilon}\)</span> of headroom. Results
+are pending.</p>
+<h1 data-number="10" id="sec:verify"><span
+class="header-section-number">10</span> The verification record</h1>
+<div class="center">
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Check</th>
+<th style="text-align: left;">Result (20–21 November 2026)</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">Source scan</td>
+<td style="text-align: left;">0 <code>sorry</code>, <code>admit</code>,
+axiom declarations, <code>native_decide</code>, <code>reduceBool</code>;
+5 build-time code hits (informational)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Full build</td>
+<td style="text-align: left;">175<span>,</span>187 modules,
+183<span>,</span>893 jobs, OK, 401 minutes on 94 cores</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Statement</td>
+<td style="text-align: left;">identical to Mathlib’s
+<code>RiemannHypothesis</code>
+(<code>Mathlib.NumberTheory.LSeries.RiemannZeta</code>)</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Axioms</td>
+<td style="text-align: left;"><code>propext</code>,
+<code>Quot.sound</code>, <code>Classical.choice</code> only;
+<code>OVERALL: CLEAN</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Olean comparison</td>
+<td style="text-align: left;">76<span>,</span>968 byte-identical to
+Sutherland’s manifest, including <code>Main.olean</code>;
+98<span>,</span>219 differ, every one embedding the absolute build path;
+0 differ without a path</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">Export hash</td>
+<td style="text-align: left;">running</td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">Full kernel replay
+(<code>–fresh</code>)</td>
+<td style="text-align: left;">running</td>
+</tr>
+</tbody>
+</table>
+</div>
+<figure id="fig-oleans"><img src="fig/oleans.svg" alt="Figure 15" loading="lazy"><figcaption><b>Figure 15.</b> Our build against Sutherland’s manifest of compiled files.</figcaption></figure>
+<div class="remark">
+<p><strong>Remark 37</strong>. The differing oleans store the source
+path (for example <code>/home/.../rh/lean/src/.../OrbitMult.lean</code>,
+once per file), which differs between machines. The kernel export holds
+only declarations, so a matching export hash would show that the
+differences cannot touch the proof.</p>
+</div>
+<h1 data-number="11" id="sec:open"><span
+class="header-section-number">11</span> Open questions, and what we
+could settle</h1>
+<p>Each question below is followed by what we could settle from the
+source and the outline. <strong>Status:</strong> three answered within
+the code (2, 3, 4), one narrowed (5), one still needs the author (1);
+the call-level gap in step D4, the role of the constants and a static
+reading of <code>SizesAt</code> are settled below.</p>
+<div class="question">
+<p><strong>Question 1</strong>. Is the compounding counterfactual of
+Section <a href="#sec:23" data-reference-type="ref"
+data-reference="sec:23">9</a> the calculation behind the outline’s <span
+class="math inline">\(2/3\)</span>?</p>
+</div>
+<p><strong>Still open.</strong> The outline (entry 14, dated 15 November
+2026) reports a “precise computation of the cost of each lift” and the
+figure <span class="math inline">\(2/3\)</span>, but does not show the
+calculation. Our reconstruction is the simplest accounting in the code’s
+own quantities that gives exactly <span
+class="math inline">\(2/3\)</span>; only the author can say whether it
+is his.</p>
+<div class="question">
+<p><strong>Question 2</strong>. Could a family with a smaller indefinite
+part per lift lower the <span class="math inline">\(m^2\)</span> cost of
+<span class="math inline">\(E_b\)</span>, or does the Bloch–Kato count
+force it?</p>
+</div>
+<p><strong>Answered within this chain.</strong> <span class="tag verified">Verified</span>
+<code>ShapeJumps k m t</code> is required with the same <span
+class="math inline">\(m\)</span> at every local piece, whatever lift the
+piece belongs to (<code>admG2</code>,
+<code>EmbeddingTypes.lean:122</code>), so every lift is charged rank
+<span class="math inline">\(m\)</span>. <span class="tag reading">Reading</span> checked by
+arithmetic: even a family whose rank tracked the shrinking indefinite
+part, <span class="math inline">\(m-j\)</span> at lift <span
+class="math inline">\(j\)</span>, would pay <span
+class="math inline">\(\sum_{j=1}^{m}(m-j)=m(m-1)/2\)</span>, still of
+order <span class="math inline">\(m^2\)</span>. So no refinement of the
+per-lift rank along this chain changes the exponent; it saves at most a
+factor of <span class="math inline">\(2\)</span>. Lowering it would need
+a rank of <span class="math inline">\(o(m)\)</span> per lift, that is a
+chain with a smaller indefinite part, hence fewer lifts, which costs on
+the <span class="math inline">\(x/m\)</span> side.</p>
+<div class="question">
+<p><strong>Question 3</strong>. Why must the lift exponent <span
+class="math inline">\(e&#39;\)</span> be as large as <span
+class="math inline">\(b=\exp(x^\varepsilon)\)</span>? A polynomial <span
+class="math inline">\(e&#39;\)</span> would shrink <span
+class="math inline">\(B_0\)</span>, though not its dependence on <span
+class="math inline">\(m\)</span>.</p>
+</div>
+<p><strong>Answered within this design.</strong> <span class="tag verified">Verified</span> <span
+class="math inline">\(e&#39;\)</span> is linear in a Hodge–Tate height
+<span class="math inline">\(h_B\in[b,6b]\)</span>, and the heights are
+of size <span class="math inline">\(b\)</span> because the weights on
+thick places lie in <span class="math inline">\([b,b+\eta+1]\)</span>.
+<span class="tag exact">Exact</span> The weight scale cannot be polynomial: the <span
+class="math inline">\(\text{Ш}\)</span>-window losses are themselves
+exponential. The bounded-height condition is stated with <span
+class="math inline">\(\exp(x^{4\varepsilon/5})\)</span>
+(<code>BaAt</code>) and the plus part with <span
+class="math inline">\((\mathrm{cond}\cdot
+t)^C+C\exp(x^{4\varepsilon/5})\)</span> (<code>HVAt</code>), both to be
+absorbed by <span class="math inline">\(\sqrt
+b=\exp(x^\varepsilon/2)\)</span>. <span class="tag reading">Reading</span> So <span
+class="math inline">\(b\)</span> is exponential to swallow those losses,
+<span class="math inline">\(e&#39;\approx b\)</span> follows, and since
+<span class="math inline">\(b\)</span> cancels in the balance this sets
+the absolute size of <span class="math inline">\(E_b\)</span> but not
+the exponent <span class="math inline">\(1/2\)</span>.</p>
+<div class="question">
+<p><strong>Question 4</strong>. Do the formal versions of
+Ferrero–Washington, Poitou–Tate, the Kato-type bounds and the CM inputs
+match the published theorems at full strength?</p>
+</div>
+<p><strong>Answered: statements read for all four.</strong></p>
+<ul>
+<li><p><em>Ferrero–Washington.</em> <span class="tag exact">Exact</span> The statement bounds
+<span
+class="math inline">\(|\operatorname{Cl}(K&#39;)/\operatorname{Cl}(K&#39;)^\ell|\)</span>
+by <span class="math inline">\(\ell^r\)</span> for every layer <span
+class="math inline">\(K&#39;=K(\mu_{\ell^n})\)</span> over an abelian
+<span class="math inline">\(K\supseteq\mu_\ell\)</span> (<span
+class="math inline">\(\mu_4\)</span> if <span
+class="math inline">\(\ell=2\)</span>), with Mathlib’s class group.
+<span class="tag reading">Reading</span> <span
+class="math inline">\(\operatorname{Cl}/\operatorname{Cl}^\ell\)</span>
+is elementary abelian of order <span
+class="math inline">\(\ell^{\operatorname{rk}_\ell}\)</span>, so this is
+bounded <span class="math inline">\(\ell\)</span>-rank up the cyclotomic
+<span class="math inline">\(\mathbb{Z}_\ell\)</span>-tower, which is
+equivalent to <span class="math inline">\(\mu=0\)</span>: the published
+theorem, in the form for <span class="math inline">\(K\)</span>
+containing <span class="math inline">\(\mu_\ell\)</span>.</p></li>
+<li><p><em>Poitou–Tate.</em> <span class="tag exact">Exact</span>
+<code>PoitouTateNormalised</code>: for a number field <span
+class="math inline">\(F\)</span>, a prime <span
+class="math inline">\(\ell\)</span> with <span
+class="math inline">\(\ell\neq2\)</span> or <span
+class="math inline">\(F\)</span> totally complex, a finite set <span
+class="math inline">\(S\)</span> containing the places above <span
+class="math inline">\(\ell\)</span>, and every finite <span
+class="math inline">\(\mathbb{Z}/\ell^r\)</span>-module with a
+continuous <span class="math inline">\(G_S\)</span>-action: normalised
+local invariant maps, the nine-term exact sequence, <span
+class="math inline">\(\text{Ш}\)</span>-duality, and <span
+class="math inline">\(H^n=0\)</span> for <span
+class="math inline">\(n\ge3\)</span>. <span class="tag reading">Reading</span> This is the standard
+theorem; the condition on <span class="math inline">\(\ell\)</span> is
+exactly the case where the real places contribute nothing in degree
+<span class="math inline">\(\ge3\)</span>. It is proved unconditionally
+by <code>poitouTateNormalised_holds</code>; the literature wrapper
+ignores its argument.</p></li>
+<li><p><em>Kato-type input.</em> <span class="tag exact">Exact</span> <code>KatoTwoW</code>: for
+an odd prime <span class="math inline">\(\ell\)</span>, an imaginary
+quadratic <span class="math inline">\(K\)</span> with <span
+class="math inline">\(\ell\nmid \mathrm{disc}(K)\,h_K\)</span>, and a
+two-dimensional <span class="math inline">\(\ell\)</span>-adic
+representation <span class="math inline">\(W\)</span> with determinant
+the quadratic character <span class="math inline">\(\theta\)</span> of
+<span class="math inline">\(K\)</span>, ordinary at <span
+class="math inline">\(\ell\)</span>, residually Eisenstein (trace <span
+class="math inline">\(\equiv\theta\cdot\chi^e\psi+(\chi^e\psi)^{-1}\)</span>),
+irreducible over the cyclotomic extension of <span
+class="math inline">\(K\)</span> and attached to a newform of weight
+<span class="math inline">\(2e+1\)</span>: the Bloch–Kato Selmer groups
+of <span class="math inline">\(W\)</span> and of <span
+class="math inline">\(W\otimes\theta\)</span> vanish. <span class="tag reading">Reading</span> This
+is not a verbatim published theorem. There is no hypothesis on an <span
+class="math inline">\(L\)</span>-value; the class-number condition <span
+class="math inline">\(\ell\nmid h_K\)</span> plays that role, as in
+residually reducible (Eisenstein-ideal) arguments. It is the kind of
+statement that follows from Kato’s Euler system together with a
+main-conjecture input, and a specialist should confirm the exact
+strength. It is proved in Lean
+(<code>katoTwoW_of_printsH_of_rT_of_quadBC2</code>), so this affects how
+to describe it, not whether the proof is correct.</p></li>
+<li><p><em>CM inputs.</em> <span class="tag exact">Exact</span> Read statement by statement:
+Shimura’s main theorem of complex multiplication for imaginary quadratic
+<span class="math inline">\(K\)</span>
+(<code>EllipticMainTheoremCM</code>); <span
+class="math inline">\(K(j(\mathcal{O}_K))\)</span> is the Hilbert class
+field, of degree <span class="math inline">\(h_K\)</span>, with <span
+class="math inline">\(j(\mathfrak a)=j(\mathfrak b)\)</span> iff <span
+class="math inline">\(\mathfrak a,\mathfrak b\)</span> are in the same
+class (<code>HilbertClassFieldJ</code>); Siegel–Klingen and
+Deligne–Ribet; the functional equation of partial zeta functions of
+totally real fields and of Hecke characters of CM fields;
+Grothendieck–Messing deformation theory over nilpotent divided powers;
+de Rham cohomology of abelian schemes (free, Hodge filtration, base
+change, rigidity, duality); the period relation and Gauss–Manin periods;
+and Serre–Tate (Néron–Ogg–Shafarevich, potential good reduction, good
+reduction of CM abelian varieties). <span class="tag reading">Reading</span> Each matches the
+standard theorem of that name in shape and hypotheses. We did not check
+the internal definitions they rely on (for example the global Artin map)
+line by line.</p></li>
+</ul>
+<p>Since every one of these is proved in Lean and the axiom check is
+clean, Question 4 is about exposition: whether the names are honest
+descriptions. For the ones we read they are, with the caveat on the
+Kato-type statement above.</p>
+<div class="question">
+<p><strong>Question 5</strong>. Is the windowed Landau theorem
+(Theorem <a href="#thm:landau" data-reference-type="ref"
+data-reference="thm:landau">5</a>) new as a stated result?</p>
+</div>
+<p><strong>Narrowed.</strong> Deducing zero-free regions from one-sided
+or localised information on prime sums is a classical line going back to
+Landau and developed by Pintz (see the recent survey <em>A round of
+Pintz to celebrate oscillations in sums</em>, arXiv:2511.09978), and
+effective versions of Landau’s theorem already give quantitative lower
+bounds for averages over ranges <span
+class="math inline">\([1,Y]\)</span>. The windowed statement is
+therefore close to known methods in substance; whether this exact form
+appears in the literature is for specialists to say.</p>
+<h4 data-number="11.0.0.1"
+id="the-call-level-gap-in-step-d4-is-closed."><span
+class="header-section-number">11.0.0.1</span> The call-level gap in step
+D4 is closed.</h4>
+<p><span class="tag exact">Exact</span> <code>extendedClosedForm</code> is the field
+<code>p15</code> of <code>local_flatness_results</code>, which feeds
+<code>loc8All_of</code>, <code>first_theorem_threshold_functions</code>
+and <code>first_theorem_closed_form</code>; the family bound from it is
+<code>Adm8F</code>, a hypothesis of
+<code>admissible_family_no_kernel</code>, whose output is what the gain
+statement (<code>AuxBlock8.Conclusion1</code>, via
+<code>starAll_of</code>) is proved from. So the <span
+class="math inline">\(\sqrt p\)</span> lemma reaches the gain inequality
+through the first closed-form theorem. Not checked: which lines of the
+gain proof consume <code>p15</code> specifically.</p>
+<h4 data-number="11.0.0.2"
+id="the-constants-do-not-matter-for-the-theorem."><span
+class="header-section-number">11.0.0.2</span> The constants do not
+matter for the theorem.</h4>
+<p><span class="tag exact">Exact</span> <code>ChebyshevInequalityAtWindowScale</code> asks for
+<em>some</em> constants <span class="math inline">\(e_D,e_L\)</span> and
+<span class="math inline">\(\varepsilon_1&gt;0\)</span> such that for
+every <span class="math inline">\(\varepsilon&lt;\varepsilon_1\)</span>
+there is a family with <span class="math inline">\(G_m(x)\le
+x^{1/2+(e_D+e_L+7)\varepsilon}\)</span> on its windows. Since <span
+class="math inline">\(e_D,e_L\)</span> are fixed while <span
+class="math inline">\(\varepsilon\to0\)</span>, the Landau step gives
+zero-freeness for every <span
+class="math inline">\(\operatorname{Re}s&gt;1/2\)</span> whatever their
+values. Explicit constants would only matter for an effective
+(numerical) version, which the development does not attempt.</p>
+<h4 data-number="11.0.0.3"
+id="sizesat-under-other-exponents-read-statically."><span
+class="header-section-number">11.0.0.3</span> <code>SizesAt</code> under
+other exponents, read statically.</h4>
+<p><span class="tag exact">Exact</span> Write <span class="math inline">\(m=x^\mu\)</span>, <span
+class="math inline">\(n=x^\nu\)</span>, <span
+class="math inline">\(k=x^\kappa\)</span>. In the abstract size layer
+the exponents enter only through <span
+class="math display">\[\tfrac12-\varepsilon\le\mu\le\tfrac12+\tfrac\varepsilon
+2,\qquad
+\kappa\ge1+\mu,\qquad \kappa\le 2\nu+\tfrac12-\varepsilon,\qquad
+\kappa\le e_K\]</span> (the bounds on <span
+class="math inline">\(\mu\)</span> are in <code>RestSize</code> and
+<code>ErrWindows0</code>), together with the family’s word count <span
+class="math inline">\(\kappa\ge5\mu+\nu\)</span>. Every other window
+(<code>CostWindows</code>, <code>GrowthInequalitySizes</code>, the
+bounds on <span class="math inline">\(L\)</span>, <span
+class="math inline">\(L_a\)</span>, <span
+class="math inline">\(b&#39;\)</span>) compares polynomials in <span
+class="math inline">\(x\)</span> with <span
+class="math inline">\(b=\exp(x^\varepsilon)\)</span> and holds for any
+fixed exponents. So statically, <span class="math inline">\(\mu\)</span>
+is pinned only by the two windows that encode the balance, exactly as
+predicted. What reading cannot rule out is a hidden dependence elsewhere
+in the 13<span>,</span>000 modules downstream of the size choices; the
+perturbation run (Section <a href="#sec:23" data-reference-type="ref"
+data-reference="sec:23">9</a>) will check that mechanically.</p>
+<h4 data-number="11.0.0.4" id="still-not-traced."><span
+class="header-section-number">11.0.0.4</span> Still not traced.</h4>
+<p>The Lean proofs of the classical inputs of Section <a href="#sec:F"
+data-reference-type="ref" data-reference="sec:F">8</a>, as opposed to
+their statements; numerical values of the constants; the perturbation
+run.</p>
+<h1 class="unnumbered" id="acknowledgements">Acknowledgements</h1>
+<p>The formal proof is Levent Alpöge’s. This account builds on public
+work by others on 20 November 2026: Jonas Whidden’s Zulip readings (the
+balance, the frame lemma, the common-lattice question); Bartosz
+Naskręcki’s proof guide; Andrew Sutherland’s build manifest; the
+dead-code counts of Sonoda and of James Shore (256<span>,</span>620 of
+1<span>,</span>061<span>,</span>531 declarations unused); patunz’s
+report on path-dependent olean hashes; the expositions of Yao Xu and
+jae-63; the declaration index at <code>riemann.tamnd.com</code>; and
+JoseClaudioSJr’s issue #5. Errors of interpretation are ours.</p>
+<h1 data-number="12" id="map-from-steps-to-lean-declarations"><span
+class="header-section-number">12</span> Map from steps to Lean
+declarations</h1>
+<table>
+<thead>
+<tr class="header">
+<th style="text-align: left;">Step</th>
+<th style="text-align: left;">TRACE.md</th>
+<th style="text-align: left;">Key declarations</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">A. Windowed Landau</td>
+<td style="text-align: left;">1, 25.1</td>
+<td style="text-align: left;"><code>zeroFree_of_rpow_window</code>,
+<code>lemmaL</code>, <code>landau_window</code>, <code>poleData</code>,
+<code>core_gm</code>, <code>rh_of_every</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">B. Isolation</td>
+<td style="text-align: left;">23</td>
+<td style="text-align: left;"><code>ch_balance</code>,
+<code>ThickPartTranslateMean</code>,
+<code>GrowthInequalityExplicit</code>, <code>signal_term</code>,
+<code>QH.pairEx</code>, <code>zero_density_box</code>,
+<code>hostThickExists</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">C. Size bound</td>
+<td style="text-align: left;">2, 5, 12</td>
+<td style="text-align: left;"><code>proposition_size_bound</code>,
+<code>SZ.T1</code>–<code>T4</code>, <code>RankVal</code>,
+<code>exists_ranks_rankVal_frame</code>,
+<code>m_pow_five_mul_f_mul_L_le</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">D. Pointwise bound</td>
+<td style="text-align: left;">6, 7, 14</td>
+<td style="text-align: left;"><code>each_unit_bound_statement</code>,
+<code>Ga_bound5</code>, <code>ChainTied</code>, <code>linkCore</code>,
+<code>linkGLOBAL7_items</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">D. Energy</td>
+<td style="text-align: left;">8, 9, 15</td>
+<td style="text-align: left;"><code>SizeData_2.EDef</code>,
+<code>NormDecompositionCond</code>, <code>factEtaMean</code>,
+<code>nuAbs_place_fine</code>, <code>ClaimHigh</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">D. DIV</td>
+<td style="text-align: left;">10, 11, 16</td>
+<td style="text-align: left;"><code>Data.DIV</code>,
+<code>height_chain_atR</code>, <code>errB_of_units</code>,
+<code>divisor_inequality_assembly</code>,
+<code>error_absorption</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">D. Rank <span
+class="math inline">\(E_b\)</span></td>
+<td style="text-align: left;">13, 18</td>
+<td style="text-align: left;"><code>rank_le_row</code>,
+<code>ShapeJumps</code>, <code>NData.locs_mem</code>,
+<code>linkN_of_gd</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">D. Common lattice</td>
+<td style="text-align: left;">17</td>
+<td style="text-align: left;"><code>prescribedRowLat</code>,
+<code>exists_divStage_of_pk</code>, <code>FamP.rrDef</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">D. Degree identity</td>
+<td style="text-align: left;">20</td>
+<td style="text-align: left;"><code>NprimeMuR</code>,
+<code>LinkG_at</code>, <code>LinkDIV_at</code>, <code>Frame_at</code>,
+<code>loss_bound_at</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">D. Local divisibility</td>
+<td style="text-align: left;">21, 25.2</td>
+<td style="text-align: left;"><code>key_minor_dvd</code>,
+<code>key3Ord</code>, <code>link_of_local_closed</code>,
+<code>starAll_of</code>, <code>gain_bound_all_of_star</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;">E. Orthogonality</td>
+<td style="text-align: left;">22</td>
+<td style="text-align: left;"><code>LinkS_at</code>,
+<code>theoremS_link_concrete</code>, <code>matKF_of</code>,
+<code>chosenProviso_min</code></td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">F. <span
+class="math inline">\(\text{Ш}\)</span> window</td>
+<td style="text-align: left;">24, 25.3</td>
+<td style="text-align: left;"><code>VWinAt</code>,
+<code>vwinAt_of_joint</code>, <code>of_four_alt</code>,
+<code>ferreroWashington</code>, <code>ML.iv</code></td>
+</tr>
+<tr class="odd">
+<td style="text-align: left;"><span class="math inline">\(2/3\)</span>
+barrier</td>
+<td style="text-align: left;">15, 18, 19</td>
+<td style="text-align: left;"><code>NData.locs_mem</code>,
+<code>DefFam</code>, <code>Frame_at</code></td>
+</tr>
+</tbody>
+</table>
+<footer>
+<p><b>How this was made.</b> I traced the proof and built the project myself, with help from Claude, an AI assistant, for reading the code and drafting the text. Every claim is labelled and points to a file and line in the repository; please check it against the source, and open an issue if something is wrong.</p>
+<p>This write-up and the repository are released under the MIT License. The Lean proof itself is Levent Alpöge's and is not covered by that licence.</p>
+</footer>
+</main>
+</div>
+</body>
+</html>

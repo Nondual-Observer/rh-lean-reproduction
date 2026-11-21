@@ -1,0 +1,18 @@
+7_compare.sh output, full build, 21 Nov 2026 05:46 UTC (rh-vm, 94 jobs)
+
+manifest entries      : 175,187
+files built here      : 175,187
+compared              : 175,187
+identical             : 76,968
+DIFFERENT             : 98,219
+not built yet/missing : 0
+extra (not in manifest): 0
+  identical, no source path : 76,968
+  identical, has source path: 0
+  DIFFERENT, no source path : 0
+  DIFFERENT, has source path: 98,219
+Main.olean            : identical
+VERDICT               : NOT A FULL MATCH (every difference is in a file that stores the absolute build path)
+
+Spot check: CompanionTheory/AutomorphicTheory/BesselOrbitBounds/BesselMapUniqueness/OrbitMult.olean
+contains the string /home/ishaandixit2017/rh/lean/src/CompanionTheory/.../OrbitMult.lean exactly once.

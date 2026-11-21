@@ -153,7 +153,7 @@ footer a{color:#fff}
 <p>The logic also runs backwards, and this is the direction the proof uses. If the prime sums are controlled with exponent θ, then the integral ∫ (ψ(x) − x) x<sup>−s−1</sup> dx converges for Re s &gt; θ. That integral equals −ζ′(s)/(s ζ(s)) − 1/(s − 1), so ζ can have no zeros there.</p>
 <div class="eq">|ψ(x) − x| ≤ C·x<sup>θ+ε</sup>   ⇒   ζ(s) ≠ 0 for Re s &gt; θ</div>
 <p>Slide θ down to ½: the cleared half-plane meets the critical line and RH follows by symmetry. The same holds for each Dirichlet <i>L</i>(s, χ) with ψ(x, χ) = Σ χ(n)Λ(n). Doing it for every χ at once is exactly the statement <code>EveryCharacter</code> at the top of the Lean proof.</p>
-<p>Because Λ(n) ≥ 0, Landau's theorem on Dirichlet series with nonnegative coefficients means a <b>one-sided</b> bound already suffices. The community reading of the proof says its final step is a "windowed" version of this Landau argument.</p>
+<p>Because Λ(n) ≥ 0, Landau's theorem on Dirichlet series with nonnegative coefficients means a <b>one-sided</b> bound already suffices. The proof's final step, checked in the code (<code>zeroFree_of_rpow_window</code>), is a "windowed" version of this argument: the one-sided bound is needed only on windows [Y, Y<sup>1+δ</sup>] that reach arbitrarily far out.</p>
 <div class="ctl">
 <label for="t3">Exponent θ<input id="t3" type="range" min="0.5" max="1" step="0.01" value="0.75"><output id="t3o"></output></label>
 </div>
@@ -217,13 +217,13 @@ footer a{color:#fff}
 <h2>The note's idea: multiplicity over the integers, one theta lift at a time</h2>
 <p>Over the integers there is no "vanishing to order m": the note likens it to differentiating whole numbers. Its proposal is to get multiplicity from automorphic forms instead. A chain of theta lifts between definite unitary groups U(X₀) → U(X₁) → ⋯ → U(X<sub>m</sub>) adds one unit of multiplicity per lift.</p>
 <p>The note says that for a von Mangoldt sum of length X, the right chain length is √X, adding "And yet, what else could it be?" It is Stepanov's balance again, with X in place of q. Slide X and the chain re-forms at its best length.</p>
-<p>The note also says that if each lift's cost is paid separately the method stops at exponent 2/3. Jonas Whidden's reading says the fix is to track divisibility along the whole chain inside one integral lattice, so the costs do not simply add up. In the code the balance is a single inequality (<code>proposition_size_bound</code>): per unit of main term the error is about X/m + m. The chain length is set to about √x by hand (<code>RankVal</code>), and 2/3 never appears in the code.</p>
+<p>The note also says that if each lift's cost is paid separately the method stops at exponent 2/3. In the code the balance is a single inequality (<code>proposition_size_bound</code>): per unit of main term the error is about X/m + m, and the +m is m lifts each charged a Bloch–Kato rank of m. Charging lift j for the whole chain below it would give X/m + m² and stop at X<sup>2/3</sup>; the code avoids this by charging every local piece to exactly one lift (<code>NData.locs_mem</code>). The chain length is set to about √x by hand (<code>RankVal</code>).</p>
 <div class="ctl">
 <label for="x6">Sum length X<input id="x6" type="range" min="1" max="4" step="0.05" value="2"><output id="x6o"></output></label>
 <label for="m6">Chain length m<input id="m6" type="range" min="1" max="40" step="1" value="6"><output id="m6o"></output></label>
 </div>
 <button class="b" id="best6" type="button">Snap to m = √X</button>
-<div class="warn"><b>Not verified.</b> Nobody has yet written out this argument in a form mathematicians have checked. The Lean code is checked; this plate is only the shape of the idea as the note and one reader describe it.</div>
+<div class="warn"><b>Traced, not yet reviewed.</b> The Lean code is checked by kernels, and the mechanism is now traced step by step in the code (<a href="https://ishaan2006.github.io/rh-lean-reproduction/">readable account</a>). Specialists have not yet reviewed that account; this plate shows the shape of the balance.</div>
 </div>
 <div class="panel">
 <div class="fig short" id="f6a" role="img" aria-label="A chain of theta lifts between unitary groups, one node per lift"></div>
@@ -242,8 +242,8 @@ footer a{color:#fff}
 <div class="scroll" style="margin-top:16px"><table>
 <thead><tr><th>Step</th><th>Status</th></tr></thead>
 <tbody>
-<tr><td>The chain of lifts gives the bound</td><td><span class="tag t-note">From the note</span> The new mathematics. Checked by Lean, not yet understood by people.</td></tr>
-<tr><td>Bound ⇒ zero-free half-plane (plate 3)</td><td><span class="tag t-est">Established</span> Classical, Landau.</td></tr>
+<tr><td>The chain of lifts gives the bound</td><td><span class="tag t-note">From the note</span> The new mathematics. Checked by Lean and traced step by step in the code (<a href="https://ishaan2006.github.io/rh-lean-reproduction/">readable account</a>); not yet reviewed by specialists.</td></tr>
+<tr><td>Bound ⇒ zero-free half-plane (plate 3)</td><td><span class="tag t-est">Established</span> Classical, Landau; the code proves a windowed version.</td></tr>
 <tr><td>Zero-free right of ½ ⇒ RH (plate 2, functional equation)</td><td><span class="tag t-est">Established</span> Classical; in the Lean code it uses only Mathlib.</td></tr>
 <tr><td>The whole chain, formally</td><td><span class="tag t-est">Established</span> Accepted by several independent Lean kernels.</td></tr>
 </tbody></table></div>

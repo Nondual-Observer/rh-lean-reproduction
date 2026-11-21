@@ -1,0 +1,16 @@
+Build and check, rh-vm (94 jobs, 377 GB RAM), 20-21 Nov 2026
+
+scan: sorry 0, admit 0, axiom_decl 0, skipKernelTC 0, native_decide 0, reduceBool 0,
+      implemented_by 0, extern 0, unsafe 0, buildtime_code 5 (informational)
+
+build_main: OK (this run took 401 min), 183893 jobs, 175187 modules
+
+statement module : (some Mathlib.NumberTheory.LSeries.RiemannZeta)
+statement exact  : true
+PASS  myRH: Classical.choice, Quot.sound, propext
+PASS  main: Classical.choice, Quot.sound, propext
+myRH typechecked : yes
+OVERALL: CLEAN
+
+replay (Main only, imports trusted): run by hand, see 5_replay.sh
+export hash (8_export_hash.sh): TODO, pending

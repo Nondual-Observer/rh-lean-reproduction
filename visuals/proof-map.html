@@ -117,13 +117,13 @@ footer a{color:#fff}
 <div class="wrap">
 <h1>The Lean proof of the Riemann Hypothesis, stage by stage</h1>
 <p class="lede">A visual map of Levent Alpöge's 20 November 2026 release: what is proved, the chain of theorems at the top, where the 17 million lines go, and how the ideas in his note show up in the code.</p>
-<p class="flag">Map, not proof. Several independent kernels accept the code. This page only shows its shape and labels what is checked and what is a reading.</p>
+<p class="flag">Map, not proof. Several independent kernels accept the code, and my own build is clean. This page shows its shape; the full step-by-step account is <a href="https://ishaan2006.github.io/rh-lean-reproduction/">here</a>.</p>
 <nav class="route" aria-label="Stages">
 <a href="#claim"><b>5</b><span>statements proved</span></a>
 <a href="#trunk"><b>8</b><span>theorems on the trunk</span></a>
 <a href="#bulk"><b>769,260</b><span>declarations used</span></a>
 <a href="#note"><b>20</b><span>steps in the note</span></a>
-<a href="#core"><b>√X</b><span>a reading of the core</span></a>
+<a href="#core"><b>√X</b><span>how the core works</span></a>
 </nav>
 </div>
 </header>
@@ -206,9 +206,9 @@ footer a{color:#fff}
 
 <section class="band" id="core">
 <div class="wrap">
-<h2>A community reading of the core mechanism</h2>
-<div class="warn"><b>Partly checked.</b> This is Jonas Whidden's AI-assisted reading, posted on the Lean Zulip at 5:14 PM on 20 November, paraphrased. I have since checked each Lean name against the exact list of declarations the proof uses (from the published export): <code>chain_into</code>, <code>linkGLOBAL7_items</code> and <code>Ga_bound5</code> are used; <code>RR_lattice</code> and <code>RR_mem</code> are not. The final balance is verified line by line in the source. Whether the reading explains <i>why</i> the chain avoids 2/3 is still open. Details: <code>mechanism/TRACE.md</code>.</div>
-<p>The note says a chain of theta lifts imitates the <i>multiplicity</i> in Stepanov's method over function fields, and that the right chain length for a von Mangoldt sum of length <i>X</i> is √<i>X</i>. The reading says that charging each lift's cost separately stalls at exponent 2/3. The fix is to track divisibility along the whole chain inside one integral lattice.</p>
+<h2>The core mechanism, traced in the code</h2>
+<div class="warn"><b>Traced, not yet reviewed by specialists.</b> Every box below names declarations checked against the exact list the proof uses. The first community reading (Jonas Whidden, Zulip, 20 November) had most of the shape right; the trace in <code>mechanism/TRACE.md</code> pins down each step and finds the real builder of the common lattice. The full account, with figures: <a href="https://ishaan2006.github.io/rh-lean-reproduction/">the readable proof</a>.</div>
+<p>The note says a chain of theta lifts imitates the <i>multiplicity</i> in Stepanov's method, with chain length √X for a von Mangoldt sum of length X, and that charging lifts separately stalls at exponent 2/3. In the code, the square root is paid once, in one balance, and the 2/3 is avoided by charging every local piece to exactly one lift.</p>
 <div class="flow" id="flow"></div>
 </div>
 </section>
@@ -216,7 +216,7 @@ footer a{color:#fff}
 <section class="band alt" id="who">
 <div class="wrap">
 <h2>Who is already working on understanding it</h2>
-<p>As of the evening of 20 November 2026. Build on these rather than repeating them.</p>
+<p>As of late 20 November 2026. Build on these rather than repeating them.</p>
 <div class="scroll"><table class="stack">
 <thead><tr><th>Who</th><th>What</th><th>Form</th></tr></thead>
 <tbody id="whoRows"></tbody>
@@ -371,24 +371,29 @@ const roTl=new ResizeObserver(drawTl);roTl.observe(tl);
 
 /* ---------- stage 5: flow ---------- */
 const FLOW=[
- ['A chain of m theta lifts','Each lift plays the role of one extra order of vanishing in Stepanov’s method.',''],
- ['Track divisibility along the chain','How much each successive lift is divisible by, carried through the chain.','chain_into · Development/AbelianVarietyTheory/Proofs/GlobalInterpolation/LevelChainSharpColumnValuationOfStability.lean','used by the proof ✓'],
- ['One common integral lattice','The columns from all the lifts placed in one lattice, with local membership conditions. The two theorems the reading names for this are not on the proof path; whatever plays this role is elsewhere (other declarations in the same file are used).','RR_lattice, RR_mem · Formalism/LocalToGlobal/IndefiniteReal/PrincipalLevelLattice.lean','not used by the proof ✗'],
- ['Gain against cross terms','Divisibility gain, off-diagonal bounds and the family size in one comparison; the same slope appears on both sides and cancels.','linkGLOBAL7_items · Formalism/SharpRestriction/GlobalSchurBounds/LinkMin.lean; Ga_bound5 · Formalism/SizeWindowBrackets/ChainSlopeWindows/LevelOfCongruence.lean','used by the proof ✓'],
- ['Balance at m ≈ √X, then Landau','One inequality: relative to the main term the error is about X/m + m, smallest at m ≈ √X. In the code m ≈ √x is set by hand (RankVal) and the other sizes follow from it; the error terms make that choice optimal. A windowed Landau argument turns the bound into no zeros right of ½.','proposition_size_bound · Formalism/SizeWindowBrackets/ChainSlopeWindows/LipschitzWeightAndMinimum.lean','verified in source ✓']
+ ['A chain of m theta lifts','The signature walks from (k−1, m) to the definite (k+m−1, 0), one step per lift; each lift adjoins a block of t+1 rows. m ≈ √x is set in RankVal; n ≈ x² and k ≈ x^(9/2) follow from the m⁵ word count.','Ranks · Formalism/LocalRingCardinality/Params.lean; RankVal · …/GlobalTwisting/PairRowIffQdRows.lean','used by the proof ✓'],
+ ['Each piece charged to one lift','Every local piece belongs to exactly one lift, and each lift is charged on its own block. Charging lift j for the whole chain below it would give x/m + m² and stop at exponent 2/3, the barrier in the note.','NData.locs_mem · …/LevelLetterCocycles/DataN.lean; DefFam.L · …/Divisibility/RowLat.lean','used by the proof ✓'],
+ ['One common integral lattice','Built place by place: each place contributes its own twisted local lattice and RR is their intersection, a lattice “gcd”. Its cost in the frame inequality is only log #W. (The two names in the first community reading, RR_lattice and RR_mem, are not on the proof path.)','prescribedRowLat, exists_divStage_of_pk · …/IwasawaDecomposition/ExistsDivStageOfPk.lean','used by the proof ✓'],
+ ['Degree identity: ASK against MAIN','The Arakelov degree of the divisible lattice, computed two ways: at finite places the gain is at least the prime counts (ASK), at infinite places it is bounded by Chowla–Selberg periods (MAIN). The slope inequality on the one lattice joins them and the main terms cancel.','NprimeMuR, LinkG_at, LinkDIV_at · …/GlobalTheoremInputs.lean; Frame_at; Ga_bound5','used by the proof ✓'],
+ ['Balance at m ≈ √x, then Landau','Error over main term ≈ x/m + m, both sides paid by the divisibility bound DIV. The +m is Eb: m lifts × a Bloch–Kato rank of m. Energy and slope charges are slack; the signature drift is an artefact (x^1131 below its bound). A windowed Landau theorem gives no zeros right of ½.','proposition_size_bound · …/LipschitzWeightAndMinimum.lean; zeroFree_of_rpow_window · …/LandauTheorems','used by the proof ✓']
 ];
 $('#flow').innerHTML=FLOW.map(f=>`<div class="fbox"><h3>${f[0]}</h3><div>${f[1]}</div>${f[2]?`<code>${f[2]}</code><span class="chip" style="margin-top:6px">${f[3]}</span>`:''}</div>`).join('');
 
 /* ---------- stage 6: who ---------- */
 const WHO=[
- ['tamnd / riemann','<a href="https://riemann.tamnd.com">riemann.tamnd.com</a>: the proof in words from the top down, with a one-page overview, 6 draft trunk chapters, a page per declaration and learning paths.','Text and tables'],
+ ['Andrew Sutherland','<a href="https://math.mit.edu/~drew/grh/">Verification record</a>: kernels, downloads and the manifest of compiled files.','Web page'],
+ ['tamnd / riemann','<a href="https://riemann.tamnd.com">riemann.tamnd.com</a>: the proof in words from the top down, with a page per declaration and learning paths.','Text and tables'],
+ ['Bartosz Naskręcki','<a href="https://github.com/nasqret/riemann-rev">riemann-rev</a>: dashboard, map and an 11-page proof guide stating the x/m + m balance.','PDF and site'],
+ ['Jonas Whidden','Zulip readings of the core mechanism with named Lean declarations; the common-lattice question he raised is answered in TRACE section 17.','Zulip posts'],
+ ['JoseClaudioSJr','Community issue #5: an unofficial reader’s map of the call path, endgame, LinkS and Chowla–Selberg.','GitHub issue'],
+ ['Yao Xu, jae-63','Expositions of the structure (a cadamcat write-up and a blueprint).','Notes'],
+ ['Sonoda, James Shore','Dead-code counts: 256,620 of 1,061,531 declarations unused.','Counts'],
+ ['patunz','Report that compiled .olean hashes depend on the build path.','GitHub issue'],
  ['Andrii Kurdiumov','<a href="https://github.com/kant2002/riemann-hypothesis-supplimentary">Folder-level import graph</a>, marking parts that depend only on Mathlib.','Static picture'],
- ['friederrr','<a href="https://github.com/friederrr/riemann-review">riemann-review</a>: an AI-written “A.U.Thor” preprint, grown in rounds with pooled tokens.','PDF'],
- ['Devin Watson','<a href="https://github.com/DevinWatson/rh-weil-bound-toy">rh-weil-bound-toy</a>: the toy qN = Mᵏ + R route to Weil’s bound over finite fields, partly in Lean.','Study + Lean'],
- ['Chris Birkbeck','Starting Tau Ceti roadmaps for the known pieces the proof uses.','Roadmaps'],
- ['Bartosz Naskręcki, Manvir Jaswal','Own digests and write-ups; a study group has been proposed on Zulip.','Notes'],
- ['Jonas Whidden','A Zulip reading of the core mechanism with named Lean declarations (stage 5).','Zulip post'],
- ['Deicyde / riemann-hypothesis','Source mirror, comparator setup and a metaprogramming survey in its verification notes.','Repository']
+ ['Deicyde / riemann-hypothesis','Source mirror, comparator setup and a metaprogramming survey in its verification notes.','Repository'],
+ ['friederrr','<a href="https://github.com/friederrr/riemann-review">riemann-review</a>: an AI-written preprint, grown in rounds with pooled tokens.','PDF'],
+ ['Devin Watson','<a href="https://github.com/DevinWatson/rh-weil-bound-toy">rh-weil-bound-toy</a>: the toy route to Weil’s bound over finite fields, partly in Lean.','Study + Lean'],
+ ['This repository','<a href="https://ishaan2006.github.io/rh-lean-reproduction/">A readable account of the whole proof</a> (also PDF), with the line-by-line trace in mechanism/TRACE.md and a clean independent build.','Write-up']
 ];
 $('#whoRows').innerHTML=WHO.map(w=>`<tr><td>${w[0]}</td><td>${w[1]}</td><td>${w[2]}</td></tr>`).join('');
 }
