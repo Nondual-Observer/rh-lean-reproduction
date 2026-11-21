@@ -464,11 +464,73 @@ So the √x in this proof is set by the divisibility error. Of its two m·B0 use
 
 **Side result, for issue #5 on the community repo (Exact).** On the final path the period tie `OmegaCompatible` is not obtained through `curveLinks_of`. It is built by `omTied_retie_of_cube` → `omTied_withTrue` → `exists_trueVolume_stage_of_any_column_choice` (`…/IwasawaDecomposition/ExistsGIs.lean:146`), stored as the `om` field of `ColumnDataSplitPrimes` (`…/AutomorphicMembership/TiedColumnData.lean:93`), and consumed through `exists_GJStage_GIs2_pinned` → `exists_ext_twisted_places` → `secondNo_of_sMt_sRat_sCusp_sFinl`. Every declaration in this chain is used.
 
-## 15. Next steps
+## 15. The other two m·B0 charges are slack, and the 2/3 sentence of the outline
+
+### (a) The energy and slope charges have no real factor m (Verified)
+
+Section 14 found three charges of size m·B0 in the per-point error `ErrX5at`: `DIV`, `EComp5` and `QuotientSlopeBoundsWith`. Their **real** sizes in the family:
+
+| Charge | Budget in `ErrX5at` | What the family actually proves | Real size | Spare |
+|---|---|---|---|---|
+| Energy (`EComp5`) | m·cE·B0 | per lift, errG(j) ≈ 2·Σ_τ wj(j,τ) ≈ 2·f·b (section 9) | m·2f·b | factor ≈ m·x^ε |
+| Slope, upper bound (`QuotientSlopeBoundsWith`) | cSl1·m·B0 | `ClaimHigh` (`Formalism/SizeWindowBrackets/ClaimGaFree.lean:99`): μmax(N) ≤ μmax(M) + Ga + Fo − Ee, **with no error term** | **0** | all of it |
+| Slope, lower bound | `Lo5` | IO + nT·m·(a/k + b')·log T + X'' | no B0 at all | |
+| `DIV` (m-term) | cDiv·m·(B0 + Nc)·x^(eDiv·ε) | drift + Eb (sections 11, 13) | ≈ m·B0 | none |
+
+The slope case is clear in the code: `slopesN_at_of` (`…/GlobalSchurBounds/TopDensityNGeSixteen.lean:1529`, used) gets the upper bound from `claimHigh_valid` and then adds the m·B0 allowance with `linarith` from 0 ≤ C·m·B0 alone.
+
+**So the whole "+m" of the balance is the `DIV` error, drift plus Eb.** The energy and slope allowances are generous budgets that the family fills with room to spare.
+
+### (c) Matching the outline's 2/3 against the code
+
+The outline (`alpo.ge/remark.pdf`, read 20 Nov) says, in the entries that matter here (wording from a summary of the PDF, so treat it as close but not exact):
+
+- **8:** iterated theta lifts between totally definite unitary groups, with m of order √X;
+- **9:** norms and level of the lifts, "cancellation of order-m terms", with divisibility via Chowla–Selberg, Weyl and the Siegel mass formula;
+- **10:** a sufficient lower bound on the divisibility of the m-fold iterated lift;
+- **14:** a calculation of the "cost" of each lift, showing that "one would stop at 2/3 a priori", with a need for "division" and a main term or twisting argument;
+- **15:** glue an integral structure across Hecke characters for a "gcd", i.e. extra averaging;
+- **16:** a relative trace formula with approximate orthogonality of columns.
+
+**What 2/3 means in the balance (checked by arithmetic).** The proof's balance is x/m + m (section 5). If the cost per unit of main term were m² instead of m, the balance would be x/m + m², minimised at m = x^(1/3) with value x^(2/3). Per unit of main term (nT·m·b), a cost of m² means a **per-lift charge of m·B0 ≈ f·m²·b** instead of B0 ≈ f·m·b.
+
+**What each lift actually costs in the code (Verified, sections 9, 11, 13 and above).**
+
+| Per-lift charge | Size | Factor m comes from |
+|---|---|---|
+| energy | ≈ 2f·b | none |
+| slope | 0 | none |
+| signature drift | ≤ \|2j − 1 − m\|·2b·3x^ε·f ≤ 6·B0 | the signature step, at most m |
+| Eb | ≈ f·m·b·x^ε = B0 | the Bloch–Kato rank: m non-negative Hodge–Tate weights per embedding |
+
+Every per-lift charge is at most B0, one factor m. Nothing in the code charges a lift m·B0.
+
+**The outline's entries, matched to the code.**
+
+| Entry | In the code | Status |
+|---|---|---|
+| 9, "cancellation of order-m terms" | `Ga_bound5` cancels m·sumA·lg exactly (section 6). The `DIV` main term m·Σ_t(ph(aT) − aT·logOm) has the same shape as `MAIN`, with logOm tied to the Chowla–Selberg period (`meanPeriod`, used). | Verified |
+| 10, divisibility of the m-fold lift | `Data.DIV` ⇐ `LinkDIV_at` ⇐ the lattice divisor inequality (sections 10, 11, 14) | Verified |
+| 14, "division" against the per-lift cost | After the main terms cancel, what remains per lift is the divisibility error: drift + Eb, each ≈ B0 | Verified sizes; the link to the outline's wording is Reading |
+| 15, "gcd" across Hecke characters | The words u share one dual lattice `div.RR` (Whidden's reading), and the frame inequality pays only log #W for averaging over them (`Frame_at`) | Reading |
+| 16, orthogonality of columns | `LinkS` (issue #5 §4; both lemmas used) | Verified (used) |
+
+**Where the a-priori 2/3 is (Exact search).** The calculation behind "one would stop at 2/3 a priori" is **not in the archive**. No exponent 2/3 occurs in the size layer, and the only "2/3" constants are factors like (2/3)^f in volume bounds (`StandardLattice.lean:479`, `LinkMin.lean:174`). `ErrorFormsWeakWindowsFalse.lean` is about different windows (`etaBar`, `eBar`), not this.
+
+**What the trace does and does not establish.**
+
+- It does establish where the proof's per-lift cost sits and that it is linear in m: the `DIV` error, and in it Eb (the Bloch–Kato rank m) and the drift (|2j − 1 − m| ≤ m). The energy and slope budgets are slack.
+- It does not establish which naive accounting would cost m·B0 per lift. Two candidates fit the outline, and neither is checked:
+  1. **Compounding.** Charging lift j for the divisibility of the whole composite Θ_j ∘ … ∘ Θ_0 (j earlier blocks) would give Σ_j j·B0 ≈ m·B0 per lift on average. The code avoids this by assigning every local piece to exactly one lift (`NData.locs_mem`, section 13). This is the "track divisibility along the chain" reading.
+  2. **Without the gcd.** Without the common lattice across Hecke characters, each word would need its own divisibility, and the averaging in `Frame_at` would not be available. This is the "gcd / extra averaging" reading of entries 15 and 16.
+
+  Deciding between them needs either Alpöge's own calculation or a number theorist. That is the question to ask on Zulip.
+
+## 16. Next steps
 
 1. **Done:** exact dependency list (section 4).
 2. **Done:** `ChainTied` and the balance (sections 5 to 7). `ErrorFormsWeakWindowsFalse.lean` turned out to define unused propositions; only `ErrWindows`, `ErrText` and `errorBracketSizeWindows` from it are used.
 3. **Done:** `E u j w` (section 8) and how `EComp` is proved (section 9). **Next:** read how `EComp` is proved for the family: `QuadraticLogDerivCongr.lean:594` (`data_EComp5`) and the `Formalism.L2.DIV.linkDIVt_of_*` lemmas; check whether the product-formula reading of the g-place term is what they do, and where Σ_τ nuAbs(u,j,τ) ≈ Σ_t aT t is proved.
-4. **Done:** inside `DIV`, the full m·B0 is used by the signature drift and by Eb (section 11). **Done (b):** the windows are chosen, not forced; only the balance itself pins m to √x (section 12). **Done (a):** Eb uses the full per-lift budget, not the `VWinAt` loss. Its m² is (m lifts) × (Bloch–Kato rank m per piece, fixed by equality in the family), section 13. **Done:** the "+m" side of the balance is the `DIV` error m·(B0 + Nc), i.e. drift + Eb; the energy and slope charges of the same order are not needed by the size layer (`exists_data_completion`), section 14. **Next:** check whether `EComp5`'s m·B0 is fed by the same Bloch–Kato count, and find why the lift exponent e' is as large as b = exp(x^ε).
+4. **Done:** inside `DIV`, the full m·B0 is used by the signature drift and by Eb (section 11). **Done (b):** the windows are chosen, not forced; only the balance itself pins m to √x (section 12). **Done (a):** Eb uses the full per-lift budget, not the `VWinAt` loss. Its m² is (m lifts) × (Bloch–Kato rank m per piece, fixed by equality in the family), section 13. **Done:** the "+m" side of the balance is the `DIV` error m·(B0 + Nc), i.e. drift + Eb; the energy and slope charges of the same order are not needed by the size layer (`exists_data_completion`), section 14. **Done:** the energy and slope m·B0 budgets are slack (energy ≈ m·2fb, slope exactly 0); the outline's 2/3 matched against the code (section 15). **Next:** ask number theorists which naive accounting costs m·B0 per lift (compounding along the chain, or no gcd across Hecke characters); check the drift claim against the code; find why the lift exponent e' is as large as b = exp(x^ε).
 5. **Done:** `BNBounds` is proved by equality, B0 = 2·|H|·m·b·x^ε with f = 2|H| (section 12).
 6. **Bring it to people who know the theory.** The automorphic layer needs number theorists. A short, factual Zulip post (written by me) with sections 1, 2 and 4 could help the people already working on understanding.
