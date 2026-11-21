@@ -670,7 +670,78 @@ The outline's sentence "precise computation of the cost of each lift, showing th
 
 **Not established.** That this is the calculation Alpöge did. It is the simplest accounting in the code's own quantities that gives exactly 2/3, and the code's structure is visibly built to avoid it. Accounting 2 is ruled out only as far as the code's visible costs go.
 
-## 20. Next steps
+## 20. The degree identity (4c): how a lattice slope becomes "ASK − MAIN"
+
+Issue #5 (§5, §7) flagged as open: "find the lemma or lemmas expressing the lattice degree as ASK plus the period term". **There is no single lemma.** The identity is a chain of four statements, each a field or hypothesis of the family, and all used. Two of them (2 and 3) are where the primes and the periods enter.
+
+### 1. The Arakelov slope of the divisible lattice splits into local indices (Verified)
+
+`NprimeMuR` (`Formalism/SharpRestriction/GlobalTheoremInputs.lean:69`), supplied on the final path through `LinkMu` ⇐ `J.linkMu_of_linkDIV` ⇐ `LinkDIV` (called from `topDesWin`):
+
+```
+| μ(Nu u) − μ(NuH u) − Σ_{w ∈ supp} sz(w, sg(u,w)) |  ≤  C·X''
+sg(u,w) = Σ_j ( gain_j(w) + F_j(w) − E(u,j,w) )          (DataParams₂.lean: sg)
+sz(w,y) = 2·log-weight(w)·e_w·y                           (sz)
+```
+
+The slope of the divisible lattice `Nu u` is the slope of a reference lattice `NuH u` plus a sum over finite places of local indices. Summed, these are
+
+```
+Ga = Σ_w sz(w, Σ_j gain_j(w) − τ(w)),   Fo = Σ_j Σ_w sz(w, F_j(w)),   Ee(u) = Σ_j Σ_w sz(w, E(u,j,w))
+```
+
+which is exactly the combination μmax(M) + Ga + Fo − Ee in the slope bounds of section 15 (`ClaimHigh`, with no error).
+
+### 2. The gain at an inert prime is at least the prime sum (Verified): where ASK enters
+
+`LinkG_at` (`GlobalTheoremInputs.lean:122`), first and third clauses:
+
+```
+local divisibility:   DV.LocLe 𝔭_w ⌊ur(τ_w)⌋ (NuLat u) (MramL u)         (the lattice inclusion at w)
+at inert w | p ≤ X'':
+   Σ_j Σ_t ( vonMangoldtClassSum_{j,t}(p) − loss )  −  m·flG(p)   ≤   Σ_j gain_j(w) − τ(w)
+vonMangoldtClassSum_{j,t}(p) = Σ_{i odd} max(0, a_t/p^i − wPart(j,t,p,i))        (DataParams₂.lean)
+```
+
+The ask at p is a Legendre-type count: like v_p(a!) = Σ_i ⌊a/p^i⌋, but over odd i and with weights subtracted. And
+
+```
+ASK = Σ_j Σ_t ( Σ_{p inert} 2·log p · vonMangoldtClassSum_{j,t}(p)  +  log d · askD … )     (LocalQuadraticParts.lean:470)
+```
+
+Summing the clause over the places w | p (sz carries the log-weight, and Σ_{w|p} log-weight·e_w = log p by the product formula, `factEtaMean`, section 9) gives **ASK − Ga ≤ LoP**. That is the `LossBounds` field, proved through `Loss.loss_bound_at` (`PowFourLtCeilThresholdPrime.lean:766`, whose hypothesis `hask` identifies `askAt` with `vonMangoldtClassSum`).
+
+### 3. The dual slope is at most the period main term (Verified): where MAIN enters
+
+`LinkDIV_at` (`GlobalTheoremInputs.lean:77`), the DIV clause:
+
+```
+μ_dual(RR) + h(u) − Fo  ≤  MAIN(u) + C·|TT|·a·La + C·m·(B0 + Nc)·x^(Cabs·ε)
+MAIN(u) = Σ_t [ m·( phF(a_t) − a_t·logOm ) − a_t·log T_u ]                    (DataParams₂.lean: MAIN)
+logOm   = γ + log(π/v) − L′/L(1, χ_d)                                         (DataParams₂.lean: logOm)
+```
+
+logOm is the Chowla–Selberg period: `meanPeriod` identifies it with the mean log-period of the CM curves (issue #5 §5; used). phF(a) is the Stirling term a·log a − a (guide §4c). The error terms are the balance of section 14.
+
+### 4. The slope inequality joins the two sides (Verified)
+
+`Frame_at` (`QuadraticLogDerivCongr.lean:188`): the rank-weighted mean s of μ(Nu u) − h_u satisfies s − log #W − (small) ≤ μ_dual(RR), where RR is the glued lattice of section 17.
+
+### Assembled (Reading; each step Verified)
+
+```
+ASK − LoP  ≤  Ga                                    (2)  finite places: primes, Legendre counts
+μ(Nu u)    ≈  μ(NuH u) + Ga + Fo − Ee(u)            (1)  Arakelov degree = reference + local indices
+mean_u [ μ(Nu u) − h_u ]  ≤  μ_dual(RR) + log #W    (4)  Bost slope inequality, one common lattice
+μ_dual(RR) + h(u) − Fo   ≤  MAIN(u) + errors        (3)  infinite places: periods (Chowla–Selberg)
+⟹  ASK − MAIN  ≤  errors   (after the m·sumA·lg main terms cancel in Ga_bound5, section 6)
+```
+
+That is the "degree = ASK + period" of the outline: **the finite part of the Arakelov degree of the divisible lattice is a sum of local indices bounded below by the prime counts (ASK), and the archimedean part is bounded by the CM period main term (MAIN).** The slope inequality on the single glued lattice turns this into ASK ≤ MAIN + errors, which is `each_unit_bound_statement` (section 6).
+
+**Not checked here.** The proofs of `NprimeMuR` itself (`J.linkMu` with `muZero_of_linkDIV`) and of the local inclusion `DV.LocLe` (the 2×2-minor divisibility, open item 4b) were not read. The assembly is checked as statements, not re-derived.
+
+## 21. Next steps
 
 1. **Done:** exact dependency list (section 4).
 2. **Done:** `ChainTied` and the balance (sections 5 to 7). `ErrorFormsWeakWindowsFalse.lean` turned out to define unused propositions; only `ErrWindows`, `ErrText` and `errorBracketSizeWindows` from it are used.
@@ -678,3 +749,5 @@ The outline's sentence "precise computation of the cost of each lift, showing th
 4. **Done:** inside `DIV`, the full m·B0 is used by the signature drift and by Eb (section 11). **Done (b):** the windows are chosen, not forced; only the balance itself pins m to √x (section 12). **Done (a):** Eb uses the full per-lift budget, not the `VWinAt` loss. Its m² is (m lifts) × (Bloch–Kato rank m per piece, fixed by equality in the family), section 13. **Done:** the "+m" side of the balance is the `DIV` error m·(B0 + Nc), i.e. drift + Eb; the energy and slope charges of the same order are not needed by the size layer (`exists_data_completion`), section 14. **Done:** the drift is a bookkeeping artefact; its signed size is below the proof's bound by a factor ≥ x^1131 (section 16). **Done:** the energy and slope m·B0 budgets are slack (energy ≈ m·2fb, slope exactly 0); the outline's 2/3 matched against the code (section 15). **Done:** the common lattice RR is built place by place by `prescribedRowLat` in `exists_divStage_of_pk`, gluing each place's own twist data (section 17, answers Whidden's open question). **Done:** the two m's in Eb are one m used twice (lifts = indefinite part of the starting signature (k−1, m) = Bloch–Kato rank); e′ ≈ b because e′ is linear in the Hodge–Tate height hB ∈ [b, 6b]; no 2/3 route survives in the archive (section 18). **Done:** the outline's 2/3 is reproduced exactly by compounding (charging lift j for the whole chain below it); the code avoids it by charging each piece to one lift, each lift on its own block; the gcd costs only log #W here (section 19). **Next:** ask number theorists whether this is the calculation behind entry 14, and whether a chain with a smaller indefinite part per lift is possible.
 5. **Done:** `BNBounds` is proved by equality, B0 = 2·|H|·m·b·x^ε with f = 2|H| (section 12).
 6. **Bring it to people who know the theory.** The automorphic layer needs number theorists. A short, factual Zulip post (written by me) with sections 1, 2 and 4 could help the people already working on understanding.
+
+**Status of a readable account of the new argument (steps 3 to 6 of the guide):** size balance and divisibility bookkeeping (sections 5 to 19) and the degree identity (section 20) are done. Still to trace: 4b, the local divisibility `DV.LocLe` / `key_minor_dvd`; 4d, `LinkS`; step 5, the Fourier isolation of the character; step 6, the Ш window `VWin`.
