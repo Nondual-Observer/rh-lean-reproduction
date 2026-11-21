@@ -741,7 +741,79 @@ That is the "degree = ASK + period" of the outline: **the finite part of the Ara
 
 **Not checked here.** The proofs of `NprimeMuR` itself (`J.linkMu` with `muZero_of_linkDIV`) and of the local inclusion `DV.LocLe` (the 2×2-minor divisibility, open item 4b) were not read. The assembly is checked as statements, not re-derived.
 
-## 21. Next steps
+## 21. The local divisibility (4b): where the gain clause of `LinkG` comes from
+
+Labels as before: **Exact** = the Lean statement, **Verified** = checked against the used-declaration list, **Reading** = my interpretation.
+
+**Exact.** The local lemma is `key_minor_dvd` (GrowthBounds/CoarseMultiplicity/KeyMinorDvd.lean:132). Over a commutative ring with an element w, w² = p, take two (k+1)×(k+1) matrices M, N′ with the Frobenius congruence M(b,a)^(p^e) ≡ N′(b,a) mod p, and two vectors u, u′ whose entries other than the first are divisible by w. Then w divides the twisted 2×2 minor
+
+  (Σ_b u′_b N′_{b,c}) · (Σ_b u_b M_{b,0})^(p^e) − (Σ_b u′_b N′_{b,0}) · (Σ_b u_b M_{b,c})^(p^e).
+
+**Verified (used chain).** `key_minor_dvd` → `kW_ord` → `key3Ord : CoarseMultiplicityOrderBound` (for g in GL over the Witt vectors W(F_{p^n′}), the key polynomials after the lift substitution lie in W_1) → `third_key_of_order` → `restRawTail1_of` → `stmtEExt_of_15c` (ExtendedClosedForm) → `extendedClosedForm_of_interfaceConditions` → `extendedClosedForm`. All used.
+
+**Verified (how it reaches `LinkG`).** `link_of_local_closed` (AdmissibleFamilyNoKernel.lean:272, used via `linkG_concrete_noKer`) builds `LinkG` from `second_theorem_closed_form`, `first_theorem_closed_form`, `local_model_results` and `local_flatness_results`, all instantiated from one structure `Loc`, plus sign/one/cb closure facts, `TrivialStabiliserFiniteClasses`, `StdSubAt`, `Adm2F`, `NPDescF` and the family log bound; the last step is `linkG_fam_noKer`. `Loc` is proved by `loc_proved` from `TraceSpectra.stmtE` through `criterion_restricted_of_closed`. A second route, `linkG_concrete5` via `closed_linkG` / `closed_linkG_of_duty`, is also in the used set. I did not determine which of the two the top theorem reaches at the leaf; both are proved.
+
+**Reading.** The point of w = √p is that working over a ramified extension where p has a square root lets the Frobenius congruence (which only gives "mod p") produce divisibility by half a p. That half-unit of valuation per place is the local input that `LinkG_at` turns into the lattice inclusion `DV.LocLe` and the gain clause gain_j(w) ≥ vonMangoldtClassSum − loss used in section 20.
+
+**Open.** The exact declaration where the closed-form statements are converted into the gain inequality (rather than the inclusion) was not traced line by line.
+
+## 22. `LinkS` (4d): near-orthogonality of the words
+
+**Exact.** `LinkS_at L C0 Γ η0 η1 e0` (GlobalTheoremInputs.lean:145) says: if every word u is comparable, C0⁻¹ ≤ du(u)·Γ²/D* ≤ C0, then
+
+1. off-diagonal: ‖K(u,u′)‖²_HS ≤ (1 + η0)·du(u)·du(u′)/D* for u ≠ u′;
+2. diagonal: ‖K(u,u) − id‖²_HS ≤ e0·du(u);
+3. total: D_all ≤ (1 + η1)·D*.
+
+`LinkS` asks for η0, η1, √e0 ≤ exp(−x^(ε/8)) with Γ = `GamOf` = exp(CGam·m⁵·f·L).
+
+**Verified (not vacuous).** The comparability premise is discharged where `LinkS` is consumed: `matKF_of` (TopDensityNGeSixteen.lean:1348) feeds it `ChosenProviso`, and `ChosenProviso` is proved by `chosenProviso_min` / `chosenProviso_4f` from the class number formula `ClassNumberFormula₂` (through `Conclusion4f`) and `RankTiesF`. All used.
+
+**Verified (prover).** `theoremS_link_concrete` (LinkSPos.lean, used via `theoremS_transport_link_zero` → `link_alt_alt_bis`) gives `TuSize Fm → LinkS Fm C0` from `ResidEv`, `RowsTieP`, `CountAllPointsClass`, and four `HypOwn` hypotheses: `ClKppOff` (the correction term Kpp vanishes off the diagonal), `ClKppDiag`, `ClOff`, `ClDiag`.
+
+**Reading.** `LinkS` says the Gram matrix of the words, normalised by du/D*, is the identity up to exp(−x^(ε/8)). The m⁵ in Γ is the same m⁵ as the word count k ≳ m⁵·f·L in the size layer (section 5). Its errors are exp(−x^(ε/8)), far below any power of x, so `LinkS` does not touch the x/m + m balance.
+
+## 23. Step 5: Fourier isolation of the target character
+
+**Exact (the target).** Gz(x) = Sz(x) − x·log x + (1 + γ)·x with Sz(x) = Σ_{n ≤ x} Λ(n)(x/n − 1) (StatementOC.lean). The per-level conclusion is `core_gm`: Λ.Gm(x) ≤ x^(1/2 + (eD + eL + 7)ε).
+
+**Exact (identity, not inequality).** `ch_balance` (ChBalance.lean:200): ASK − MAIN = De for every a, t, w, by expanding ASK over the characters of E0 × H.
+
+**Exact (the isolation).** E0 has the four characters 0, ψ = `psC`, χ = `chC`, χψ = `chpsC`, with signs at the base class χ(g0) = −1, ψ(g0) = 1, χψ(g0) = −1 (`CharacterSignsAtBaseClass`). `ThickPartTranslateMean`: averaging over u0 and the thick partners collapses the whole character sum to (δ2·b/2)·Gsig(A/b), where Gsig = G_0 + G_ψ − G_χ − G_χψ.
+
+**Exact (the growth inequality).** `GrowthInequalityExplicit`:
+
+  |TT|·m·b·(δ2/2)·(Gz(x) − 3x^(1/2+ε) − moveCost) ≤ Err + |TT|·m·2fPl(x+1)·b·θ + |TT|·m·6fPl(x+1)·(η+1),
+
+under `GrowthInequalityHypotheses`, which include topExcess ≤ Err and `ValuesAtX`: ‖G_ψ(x)‖ ≤ x^(1/2+ε) and ‖ℓ(ψ)‖ ≤ CL·log x for the three non-trivial characters. `signal_term` turns those three bounds into Gz(x) − 3x^(1/2+ε) − moveCost ≤ Re Gsig(y) for |y − x| ≤ 1.
+
+**Reading.** This is where the size bound becomes RH. topExcess is the size layer's output; dividing by |TT|·m·b·δ2/2 leaves Gz(x) ≤ 3x^(1/2+ε) + Err/(|TT|·m·b·δ2/2) + small terms. So the balance must deliver Err ≲ |TT|·m·b·δ2·x^(1/2+ε): this is the √x that sections 5 to 19 pay for. Only an upper bound on Gz is derived; the directory name (`LandauTheorems`) suggests a positivity argument makes the one-sided bound enough. Not traced.
+
+**Verified (the auxiliary characters are chosen, not proved).** `ValuesAtX` is supplied for the auxiliary twists by `QH.pairEx` → `pair_exists` → … → `count_bad_core` → `ZD.zero_density_box` (all used). `zero_density_box` is assembled from `coefficient_square_bound`, `zero_detection mollifier_identity`, `duality_inequality` and `pair_twist_bound`. `count_bad_core`: the number of bad primes q (twists with no zero-free box) is ≤ C·Q^(1/4). `Box` = good conductor, ‖L′/L(1)‖ ≤ C·log Y, and ‖Gχ(y)‖ ≤ y^(1/2+τ) on [Y, X]. The auxiliary primes are q ≡ 3 mod 8, d ≡ 7 mod 16 (`PrimePair`).
+
+**Reading.** The three non-target characters get their √x bounds from a zero-density estimate by choosing q, d away from the few bad moduli. The target is the only character whose L-function is not controlled in advance.
+
+**Exact (thick set).** `hostThickExists`: |T| ≥ n·exp(−C√(log n·log L))/L with `NoRel` (no 3-term relations j(s2 − s1) = i(s3 − s1) with 0 < |i|, |j| ≤ L, i ≠ j). **Reading:** δ2 enters only through the division above and costs x^(o(1)).
+
+## 24. Step 6: the Ш window `VWin`
+
+**Exact.** `VWinAt ψ Ct` (ExistsPageN.lean:44): for every ε ∈ (0, 1/52) and page choice e(x) with x^(2+8ε) ≤ 2^e ≤ 2x^(2+8ε) (`PageN`), there are J ≥ 1 and X0 such that for X ≥ X0 and every window pair (q, d) there is Y with X^(1/J) ≤ Y, Y² ≤ X and, for all x ∈ [Y, Y²], every field E with `IsChiField ψ e q d E` satisfies `VVle E ⌊x^Ct⌋ √(exp(x^ε))`. `VWin` = `VWinAt ψ 401` for all ψ.
+
+**Exact.** `VVle E t B`: for every prime ℓ and 0 < e < t, Ш_ℓ(e) has finite length, and Σ_{ℓ ∈ S} log ℓ · Σ_{1 ≤ e < t} len Ш_ℓ(e) ≤ B. Here B = √(exp(x^ε)) = √b.
+
+**Exact.** `IsChiField`: E sits in Q(ζ_N) and is fixed exactly by the a with a ≡ ±1 mod 2^(e+2), ψ(a) = 1, (a/q) = (a/d) = 1.
+
+**Reading.** E is the real 2^(e+2)-cyclotomic layer cut by ψ and the two auxiliary quadratic characters. Its degree is about 2^e ≈ x^(2+8ε) ≈ n, matching n's window in the size layer.
+
+**Verified (prover).** `VWin` is a hypothesis of `plugWin` / `plugAll` / `zero_free_all_of_green_v_win`. It is discharged by `vwinAt_of_joint` / `vwin_of_joint` (used) from `JointWin Ct` and `ThmBc Ct`. `ThmBc ↔ ThmBcFree` (`thmBc_iff`), and `ThmBcFree` comes from `thmBc_of` with `StickBound` and `PrimeBound`. Minus part (Stickelberger-type): len Ш⁻·log ℓ ≤ C·ℓ·[E:Q]²·(e+1)·log(eℓN)². Plus part (`HVAt`): `VVplusLe E t ((cond·t)^C + C·exp(x^(4ε/5)))`. `JointWin 401` comes from `JointWinOfCounts` (`CountZ`, `CountI`–`CountIII`, `LemmaK`, `ThmBab`). `supplyChi` uses `VWinAt ψ 401` to produce `HostExW (3/2) (GChi ψ).req`.
+
+**Verified.** No declaration named after Ferrero, Washington or Iwasawa μ is in the used set (case-insensitive grep; the only "Iwasawa" hits are the unrelated Iwasawa decomposition and `HasIwasawa` in the doubling layer). Step 6 does not use Ferrero–Washington by name.
+
+**Reading (budget).** The minus part is polynomial in t = x^401, [E:Q] ≈ x^(2+8ε) and logs; the plus part is at most exp(x^(4ε/5)) times a polynomial. Both are far below the budget √b = exp(x^ε/2). The window's √b is generous and `VWin` does not touch the √x balance.
+
+**Open.** Whether each input of `JointWinOfCounts` is proved directly or discharged further up was not traced; since the final theorem has no hypotheses and `vwin_of_joint` is used, they are discharged somewhere on the final path.
+
+## 25. Next steps
 
 1. **Done:** exact dependency list (section 4).
 2. **Done:** `ChainTied` and the balance (sections 5 to 7). `ErrorFormsWeakWindowsFalse.lean` turned out to define unused propositions; only `ErrWindows`, `ErrText` and `errorBracketSizeWindows` from it are used.
@@ -750,4 +822,4 @@ That is the "degree = ASK + period" of the outline: **the finite part of the Ara
 5. **Done:** `BNBounds` is proved by equality, B0 = 2·|H|·m·b·x^ε with f = 2|H| (section 12).
 6. **Bring it to people who know the theory.** The automorphic layer needs number theorists. A short, factual Zulip post (written by me) with sections 1, 2 and 4 could help the people already working on understanding.
 
-**Status of a readable account of the new argument (steps 3 to 6 of the guide):** size balance and divisibility bookkeeping (sections 5 to 19) and the degree identity (section 20) are done. Still to trace: 4b, the local divisibility `DV.LocLe` / `key_minor_dvd`; 4d, `LinkS`; step 5, the Fourier isolation of the character; step 6, the Ш window `VWin`.
+**Status of a readable account of the new argument (steps 3 to 6 of the guide):** size balance and divisibility bookkeeping (sections 5 to 19) and the degree identity (section 20) are done. 4b (section 21), 4d (section 22), step 5 (section 23) and step 6 (section 24) are traced. Remaining gaps: the exact declaration turning the closed form into the gain inequality (21), the one-sided-to-RH step (23), and the inputs of `JointWinOfCounts` (24).
