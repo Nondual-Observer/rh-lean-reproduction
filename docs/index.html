@@ -211,6 +211,7 @@ class="toc-section-number">11</span> Open questions, and what we could
 settle</a></li>
 <li><a href="#acknowledgements"
 id="toc-acknowledgements">Acknowledgements</a></li>
+<li><a href="#references" id="toc-references">References</a></li>
 <li><a href="#map-from-steps-to-lean-declarations"
 id="toc-map-from-steps-to-lean-declarations"><span
 class="toc-section-number">12</span> Map from steps to Lean
@@ -273,11 +274,13 @@ not</h2>
 <p>This is an account of the <em>formal</em> proof. Every statement
 below is either a paraphrase of a Lean statement, a summary of a Lean
 proof, or our interpretation, and we say which. It is not an independent
-proof: we have not re-derived the classical inputs (Ferrero–Washington,
-Poitou–Tate duality, CM theory and others), which are proved inside the
-development and checked by the Lean kernel, and some proofs are
-summarised rather than reproduced line by line. Where we have not traced
-something, we say so (Section <a href="#sec:open"
+proof: we have not re-derived the classical inputs
+(Ferrero–Washington <a class="cite" href="#bib-ferrero-washington">[4]</a>,
+Poitou–Tate duality <a class="cite" href="#bib-nsw">[12]</a>, CM
+theory <a class="cite" href="#bib-shimura">[13]</a> and others), which are proved
+inside the development and checked by the Lean kernel, and some proofs
+are summarised rather than reproduced line by line. Where we have not
+traced something, we say so (Section <a href="#sec:open"
 data-reference-type="ref" data-reference="sec:open">11</a>).</p>
 <h4 data-number="1.2.0.1" id="evidence-labels."><span
 class="header-section-number">1.2.0.1</span> Evidence labels.</h4>
@@ -321,9 +324,10 @@ class="math inline">\(x^{1/2+O(\varepsilon)}\)</span> for a weighted
 prime sum. Fourier analysis on a small group isolates the prime sum of
 <span class="math inline">\(\chi\)</span>, and a windowed Landau theorem
 converts the one-sided bound into zero-freeness.</p>
-<p>The author’s outline describes the chain of lifts as playing the role
-of multiplicity in Stepanov’s method, and says that charging the lifts
-one by one would stop at exponent <span
+<p>The author’s outline <a class="cite" href="#bib-alpoge-remark">[1]</a>
+describes the chain of lifts as playing the role of multiplicity in
+Stepanov’s method <a class="cite" href="#bib-iwaniec-kowalski">[5]</a>, and says
+that charging the lifts one by one would stop at exponent <span
 class="math inline">\(2/3\)</span>. Section <a href="#sec:23"
 data-reference-type="ref" data-reference="sec:23">9</a> reconstructs
 that <span class="math inline">\(2/3\)</span> from the code’s own
@@ -799,9 +803,10 @@ character of conductor <span class="math inline">\(fq\le Q\)</span>,
 <span class="math inline">\(f\le F\)</span>, without a zero-free box,
 <span class="math inline">\(|S|\le C\,Q^{1/4}\)</span>.</em></p>
 </div>
-<p>The zero-density estimate <code>zero_density_box</code> is assembled
-from a coefficient square bound, zero detection by a mollifier identity,
-a duality inequality and a pair-twist bound.</p>
+<p>The zero-density estimate <code>zero_density_box</code>
+(compare <a class="cite" href="#bib-iwaniec-kowalski">[5, Ch. 10]</a>) is
+assembled from a coefficient square bound, zero detection by a mollifier
+identity, a duality inequality and a pair-twist bound.</p>
 <div class="remark">
 <p><strong>Remark 16</strong> (<span class="tag reading">Reading</span>). The auxiliary <span
 class="math inline">\(L\)</span>-functions are not proved to satisfy
@@ -1441,10 +1446,10 @@ class="math inline">\(h_B=b+S_c+\eta_{Sz}+t+2\in[b,6b]\)</span>. The
 colength bound behind it calls <code>rank_le_row</code> with <span
 class="math inline">\(m:=D.R.m\)</span>: <span
 class="math display">\[\dim H^1_f(K_w,T)\le\mathrm{locDeg}(w)\cdot
-m,\]</span> the Bloch–Kato count <span class="math inline">\(\dim
-H^1_f=\sum_\tau\#\{\text{non-negative Hodge--Tate weights}\}\)</span>,
-and the family supplies the hypothesis <span
-class="math inline">\(|L_o|\le m\)</span> by <em>equality</em>
+m,\]</span> the Bloch–Kato count <a class="cite" href="#bib-bloch-kato">[2]</a>
+<span class="math inline">\(\dim H^1_f=\sum_\tau\#\{\text{non-negative
+Hodge--Tate weights}\}\)</span>, and the family supplies the hypothesis
+<span class="math inline">\(|L_o|\le m\)</span> by <em>equality</em>
 (<code>le_of_eq</code>), from its weight pattern
 <code>ShapeJumps k m t</code>.</p></li>
 </ol>
@@ -1671,8 +1676,9 @@ class="math display">\[\mu_{dual}(RR)+h(u)-F_o\le\mathrm{MAIN}(u)+C|T_T|aL_a+Cm(
 class="math display">\[\mathrm{MAIN}(u)=\sum_t\bigl[m(\phi(a_t)-a_t\log\Omega)-a_t\log
 T_u\bigr],\qquad
   \log\Omega=\gamma+\log(\pi/v)-\frac{L&#39;}{L}(1,\chi_d),\]</span> the
-Chowla–Selberg period (<code>meanPeriod</code>), and <span
-class="math inline">\(\phi(a)=a\log a-a\)</span>.</p></li>
+Chowla–Selberg period <a class="cite" href="#bib-chowla-selberg">[3]</a>
+(<code>meanPeriod</code>), and <span class="math inline">\(\phi(a)=a\log
+a-a\)</span>.</p></li>
 <li><p><strong>Slope inequality</strong> (<code>Frame_at</code>): the
 rank-weighted mean <span class="math inline">\(s\)</span> of <span
 class="math inline">\(\mu(Nu\,u)-h_u\)</span> satisfies <span
@@ -1920,8 +1926,9 @@ functional equation of partial zeta</td>
 </table>
 </div>
 <div class="theorem">
-<p><strong>Theorem 36</strong> (Ferrero–Washington,
-<code>UpperTheory.V.FW.ferreroWashington</code>, <span class="tag exact">Exact</span>). <em>For a
+<p><strong>Theorem 36</strong>
+(Ferrero–Washington <a class="cite" href="#bib-ferrero-washington">[4). <em></a>,
+<code>UpperTheory.V.FW.ferreroWashington</code>, <span class="tag exact">Exact</span>] For a
 prime <span class="math inline">\(\ell\)</span> and an abelian number
 field <span class="math inline">\(K\)</span> containing <span
 class="math inline">\(\mu_\ell\)</span> (<span
@@ -1935,8 +1942,9 @@ class="math inline">\(|\operatorname{Cl}(K&#39;)/\operatorname{Cl}(K&#39;)^\ell|
 </div>
 <p><span class="tag reading">Reading</span> Bounded <span class="math inline">\(\ell\)</span>-rank
 up the tower is the statement <span
-class="math inline">\(\mu=0\)</span>. The proof occupies a 62-file
-folder (<code>GaloisLibrary/FerreroWashingtonIndex</code>).</p>
+class="math inline">\(\mu=0\)</span> <a class="cite" href="#bib-washington">[15]</a>.
+The proof occupies a 62-file folder
+(<code>GaloisLibrary/FerreroWashingtonIndex</code>).</p>
 <h4 data-number="8.0.0.2" id="provenance."><span
 class="header-section-number">8.0.0.2</span> Provenance.</h4>
 <p>The literature structures are filled by Lean proofs
@@ -2240,11 +2248,11 @@ is not a verbatim published theorem. There is no hypothesis on an <span
 class="math inline">\(L\)</span>-value; the class-number condition <span
 class="math inline">\(\ell\nmid h_K\)</span> plays that role, as in
 residually reducible (Eisenstein-ideal) arguments. It is the kind of
-statement that follows from Kato’s Euler system together with a
-main-conjecture input, and a specialist should confirm the exact
-strength. It is proved in Lean
-(<code>katoTwoW_of_printsH_of_rT_of_quadBC2</code>), so this affects how
-to describe it, not whether the proof is correct.</p></li>
+statement that follows from Kato’s Euler
+system <a class="cite" href="#bib-kato">[7]</a> together with a main-conjecture
+input, and a specialist should confirm the exact strength. It is proved
+in Lean (<code>katoTwoW_of_printsH_of_rT_of_quadBC2</code>), so this
+affects how to describe it, not whether the proof is correct.</p></li>
 <li><p><em>CM inputs.</em> <span class="tag exact">Exact</span> Read statement by statement:
 Shimura’s main theorem of complex multiplication for imaginary quadratic
 <span class="math inline">\(K\)</span>
@@ -2276,8 +2284,8 @@ data-reference="thm:landau">5</a>) new as a stated result?</p>
 </div>
 <p><strong>Narrowed.</strong> Deducing zero-free regions from one-sided
 or localised information on prime sums is a classical line going back to
-Landau and developed by Pintz (see the recent survey <em>A round of
-Pintz to celebrate oscillations in sums</em>, arXiv:2511.09978), and
+Landau <a class="cite" href="#bib-landau">[8]</a> and developed by Pintz (see the
+recent survey <a class="cite" href="#bib-johnston-trudgian">[6]</a>), and
 effective versions of Landau’s theorem already give quantitative lower
 bounds for averages over ranges <span
 class="math inline">\([1,Y]\)</span>. The windowed statement is
@@ -2354,8 +2362,8 @@ it:</p>
 <ul>
 <li><p>Jonas Whidden’s Zulip readings (the balance, the frame lemma, the
 common-lattice question);</p></li>
-<li><p>Bartosz Naskręcki’s proof guide and book
-(<code>nasqret/riemann-rev</code>), which also state the <span
+<li><p>Bartosz Naskręcki’s proof guide and
+book <a class="cite" href="#bib-naskrecki">[11]</a>, which also state the <span
 class="math inline">\(x/m+m\)</span> balance, the localized Landau step,
 the choice of auxiliary primes and the Ferrero–Washington and
 Poitou–Tate premises;</p></li>
@@ -2363,9 +2371,10 @@ Poitou–Tate premises;</p></li>
 independently traces the windowed Landau route and the gain chain
 through <code>AuxBlock8.Conclusion1</code> and
 <code>starAll_of</code>;</p></li>
-<li><p>Andrew Sutherland’s verification record and build manifest; the
-full kernel replays and independent rebuilds reported by Simon DeDeo and
-Elliot Arledge;</p></li>
+<li><p>Andrew Sutherland’s verification record and build
+manifest <a class="cite" href="#bib-sutherland">[14]</a>; the full kernel replays
+and independent rebuilds reported by Simon DeDeo and Elliot
+Arledge;</p></li>
 <li><p>the dependency and dead-code analyses of James Shore
 (<code>james-shore/rh-proof-dependencies</code>, 256<span>,</span>620 of
 1<span>,</span>061<span>,</span>531 declarations unused), Sonoda, Drew
@@ -2377,6 +2386,66 @@ path-dependent olean hashes;</p></li>
 <code>riemann.tamnd.com</code>.</p></li>
 </ul>
 <p>Errors of interpretation are ours.</p>
+<h4 data-number="11.0.0.5" id="use-of-ai-tools."><span
+class="header-section-number">11.0.0.5</span> Use of AI tools.</h4>
+<p>Claude (Anthropic) was used to help read the Lean source, run
+searches over the declaration list, and draft parts of this text and its
+figures. Statements marked <span class="tag exact">Exact</span> or <span class="tag verified">Verified</span> were checked
+against the Lean source or the build outputs in the accompanying
+repository, and the references against their published sources. The
+author has read the whole text and takes full responsibility for its
+content.</p>
+<h1 class="unnumbered" id="references">References</h1>
+<p><span id="bib-alpoge-remark"></span> [1] L. Alpöge, note accompanying the
+Lean development, 20 November 2026, <a href="https://alpo.ge/remark.pdf"
+class="uri">https://alpo.ge/remark.pdf</a>.</p>
+<p><span id="bib-bloch-kato"></span> [2] S. Bloch and K. Kato, <em><span
+class="math inline">\(L\)</span>-functions and Tamagawa numbers of
+motives</em>, in: The Grothendieck Festschrift, Vol. I, Progr. Math. 86,
+Birkhäuser, 1990, 333–400.</p>
+<p><span id="bib-chowla-selberg"></span> [3] S. Chowla and A. Selberg, <em>On
+Epstein’s zeta-function</em>, J. reine angew. Math. 227 (1967),
+86–110.</p>
+<p><span id="bib-ferrero-washington"></span> [4] B. Ferrero and
+L. C. Washington, <em>The Iwasawa invariant <span
+class="math inline">\(\mu_p\)</span> vanishes for abelian number
+fields</em>, Ann. of Math. (2) 109 (1979), 377–395.</p>
+<p><span id="bib-iwaniec-kowalski"></span> [5] H. Iwaniec and E. Kowalski,
+<em>Analytic Number Theory</em>, AMS Colloquium Publications 53,
+American Mathematical Society, 2004.</p>
+<p><span id="bib-johnston-trudgian"></span> [6] D. R. Johnston and T. Trudgian,
+<em>A round of Pintz to celebrate oscillations in sums</em>,
+arXiv:2511.09978.</p>
+<p><span id="bib-kato"></span> [7] K. Kato, <em><span
+class="math inline">\(p\)</span>-adic Hodge theory and values of zeta
+functions of modular forms</em>, Astérisque 295 (2004), 117–290.</p>
+<p><span id="bib-landau"></span> [8] E. Landau, <em>Handbuch der Lehre von der
+Verteilung der Primzahlen</em>, Teubner, Leipzig, 1909.</p>
+<p><span id="bib-lean4"></span> [9] L. de Moura and S. Ullrich, <em>The Lean 4
+theorem prover and programming language</em>, in: Automated Deduction
+(CADE-28), LNCS 12699, Springer, 2021, 625–635.</p>
+<p><span id="bib-mathlib"></span> [10] The mathlib Community, <em>The Lean
+mathematical library</em>, in: Proceedings of the 9th ACM SIGPLAN
+International Conference on Certified Programs and Proofs (CPP 2020),
+367–381.</p>
+<p><span id="bib-naskrecki"></span> [11] B. Naskręcki, <code>riemann-rev</code>
+(status dashboard, proof guide and book), <a
+href="https://github.com/nasqret/riemann-rev"
+class="uri">https://github.com/nasqret/riemann-rev</a>, November
+2026.</p>
+<p><span id="bib-nsw"></span> [12] J. Neukirch, A. Schmidt and K. Wingberg,
+<em>Cohomology of Number Fields</em>, 2nd ed., Grundlehren der
+mathematischen Wissenschaften 323, Springer, 2008.</p>
+<p><span id="bib-shimura"></span> [13] G. Shimura, <em>Introduction to the
+Arithmetic Theory of Automorphic Functions</em>, Princeton University
+Press, 1971.</p>
+<p><span id="bib-sutherland"></span> [14] A. V. Sutherland, build and
+verification page for the Lean development, <a
+href="https://math.mit.edu/~drew/grh/"
+class="uri">https://math.mit.edu/~drew/grh/</a>, November 2026.</p>
+<p><span id="bib-washington"></span> [15] L. C. Washington, <em>Introduction to
+Cyclotomic Fields</em>, 2nd ed., Graduate Texts in Mathematics 83,
+Springer, 1997.</p>
 <h1 data-number="12" id="map-from-steps-to-lean-declarations"><span
 class="header-section-number">12</span> Map from steps to Lean
 declarations</h1>

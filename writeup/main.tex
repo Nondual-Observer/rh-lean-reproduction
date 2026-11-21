@@ -30,6 +30,7 @@
 
 \usepackage[hidelinks]{hyperref}
 \usepackage{url}
+\setlength{\emergencystretch}{3em}
 
 % ---------- Tate--Shafarevich symbol ----------------------------------
 \IfFileExists{ot2enc.def}{%
@@ -93,11 +94,11 @@ a human-readable account of the Lean proof}
 \maketitle
 
 \begin{abstract}
-On 20 November 2026 Levent Alp\"oge released a Lean~4 development whose top theorem is
+On 20 November 2026 Levent Alp\"oge released a Lean~4~\cite{lean4} development whose top theorem is
 \lean{riemannHypothesis : RiemannHypothesis}, stated with Mathlib's definition. We rebuilt it
 independently (175{,}187 modules, 401 minutes on 94 cores): the build is clean and the only axioms
-used are \lean{propext}, \lean{Quot.sound} and \lean{Classical.choice}. No human-readable proof
-accompanies the release. This document gives one, reconstructed by reading the formal proof from the
+used are \lean{propext}, \lean{Quot.sound} and \lean{Classical.choice}. Apart from a short outline~\cite{alpoge-remark},
+no human-readable proof accompanies the release. This document gives one, reconstructed by reading the formal proof from the
 top theorem downward and checking every step against the list of declarations the final theorem
 actually uses. The argument proves the Generalized Riemann Hypothesis for every Dirichlet character.
 For each character it builds an arithmetic family attached to a chain of about $\sqrt{x}$ theta
@@ -136,8 +137,8 @@ The Riemann Hypothesis is the trivial-character case. In the Lean source:
 
 This is an account of the \emph{formal} proof. Every statement below is either a paraphrase of a Lean
 statement, a summary of a Lean proof, or our interpretation, and we say which. It is not an
-independent proof: we have not re-derived the classical inputs (Ferrero--Washington, Poitou--Tate
-duality, CM theory and others), which are proved inside the development and checked by the Lean
+independent proof: we have not re-derived the classical inputs (Ferrero--Washington~\cite{ferrero-washington},
+Poitou--Tate duality~\cite{nsw}, CM theory~\cite{shimura} and others), which are proved inside the development and checked by the Lean
 kernel, and some proofs are summarised rather than reproduced line by line. Where we have not traced
 something, we say so (Section~\ref{sec:open}).
 
@@ -164,8 +165,8 @@ $\Err/(\text{main}) \approx x/m + m$. With $m\approx\sqrt{x}$ this gives a bound
 $x^{1/2+O(\eps)}$ for a weighted prime sum. Fourier analysis on a small group isolates the prime sum
 of $\chi$, and a windowed Landau theorem converts the one-sided bound into zero-freeness.
 
-The author's outline describes the chain of lifts as playing the role of multiplicity in Stepanov's
-method, and says that charging the lifts one by one would stop at exponent $2/3$. Section~\ref{sec:23}
+The author's outline~\cite{alpoge-remark} describes the chain of lifts as playing the role of
+multiplicity in Stepanov's method~\cite{iwaniec-kowalski}, and says that charging the lifts one by one would stop at exponent $2/3$. Section~\ref{sec:23}
 reconstructs that $2/3$ from the code's own quantities and shows how the code avoids it.
 
 \subsection{Structure of the proof}
@@ -522,7 +523,7 @@ character of conductor $fq\le Q$, $f\le F$, without a zero-free box,
 $|S|\le C\,Q^{1/4}$.
 \end{theorem}
 
-The zero-density estimate \lean{zero_density_box} is assembled from a coefficient square bound, zero
+The zero-density estimate \lean{zero_density_box} (compare~\cite[Ch.~10]{iwaniec-kowalski}) is assembled from a coefficient square bound, zero
 detection by a mollifier identity, a duality inequality and a pair-twist bound.
 
 \begin{remark}[\Reading]
@@ -913,7 +914,7 @@ $E_b\approx m\cdot B_0$, and both factors of $m$ are structural.
   \[
   \dim H^1_f(K_w,T)\le\mathrm{locDeg}(w)\cdot m,
   \]
-  the Bloch--Kato count $\dim H^1_f=\sum_\tau\#\{\text{non-negative Hodge--Tate weights}\}$, and the
+  the Bloch--Kato count~\cite{bloch-kato} $\dim H^1_f=\sum_\tau\#\{\text{non-negative Hodge--Tate weights}\}$, and the
   family supplies the hypothesis $|L_o|\le m$ by \emph{equality} (\lean{le_of_eq}), from its weight
   pattern \lean{ShapeJumps k m t}.
 \end{enumerate}
@@ -1085,7 +1086,7 @@ enter); the slope inequality on the one common lattice joins them.}\label{fig:de
   \MAIN(u)=\sum_t\bigl[m(\phi(a_t)-a_t\log\Omega)-a_t\log T_u\bigr],\qquad
   \log\Omega=\gamma+\log(\pi/v)-\frac{L'}{L}(1,\chi_d),
   \]
-  the Chowla--Selberg period (\lean{meanPeriod}), and $\phi(a)=a\log a-a$.
+  the Chowla--Selberg period~\cite{chowla-selberg} (\lean{meanPeriod}), and $\phi(a)=a\log a-a$.
 \item \textbf{Slope inequality} (\lean{Frame_at}): the rank-weighted mean $s$ of
   $\mu(Nu\,u)-h_u$ satisfies $s-\log\#W-(\text{small})\le\mu_{dual}(RR)$, for the one lattice $RR$
   of Section~\ref{sec:RR}.
@@ -1240,13 +1241,13 @@ CM inputs (\lean{LiteratureCMHypothesis}) & Grothendieck deformation, de Rham co
 \end{tabular}
 \end{center}
 
-\begin{theorem}[Ferrero--Washington, \lean{UpperTheory.V.FW.ferreroWashington}, \Exact]
+\begin{theorem}[Ferrero--Washington~\cite{ferrero-washington}, \lean{UpperTheory.V.FW.ferreroWashington}, \Exact]
 For a prime $\ell$ and an abelian number field $K$ containing $\mu_\ell$ ($\mu_4$ if $\ell=2$) there
 is $r$ such that every layer $K'$ of the cyclotomic $\Z_\ell$-tower over $K$ satisfies
 $|\Cl(K')/\Cl(K')^\ell|\le\ell^r$.
 \end{theorem}
 
-\Reading{} Bounded $\ell$-rank up the tower is the statement $\mu=0$. The proof occupies a 62-file
+\Reading{} Bounded $\ell$-rank up the tower is the statement $\mu=0$~\cite{washington}. The proof occupies a 62-file
 folder (\lean{GaloisLibrary/FerreroWashingtonIndex}).
 
 \paragraph{Provenance.} The literature structures are filled by Lean proofs (\lean{..._from_literature},
@@ -1449,7 +1450,7 @@ match the published theorems at full strength?
   groups of $W$ and of $W\otimes\theta$ vanish. \Reading{} This is not a verbatim published theorem.
   There is no hypothesis on an $L$-value; the class-number condition $\ell\nmid h_K$ plays that role,
   as in residually reducible (Eisenstein-ideal) arguments. It is the kind of statement that follows
-  from Kato's Euler system together with a main-conjecture input, and a specialist should confirm the
+  from Kato's Euler system~\cite{kato} together with a main-conjecture input, and a specialist should confirm the
   exact strength. It is proved in Lean (\lean{katoTwoW_of_printsH_of_rT_of_quadBC2}), so this affects
   how to describe it, not whether the proof is correct.
 \item \emph{CM inputs.} \Exact{} Read statement by statement:
@@ -1473,8 +1474,8 @@ the caveat on the Kato-type statement above.
 Is the windowed Landau theorem (Theorem~\ref{thm:landau}) new as a stated result?
 \end{question}
 \noindent\textbf{Narrowed.} Deducing zero-free regions from one-sided or localised information on
-prime sums is a classical line going back to Landau and developed by Pintz (see the recent survey
-\emph{A round of Pintz to celebrate oscillations in sums}, arXiv:2511.09978), and effective
+prime sums is a classical line going back to Landau~\cite{landau} and developed by Pintz (see the
+recent survey~\cite{johnston-trudgian}), and effective
 versions of Landau's theorem already give quantitative lower bounds for averages over ranges
 $[1,Y]$. The windowed statement is
 therefore close to known methods in substance; whether this exact form appears in the literature is
@@ -1519,12 +1520,12 @@ The formal proof is Levent Alp\"oge's. This account builds on public work by oth
 November 2026, and overlaps with some of it:
 \begin{itemize}
 \item Jonas Whidden's Zulip readings (the balance, the frame lemma, the common-lattice question);
-\item Bartosz Naskr\k{e}cki's proof guide and book (\texttt{nasqret/riemann-rev}), which also state the
+\item Bartosz Naskr\k{e}cki's proof guide and book~\cite{naskrecki}, which also state the
   $x/m+m$ balance, the localized Landau step, the choice of auxiliary primes and the
   Ferrero--Washington and Poitou--Tate premises;
 \item JoseClaudioSJr's reader's map (community issue~\#5), which independently traces the windowed
   Landau route and the gain chain through \texttt{AuxBlock8.Conclusion1} and \texttt{starAll\_of};
-\item Andrew Sutherland's verification record and build manifest; the full kernel replays and
+\item Andrew Sutherland's verification record and build manifest~\cite{sutherland}; the full kernel replays and
   independent rebuilds reported by Simon DeDeo and Elliot Arledge;
 \item the dependency and dead-code analyses of James Shore (\texttt{james-shore/rh-proof-dependencies},
   256{,}620 of 1{,}061{,}531 declarations unused), Sonoda, Drew Carlson and Keith Adler
@@ -1533,6 +1534,45 @@ November 2026, and overlaps with some of it:
   (\texttt{rh-alpoge-blueprint}), and the declaration index at \texttt{riemann.tamnd.com}.
 \end{itemize}
 Errors of interpretation are ours.
+
+\paragraph{Use of AI tools.} Claude (Anthropic) was used to help read the Lean source, run
+searches over the declaration list, and draft parts of this text and its figures. Statements marked
+\Exact{} or \Verified{} were checked against the Lean source or the build outputs in the
+accompanying repository, and the references against their published sources. The author has read
+the whole text and takes full responsibility for its content.
+
+\begin{thebibliography}{99}
+\bibitem{alpoge-remark} L.~Alp\"oge, note accompanying the Lean development, 20 November 2026,
+  \url{https://alpo.ge/remark.pdf}.
+\bibitem{bloch-kato} S.~Bloch and K.~Kato, \emph{$L$-functions and Tamagawa numbers of motives}, in:
+  The Grothendieck Festschrift, Vol.~I, Progr. Math. 86, Birkh\"auser, 1990, 333--400.
+\bibitem{chowla-selberg} S.~Chowla and A.~Selberg, \emph{On Epstein's zeta-function}, J. reine angew.
+  Math. 227 (1967), 86--110.
+\bibitem{ferrero-washington} B.~Ferrero and L.~C.~Washington, \emph{The Iwasawa invariant $\mu_p$
+  vanishes for abelian number fields}, Ann. of Math. (2) 109 (1979), 377--395.
+\bibitem{iwaniec-kowalski} H.~Iwaniec and E.~Kowalski, \emph{Analytic Number Theory}, AMS Colloquium
+  Publications 53, American Mathematical Society, 2004.
+\bibitem{johnston-trudgian} D.~R.~Johnston and T.~Trudgian, \emph{A round of Pintz to celebrate
+  oscillations in sums}, arXiv:2511.09978.
+\bibitem{kato} K.~Kato, \emph{$p$-adic Hodge theory and values of zeta functions of modular forms},
+  Ast\'erisque 295 (2004), 117--290.
+\bibitem{landau} E.~Landau, \emph{Handbuch der Lehre von der Verteilung der Primzahlen}, Teubner,
+  Leipzig, 1909.
+\bibitem{lean4} L.~de Moura and S.~Ullrich, \emph{The Lean~4 theorem prover and programming
+  language}, in: Automated Deduction (CADE-28), LNCS 12699, Springer, 2021, 625--635.
+\bibitem{mathlib} The mathlib Community, \emph{The Lean mathematical library}, in: Proceedings of the
+  9th ACM SIGPLAN International Conference on Certified Programs and Proofs (CPP 2020), 367--381.
+\bibitem{naskrecki} B.~Naskr\k{e}cki, \texttt{riemann-rev} (status dashboard, proof guide and book),
+  \url{https://github.com/nasqret/riemann-rev}, November 2026.
+\bibitem{nsw} J.~Neukirch, A.~Schmidt and K.~Wingberg, \emph{Cohomology of Number Fields}, 2nd ed.,
+  Grundlehren der mathematischen Wissenschaften 323, Springer, 2008.
+\bibitem{shimura} G.~Shimura, \emph{Introduction to the Arithmetic Theory of Automorphic Functions},
+  Princeton University Press, 1971.
+\bibitem{sutherland} A.~V.~Sutherland, build and verification page for the Lean development,
+  \url{https://math.mit.edu/~drew/grh/}, November 2026.
+\bibitem{washington} L.~C.~Washington, \emph{Introduction to Cyclotomic Fields}, 2nd ed., Graduate
+  Texts in Mathematics 83, Springer, 1997.
+\end{thebibliography}
 
 \appendix
 
