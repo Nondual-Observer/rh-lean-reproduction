@@ -1,0 +1,26 @@
+levels.py on the full published proof export (solution.ndjson.zst from math.mit.edu/~drew/grh/), run 2026-11-21 on rh-vm.
+Compressed sha256 61a8938ad5f5e57397c1c0e3b954916af546d9004ade01c3555744a681b05381 (matches the published value).
+
+level records            : 21,604
+concrete (no parameters) : 8
+
+concrete level -> uses in Sort | uses as a constant's level argument
+    0               1         369,334
+    1               1          36,070
+    2               1           3,868
+    3               1             100
+    4               0               4
+
+largest concrete level used: 4   (Type 3 = Sort 4)
+first uses of that level:
+    const Exists
+    const Exists.intro
+    const inferInstance
+
+largest offset over a parameter (u+k) in used levels: k = 4
+
+Reading: counts are of distinct expression records in the export (it is hash-consed), not of occurrences.
+Limit: this is a LOWER bound on the universe height the proof really uses. Universe-polymorphic
+declarations have bodies with levels up to u+4; when one is instantiated at a concrete level, the
+effective level inside it (instantiation + offset) is never written out in the export. The true height
+needs those instantiations propagated through the polymorphic bodies from Main. Not done yet.
