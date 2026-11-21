@@ -1,0 +1,686 @@
+{
+ "files": 175187,
+ "res": [
+  {
+   "step": "1",
+   "label": "Stepanov",
+   "path": 0,
+   "content": 0,
+   "by_lib": {},
+   "examples": [],
+   "top_sub": []
+  },
+  {
+   "step": "2",
+   "label": "Invariant derivation",
+   "path": 31,
+   "content": 38,
+   "by_lib": {
+    "Development": 34,
+    "Formalism": 4
+   },
+   "examples": [
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ConstantCoeffIterateInvariantDerivationCongr",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ConstantCoeffIterateInvariantDerivationCongrStatement",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ConstantCoeffIterateInvariantDerivationLinear"
+   ],
+   "top_sub": [
+    [
+     "Development/AbelianVarietyTheory",
+     34
+    ],
+    [
+     "Formalism/LocalToGlobal",
+     4
+    ]
+   ]
+  },
+  {
+   "step": "3",
+   "label": "Path quadric",
+   "path": 24,
+   "content": 52,
+   "by_lib": {
+    "Development": 41,
+    "Formalism": 7,
+    "CompanionTheory": 2,
+    "ReciprocityTheory": 2
+   },
+   "examples": [
+    "Development.AbelianVarietyTheory.Proofs.FlagMeasures.CardHermitianQuadricAffineSubspaceResidueRing",
+    "Development.AbelianVarietyTheory.Proofs.FlagMeasures.CardHermitianQuadricAffineSubspaceResidueRingStatement",
+    "Development.AbelianVarietyTheory.Proofs.FlagMeasures.GaussianQuadricDensityExistsPosContinuous"
+   ],
+   "top_sub": [
+    [
+     "Development/AbelianVarietyTheory",
+     35
+    ],
+    [
+     "Formalism/PeriodIntegrals",
+     6
+    ],
+    [
+     "Development/AutomorphicSpectrum",
+     5
+    ]
+   ]
+  },
+  {
+   "step": "3",
+   "label": "Iterated Parseval",
+   "path": 802,
+   "content": 948,
+   "by_lib": {
+    "Development": 904,
+    "Formalism": 26,
+    "GroundTheory": 10,
+    "ReciprocityTheory": 5,
+    "CompanionTheory": 3
+   },
+   "examples": [
+    "Development.AbelianVarietyTheory.Proofs.CharacterTheory.ParsevalBoundIntegerVectorSmallFourierSupport",
+    "Development.AbelianVarietyTheory.Proofs.CharacterTheory.ParsevalBoundIntegerVectorSmallFourierSupportStatement",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.LintegralAdelicThetaSumSqParsevalSecondVariable"
+   ],
+   "top_sub": [
+    [
+     "Development/AutomorphicArithmetic",
+     815
+    ],
+    [
+     "Development/AbelianVarietyTheory",
+     65
+    ],
+    [
+     "Development/AutomorphicSpectrum",
+     15
+    ]
+   ]
+  },
+  {
+   "step": "5",
+   "label": "Guinand\u2013Weil",
+   "path": 0,
+   "content": 0,
+   "by_lib": {},
+   "examples": [],
+   "top_sub": []
+  },
+  {
+   "step": "5",
+   "label": "von Mangoldt \u039b",
+   "path": 16,
+   "content": 133,
+   "by_lib": {
+    "Formalism": 73,
+    "Development": 60
+   },
+   "examples": [
+    "Development.AbelianVarietyTheory.Proofs.CharacterTheory.AdditiveEqPolynomialVonMangoldtConvolutionOne",
+    "Development.AbelianVarietyTheory.Proofs.CharacterTheory.AdditiveEqPolynomialVonMangoldtConvolutionOneStatement",
+    "Development.AbelianVarietyTheory.Proofs.CharacterTheory.AdditiveMulEqVonMangoldtConvolution"
+   ],
+   "top_sub": [
+    [
+     "Development/AbelianVarietyTheory",
+     40
+    ],
+    [
+     "Formalism/GL3MeanSquares",
+     21
+    ],
+    [
+     "Development/AutomorphicArithmetic",
+     19
+    ]
+   ]
+  },
+  {
+   "step": "7",
+   "label": "GGP periods",
+   "path": 7,
+   "content": 236,
+   "by_lib": {
+    "Development": 136,
+    "CompanionTheory": 60,
+    "Formalism": 40
+   },
+   "examples": [
+    "Development.AbelianVarietyTheory.Proofs.TwistedOperators.ExistsGanGrossPrasadColumnWeights",
+    "Development.AbelianVarietyTheory.Proofs.TwistedOperators.ExistsGanGrossPrasadColumnWeightsStatement",
+    "Development.AbelianVarietyTheory.Proofs.TwistedOperators.ExistsGanGrossPrasadRowWeights"
+   ],
+   "top_sub": [
+    [
+     "Development/AbelianVarietyTheory",
+     135
+    ],
+    [
+     "CompanionTheory/AutomorphicTheory",
+     47
+    ],
+    [
+     "Formalism/HermitianCurvature",
+     22
+    ]
+   ]
+  },
+  {
+   "step": "7",
+   "label": "Interlacing",
+   "path": 48,
+   "content": 481,
+   "by_lib": {
+    "Development": 272,
+    "Formalism": 186,
+    "ReciprocityTheory": 13,
+    "CompanionTheory": 10
+   },
+   "examples": [
+    "CompanionTheory.AutomorphicTheory.BesselWaveGrids.InterlacingGrids.Bracket",
+    "CompanionTheory.AutomorphicTheory.BesselWaveGrids.InterlacingGrids.CloudPair",
+    "CompanionTheory.AutomorphicTheory.BesselWaveGrids.InterlacingGrids.CloudProd"
+   ],
+   "top_sub": [
+    [
+     "Development/AbelianVarietyTheory",
+     269
+    ],
+    [
+     "Formalism/LocalToGlobal",
+     40
+    ],
+    [
+     "Formalism/SharpRestriction",
+     39
+    ]
+   ]
+  },
+  {
+   "step": "8",
+   "label": "Theta lift",
+   "path": 1322,
+   "content": 2629,
+   "by_lib": {
+    "Development": 2514,
+    "Formalism": 101,
+    "PositivityTheory": 13,
+    "Lemmata": 1
+   },
+   "examples": [
+    "Development.AbelianVarietyTheory.BlockTheory.ThetaLiftGeometry.AgreementAtAlmostAllSplitPrimes",
+    "Development.AbelianVarietyTheory.BlockTheory.ThetaLiftGeometry.AmbientLatticeAvoidance",
+    "Development.AbelianVarietyTheory.BlockTheory.ThetaLiftGeometry.BadPrimesPeriodBound"
+   ],
+   "top_sub": [
+    [
+     "Development/AbelianVarietyTheory",
+     972
+    ],
+    [
+     "Development/WeilBound",
+     716
+    ],
+    [
+     "Development/AutomorphicSpectrum",
+     452
+    ]
+   ]
+  },
+  {
+   "step": "9",
+   "label": "Chowla\u2013Selberg",
+   "path": 66,
+   "content": 85,
+   "by_lib": {
+    "GroundTheory": 66,
+    "Development": 16,
+    "Formalism": 3
+   },
+   "examples": [
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ClassMeanLogNormDiscChowlaSelberg",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.ClassMeanLogNormDiscChowlaSelbergStatement",
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.MeanLogPeriodChowlaSelberg"
+   ],
+   "top_sub": [
+    [
+     "GroundTheory/HeightsAndTheta",
+     66
+    ],
+    [
+     "Development/AbelianVarietyTheory",
+     14
+    ],
+    [
+     "Formalism/SharpRestriction",
+     3
+    ]
+   ]
+  },
+  {
+   "step": "9",
+   "label": "Siegel mass",
+   "path": 15,
+   "content": 147,
+   "by_lib": {
+    "Development": 84,
+    "Formalism": 62,
+    "CompanionTheory": 1
+   },
+   "examples": [
+    "Development.AbelianVarietyTheory.Proofs.DecoratedLatticeProofs.CorankSizeHypothesisExplicitConstantSiegelMass",
+    "Development.AbelianVarietyTheory.Proofs.DecoratedLatticeProofs.CorankSizeHypothesisExplicitConstantSiegelMassStatement",
+    "Development.AbelianVarietyTheory.Proofs.FlagMeasures.SiegelMassRatioUnimodularDefinite"
+   ],
+   "top_sub": [
+    [
+     "Development/AbelianVarietyTheory",
+     78
+    ],
+    [
+     "Formalism/PeriodIntegrals",
+     22
+    ],
+    [
+     "Formalism/LocalToGlobal",
+     21
+    ]
+   ]
+  },
+  {
+   "step": "11",
+   "label": "Iwasawa tower/theory",
+   "path": 1,
+   "content": 2,
+   "by_lib": {
+    "Development": 2
+   },
+   "examples": [
+    "Development.AutomorphicArithmetic.AutomorphicVarieties.PatchingModules.AnnihilatorBaseChange.PatchedModuleFreeFiniteOverIwasawaAlgebra"
+   ],
+   "top_sub": [
+    [
+     "Development/AutomorphicArithmetic",
+     2
+    ]
+   ]
+  },
+  {
+   "step": "12",
+   "label": "Seesaw",
+   "path": 349,
+   "content": 565,
+   "by_lib": {
+    "Development": 562,
+    "CompanionTheory": 3
+   },
+   "examples": [
+    "CompanionTheory.SpectralGeometry.LocalGlobalProofs.StableLattices.SeesawTrivialityAbelianScheme",
+    "CompanionTheory.SpectralGeometry.LocalGlobalProofs.StableLattices.SeesawTrivialityAbelianSchemeStatement",
+    "Development.AbelianVarietyTheory.Proofs.DecoratedLatticeProofs.DoublingSeesawTensorMapPolynomialFockVector"
+   ],
+   "top_sub": [
+    [
+     "Development/AbelianVarietyTheory",
+     461
+    ],
+    [
+     "Development/AutomorphicArithmetic",
+     86
+    ],
+    [
+     "Development/AutomorphicSpectrum",
+     8
+    ]
+   ]
+  },
+  {
+   "step": "12",
+   "label": "Bessel period",
+   "path": 65,
+   "content": 359,
+   "by_lib": {
+    "Development": 247,
+    "CompanionTheory": 64,
+    "Formalism": 48
+   },
+   "examples": [
+    "CompanionTheory.AutomorphicTheory.PieriRules.ThetaBesselIsometries.BesselPeriodAdjointPair",
+    "CompanionTheory.AutomorphicTheory.PieriRules.ThetaBesselIsometries.BesselPeriodAdjointPairStatement",
+    "Development.AbelianVarietyTheory.Counterexamples.HeightSurvey.BesselPeriodPositionOneEqZero"
+   ],
+   "top_sub": [
+    [
+     "Development/AbelianVarietyTheory",
+     232
+    ],
+    [
+     "CompanionTheory/AutomorphicTheory",
+     51
+    ],
+    [
+     "Formalism/HermitianCurvature",
+     21
+    ]
+   ]
+  },
+  {
+   "step": "12",
+   "label": "Rallis",
+   "path": 81,
+   "content": 241,
+   "by_lib": {
+    "Development": 220,
+    "Formalism": 21
+   },
+   "examples": [
+    "Development.AbelianVarietyTheory.BlockTheory.NonGaloisCusps.RallisInnerProductFormula",
+    "Development.AbelianVarietyTheory.Proofs.DecoratedLatticeProofs.RallisInnerProductConvergentOfWeilSiegelFormula",
+    "Development.AbelianVarietyTheory.Proofs.DecoratedLatticeProofs.RallisInnerProductConvergentOfWeilSiegelFormulaStatement"
+   ],
+   "top_sub": [
+    [
+     "Development/AbelianVarietyTheory",
+     159
+    ],
+    [
+     "Development/AutomorphicArithmetic",
+     39
+    ],
+    [
+     "Development/WeilBound",
+     22
+    ]
+   ]
+  },
+  {
+   "step": "13",
+   "label": "Bost slope inequality",
+   "path": 3,
+   "content": 29,
+   "by_lib": {
+    "Formalism": 25,
+    "Development": 4
+   },
+   "examples": [
+    "Formalism.LatticeSlopes.LatticeSlopesProofs.SlopeInequality",
+    "Formalism.LocalToGlobal.GlobalTheory.GL4.LowerSlopeInequalityFamily",
+    "Formalism.SizeWindowBrackets.ChainSlopeWindows.SlopeInequalityOfLattices"
+   ],
+   "top_sub": [
+    [
+     "Formalism/LocalToGlobal",
+     9
+    ],
+    [
+     "Formalism/LatticeSlopes",
+     5
+    ],
+    [
+     "Development/AbelianVarietyTheory",
+     4
+    ]
+   ]
+  },
+  {
+   "step": "16",
+   "label": "Relative trace formula",
+   "path": 0,
+   "content": 0,
+   "by_lib": {},
+   "examples": [],
+   "top_sub": []
+  },
+  {
+   "step": "16",
+   "label": "Poincar\u00e9 series",
+   "path": 40,
+   "content": 82,
+   "by_lib": {
+    "Development": 42,
+    "Formalism": 40
+   },
+   "examples": [
+    "Development.AbelianVarietyTheory.Proofs.DecoratedLatticeProofs.ConjugateRowPairingPoincareSeriesBesselPeriods",
+    "Development.AbelianVarietyTheory.Proofs.DecoratedLatticeProofs.ConjugateRowPairingPoincareSeriesBesselPeriodsStatement",
+    "Development.AbelianVarietyTheory.Proofs.DecoratedLatticeProofs.InnerPoincareSeriesEqSetIntegralUnfolding"
+   ],
+   "top_sub": [
+    [
+     "Development/AbelianVarietyTheory",
+     36
+    ],
+    [
+     "Formalism/LocalToGlobal",
+     25
+    ],
+    [
+     "Formalism/PeriodIntegrals",
+     15
+    ]
+   ]
+  },
+  {
+   "step": "17",
+   "label": "Vandiver",
+   "path": 0,
+   "content": 0,
+   "by_lib": {},
+   "examples": [],
+   "top_sub": []
+  },
+  {
+   "step": "18",
+   "label": "Covolume",
+   "path": 643,
+   "content": 3670,
+   "by_lib": {
+    "Development": 3024,
+    "Formalism": 317,
+    "GroundTheory": 305,
+    "CompanionTheory": 15,
+    "ReciprocityTheory": 7,
+    "Lemmata": 2
+   },
+   "examples": [
+    "CompanionTheory.AutomorphicTheory.SiegelWeilFiniteness.AdelicCovolumeFinite",
+    "CompanionTheory.SpectralGeometry.LocalGlobalProofs.AdelicAnalysis.FiniteCovolumeUnimodular",
+    "CompanionTheory.SpectralGeometry.LocalGlobalProofs.AdelicAnalysis.FiniteCovolumeUnimodularStatement"
+   ],
+   "top_sub": [
+    [
+     "Development/AbelianVarietyTheory",
+     2340
+    ],
+    [
+     "Development/AutomorphicSpectrum",
+     404
+    ],
+    [
+     "GroundTheory/HeightsAndTheta",
+     299
+    ]
+   ]
+  },
+  {
+   "step": "19",
+   "label": "Behrend",
+   "path": 14,
+   "content": 17,
+   "by_lib": {
+    "Formalism": 17
+   },
+   "examples": [
+    "Formalism.BehrendSets.BehrendVariance.CoeffPowEqZeroOfLt",
+    "Formalism.BehrendSets.BehrendVariance.MemWindowIff",
+    "Formalism.BehrendSets.BehrendVariance.MulAbsSubLt"
+   ],
+   "top_sub": [
+    [
+     "Formalism/BehrendSets",
+     14
+    ],
+    [
+     "Formalism/GL3MeanSquares",
+     2
+    ],
+    [
+     "Formalism/FrobeniusOrbits",
+     1
+    ]
+   ]
+  },
+  {
+   "step": "20",
+   "label": "Landau (zero-free)",
+   "path": 104,
+   "content": 191,
+   "by_lib": {
+    "Formalism": 121,
+    "Development": 69,
+    "GroundTheory": 1
+   },
+   "examples": [
+    "Development.AbelianVarietyTheory.Proofs.AdelicLatticeProofs.LandauSummableOfExpDirichletSeriesEntire",
+    "Development.AutomorphicArithmetic.DedekindLFunctions.LandauTheorems.ChBalance",
+    "Development.AutomorphicArithmetic.DedekindLFunctions.LandauTheorems.ChCore"
+   ],
+   "top_sub": [
+    [
+     "Formalism/LandauZeroFreeBounds",
+     54
+    ],
+    [
+     "Development/AutomorphicArithmetic",
+     51
+    ],
+    [
+     "Formalism/GL3MeanSquares",
+     31
+    ]
+   ]
+  },
+  {
+   "step": "\u2013",
+   "label": "Tate\u2013Shafarevich",
+   "path": 8,
+   "content": 117,
+   "by_lib": {
+    "Development": 89,
+    "Formalism": 27,
+    "ReciprocityTheory": 1
+   },
+   "examples": [
+    "Development.AbelianVarietyTheory.Proofs.DivisorProofs.PotentialGoodReductionOfNeronOggShafarevich",
+    "Development.AutomorphicArithmetic.AutomorphicVarieties.GaloisLibrary.GaloisCohomologyLength.ShaLenEqShaInv",
+    "Development.AutomorphicArithmetic.AutomorphicVarieties.GaloisLibrary.SelmerTransport.ShaLenEq"
+   ],
+   "top_sub": [
+    [
+     "Development/AbelianVarietyTheory",
+     45
+    ],
+    [
+     "Development/AutomorphicArithmetic",
+     40
+    ],
+    [
+     "Formalism/SharpRestriction",
+     13
+    ]
+   ]
+  },
+  {
+   "step": "\u2013",
+   "label": "Local Langlands",
+   "path": 124,
+   "content": 2068,
+   "by_lib": {
+    "Development": 2057,
+    "CompanionTheory": 8,
+    "PositivityTheory": 3
+   },
+   "examples": [
+    "CompanionTheory.EightfoldTheory.ZeroLevelTheory.LocalLanglands.Imports",
+    "CompanionTheory.SpectralGeometry.LocalGlobalProofs.StableLattices.LocalLanglandsOfIrreducibleAdmissibleImports",
+    "Development.AbelianVarietyTheory.Definitions.NonGaloisDescent.ExistsOfLocalLanglands"
+   ],
+   "top_sub": [
+    [
+     "Development/AbelianVarietyTheory",
+     1036
+    ],
+    [
+     "Development/AutomorphicArithmetic",
+     965
+    ],
+    [
+     "Development/WeilBound",
+     35
+    ]
+   ]
+  },
+  {
+   "step": "\u2013",
+   "label": "Galois representation",
+   "path": 3194,
+   "content": 4009,
+   "by_lib": {
+    "Development": 3933,
+    "PositivityTheory": 66,
+    "Formalism": 9,
+    "GroundTheory": 1
+   },
+   "examples": [
+    "Development.AbelianVarietyTheory.BlockTheory.ThetaLiftGeometry.GaloisRepresentations",
+    "Development.AbelianVarietyTheory.Definitions.Divisors.GaloisRepOfPolarizedCuspidal",
+    "Development.AbelianVarietyTheory.Definitions.GaloisGeometry.PolarizedGaloisRepNarrow"
+   ],
+   "top_sub": [
+    [
+     "Development/AutomorphicArithmetic",
+     3499
+    ],
+    [
+     "Development/AbelianVarietyTheory",
+     416
+    ],
+    [
+     "PositivityTheory/AutomorphicForms",
+     66
+    ]
+   ]
+  },
+  {
+   "step": "\u2013",
+   "label": "Weil representation",
+   "path": 176,
+   "content": 1554,
+   "by_lib": {
+    "Development": 1529,
+    "Formalism": 17,
+    "CompanionTheory": 8
+   },
+   "examples": [
+    "CompanionTheory.SpectralGeometry.LocalGlobalProofs.AdelicAnalysis.WeilRepresentationQuadraticDatum",
+    "CompanionTheory.SpectralGeometry.LocalGlobalProofs.AdelicAnalysis.WeilRepresentationQuadraticDatumStatement",
+    "Development.AbelianVarietyTheory.Proofs.DecoratedLatticeProofs.BesselToJacobiFlatWeilRepresentationCores"
+   ],
+   "top_sub": [
+    [
+     "Development/AbelianVarietyTheory",
+     1252
+    ],
+    [
+     "Development/AutomorphicArithmetic",
+     218
+    ],
+    [
+     "Development/WeilBound",
+     32
+    ]
+   ]
+  }
+ ]
+}

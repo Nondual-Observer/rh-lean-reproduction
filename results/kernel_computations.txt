@@ -1,0 +1,77 @@
+Independent re-run of the proof's kernel computations (decide +kernel), 2026-11-20
+Source: alpo.ge archive sha256 9631b4f0...c7fc. Each Lean function was ported line by line to Python (Lean Nat semantics: truncating subtraction, floor division, x/0 = 0) and run; results compared with the value the Lean theorem claims. Independent cross-checks (sieve, sympy.isprime) where possible. Proof-path column from riemann.tamnd.com's declaration index (approximate name resolution).
+
+== dyadic.py
+run1: run(32768, 1612, 32766, 2, 1) = True   (ended at h=32768, d=1612)  0.1s
+run2: run(65536, 3030, 32768, 32768, 1612) = True   (ended at h=65536, d=3030)  0.2s
+run3: run(98304, 4388, 32768, 65536, 3030) = True   (ended at h=98304, d=4388)  0.2s
+run4: run(131072, 5709, 32768, 98304, 4388) = True   (ended at h=131072, d=5709)  0.2s
+loop_run: loop 362 131070 2 0 1 = True   (ended at n=131072, c=12251)  0.8s
+
+== more.py
+factorial_ladder_thirteen: True  (0.0s)
+factorial_ladder_thirty_one: True  (0.0s)
+factorial_ladder_one_forty_one: True  (0.0s)
+table_ok: rows parsed = 12, primes listed = 878, okAll 100 table 16900 = True
+   all listed numbers prime (trial division): True
+lcmUpto_le_three_pow (n < 30): True
+lcmUpto_le_four_pow_small (n <= 100): True
+neg: ladder target 20001 w/ same steps -> False | lcmUpto n <= 2^n for n<30 -> False
+
+== certs.py
+foundations_prime_fact_ter: p has 24 bits; certificate checks True; sympy.isprime(p)=True; listed q all prime=True
+prime_128860109809: p has 37 bits; certificate checks True; sympy.isprime(p)=True; listed q all prime=True
+foundations_prime_fact: p has 29 bits; certificate checks True; sympy.isprime(p)=True; listed q all prime=True
+foundations_prime_fact_bis: p has 31 bits; certificate checks True; sympy.isprime(p)=True; listed q all prime=True
+siteGood_prime_torsion: p has 310 bits; certificate checks True; sympy.isprime(p)=True; listed q all prime=True
+neg (p+2 with same cert): False
+
+== disjoint.py
+Primes.lean / BB_disj0
+  A, B prime: True True
+  not A | prodPowSubOne B: True
+  not B | prodPowSubOne A: True
+  gcd(prodPowSubOne A, prodPowSubOne B) | prod(L)^52: True  gcd = 343494710416876045418147348813428851543511011828646331075308919885705080659995032289280000000000000000000
+  every q in L prime: True
+  key (for each l, d in 1..9 some k<20 works): True
+FoundationsPrimeFact / bb_disjoint
+  gcd(...) | prod(L2)^43: True
+  128860109809 not in L2: True
+  hall: True
+
+== cyclo.py  (d = 599, condN = 16*571*599 inferred from the norm-form identities, not read from source)
+example_first_prime: 63-bit; Lucas certificate True; sympy.isprime True
+example_second_prime: 74-bit; Lucas certificate True; sympy.isprime True
+nd2T_prime: 614-bit; Lucas certificate True; sympy.isprime True
+columns_prime_fact: 616-bit; Lucas certificate True; sympy.isprime True
+  example_level_pos: True
+  condN | nd2N (cyclotomic_mono_of_dvd): True
+  example_conductor_pos: True
+  first_norm_form: True
+  second_norm_form: True
+  num_nT: True
+  one_sq_add_d_mul_sq_eq_nd2T1: True
+  columns_num_fact: True
+  columns_num_fact_bis: True
+  columns_num_fact_ter: True
+  first_prime_identity: True
+  second_prime_identity: True
+  num_cT: True
+  first_prime_modEq_one: True
+  second_prime_modEq_one: True
+  num_mT: True
+  primes_distinct: True
+  primes_gt_sixteen: True
+  primes_dvd_level: True
+  ChainInst h4 (both ≡ 1 mod 4): True
+  ChainInst h1 (t1 ∤ condN·18): True
+  ChainInst h2 (t2 ∤ condN·768): True
+ALL: True
+
+== On the path from riemannHypothesis? (riemann.tamnd.com index, commit 9110120; approximate)
+yes  loop_run (depth 22), lcmUpto_le_three_pow (24), lcmUpto_le_four_pow_small (25),
+     factorial_ladder_thirteen / _thirty_one / _one_forty_one (21), table_ok (20), BB_disj0 (27)
+no   run1-run4, the five prime_of_cert certificates incl. the 310-bit prime, bb_disjoint,
+     the four cyclotomic Lucas certificates (63- to 616-bit primes), examplePrimes_ok, example_primes_dvd_level
+Not ported: small finite checks on custom structures (interlacing grids, ZMod 7 group facts, set
+cardinalities, the `example` blocks). Bernoulli B4, B6, primeFactors 2..10 and 751, 991 mod 16 were checked.

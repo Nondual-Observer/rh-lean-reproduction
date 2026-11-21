@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RH proof pipeline</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;700;800&family=Red+Hat+Text:wght@400;500;700&family=Red+Hat+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* VOICE work: a technical explainer for readers of the Lean proof; calm, exact, dense
+   IDEA a lab poster that walks down a mine shaft: the statement at the surface, the trunk below, the bulk underneath
+   PICTURE stage 1: the critical strip with the proved half-plane; then one drawing per stage
+   COLOUR oxford blue band, white panels, magenta for the line Re s = 1/2 and for "nothing found"
+   TYPE Red Hat Display + Red Hat Text, Red Hat Mono for Lean names
+   LAYOUT title band with a five-station route; each stage a band with text beside its figure; stacks under 760px */
+:root{color-scheme:light dark;--bg:light-dark(#f4f6fb,#070f26);--panel:light-dark(#ffffff,#0e1a3d);--ink:light-dark(#0b1630,#e8ecf7);--mute:light-dark(#4a5677,#9aa6c7);--line:light-dark(#d5dbea,#26345e);--blue:#0b1f4b;--acc:#e0115f;--soft:light-dark(#e9edf7,#15234d);--bar:light-dark(#2f4fa8,#7f9cf0);--barlite:light-dark(#cdd6ee,#22356b)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:64px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 "Red Hat Text",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:"Red Hat Display",system-ui,sans-serif;letter-spacing:-.02em;line-height:1.08;margin:0}
+h1{font-size:clamp(32px,5vw,50px);font-weight:800;text-wrap:balance}
+h2{font-size:clamp(24px,3vw,34px);font-weight:800;text-wrap:balance;margin-bottom:10px}
+h3{font-size:18px;font-weight:700}
+a{color:inherit;text-decoration-color:var(--acc);text-underline-offset:3px}
+code,.mono{font-family:"Red Hat Mono",ui-monospace,monospace;font-size:.88em;overflow-wrap:anywhere}
+p{margin:.5em 0;max-width:68ch}
+.wrap{max-width:1240px;margin:0 auto}
+.band{padding:clamp(28px,4vw,60px) max(5vw,16px)}
+.top{background:var(--blue);color:#fff}
+.top p{color:#d6def3}
+.lede{font-size:18px;max-width:70ch;margin-top:12px}
+.flag{display:inline-block;margin-top:14px;padding:6px 12px;border:1px solid #ffffff55;border-radius:6px;font-size:14px;color:#fff}
+.route{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:0;margin-top:28px;position:relative}
+.route::before{content:"";position:absolute;left:4%;right:4%;top:15px;height:4px;background:#ffffff40;border-radius:2px}
+.route a{position:relative;text-decoration:none;color:#fff;padding:0 8px 4px;display:block;min-height:44px}
+.route a::before{content:"";display:block;width:34px;height:34px;border-radius:50%;background:var(--blue);border:4px solid #fff;margin-bottom:10px}
+.route a:first-child::before{background:var(--acc);border-color:var(--acc)}
+.route b{display:block;font-family:"Red Hat Display";font-size:clamp(20px,2.4vw,30px);font-weight:800;line-height:1}
+.route span{font-size:14px;color:#c9d3ee}
+.route a:hover b,.route a:focus-visible b{color:#ffb3cd}
+.grid2{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(20px,3vw,44px);align-items:start}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:18px}
+.fig{position:relative;min-height:360px}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+svg text{font-family:"Red Hat Text",sans-serif;paint-order:stroke;stroke:var(--panel);stroke-width:4px}
+.alt{background:var(--soft)}
+.note{font-size:14px;color:var(--mute)}
+.chip{display:inline-block;font-size:13px;padding:2px 8px;border-radius:999px;background:var(--soft);border:1px solid var(--line);white-space:nowrap}
+.chip.hot{background:var(--acc);border-color:var(--acc);color:#fff}
+/* trunk */
+.trunk{list-style:none;margin:0;padding:0 0 0 28px;position:relative}
+.trunk::before{content:"";position:absolute;left:9px;top:10px;bottom:10px;width:4px;background:var(--blue);border-radius:2px}
+:root[data-theme=dark] .trunk::before{background:#7f9cf0}
+@media(prefers-color-scheme:dark){:root:not([data-theme=light]) .trunk::before{background:#7f9cf0}}
+.trunk>li{position:relative;margin:0 0 10px}
+.trunk>li::before{content:"";position:absolute;left:-26px;top:16px;width:14px;height:14px;border-radius:50%;background:var(--panel);border:3px solid var(--acc)}
+details.node{background:var(--panel);border:1px solid var(--line);border-radius:10px}
+details.node>summary{cursor:pointer;padding:10px 14px;min-height:44px;display:flex;flex-wrap:wrap;gap:4px 12px;align-items:baseline;list-style:none}
+details.node>summary::-webkit-details-marker{display:none}
+details.node>summary:focus-visible{outline:3px solid var(--acc);outline-offset:2px;border-radius:10px}
+details.node[open]>summary{border-bottom:1px solid var(--line)}
+.nname{font-family:"Red Hat Mono",monospace;font-weight:500;font-size:15px;overflow-wrap:anywhere}
+.ngist{color:var(--mute);font-size:15px}
+.nbody{padding:10px 14px 14px}
+.br{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;margin:10px 0 0;font-size:14px}
+.br .bt{grid-column:1/-1;height:10px;background:var(--barlite);border-radius:3px;overflow:hidden}
+.br .bt i{display:block;height:100%;background:var(--acc)}
+.br .bn{font-family:"Red Hat Mono",monospace;overflow-wrap:anywhere}
+.br .bv{white-space:nowrap;font-variant-numeric:tabular-nums;text-align:right}
+.br .bd{grid-column:1/-1;color:var(--mute)}
+/* bars */
+.rows{display:grid;gap:10px}
+.row{display:grid;grid-template-columns:9.5em minmax(0,1fr) 7.5em;gap:10px;align-items:center;font-size:15px}
+.row .tr{height:20px;background:var(--barlite);border-radius:4px;overflow:hidden;display:flex}
+.row .tr i{display:block;height:100%;background:var(--bar)}
+.row .v{text-align:right;font-variant-numeric:tabular-nums;white-space:nowrap}
+.legend{display:flex;flex-wrap:wrap;gap:14px;font-size:14px;color:var(--mute);margin:8px 0 14px}
+.sw{display:inline-block;width:12px;height:12px;border-radius:3px;vertical-align:-1px;margin-right:6px}
+.big{font-family:"Red Hat Display";font-weight:800;font-size:clamp(34px,5vw,56px);line-height:1;letter-spacing:-.02em}
+.stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(11em,1fr));gap:14px;margin:6px 0 18px}
+/* timeline */
+#tl{min-height:300px}
+.steps{display:grid;grid-template-columns:repeat(auto-fill,minmax(270px,1fr));gap:10px;margin-top:14px}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:12px 14px;font-size:15px}
+.step.sel{outline:3px solid var(--acc)}
+.step h3{font-size:16px;display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}
+.hits{margin-top:6px;display:flex;flex-wrap:wrap;gap:6px}
+.filters{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+button.f{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button.f[aria-pressed=true]{background:var(--blue);color:#fff;border-color:var(--blue)}
+button.f:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+/* flow */
+.flow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:22px;margin-top:16px}
+.fbox{background:var(--panel);border:1px solid var(--line);border-top:5px solid var(--blue);border-radius:8px;padding:12px;position:relative;font-size:15px}
+.fbox:last-child{border-top-color:var(--acc)}
+.fbox:not(:last-child)::after{content:"→";position:absolute;right:-19px;top:40%;font-size:20px;color:var(--mute)}
+.fbox code{display:block;margin-top:6px}
+.warn{border-left:5px solid var(--acc);padding:10px 14px;background:var(--panel);border-radius:0 8px 8px 0;margin:12px 0;max-width:80ch}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px;background:var(--panel)}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:"Red Hat Display";font-size:14px;color:var(--mute);font-weight:700}
+footer{background:var(--blue);color:#d6def3;font-size:14px}
+footer a{color:#fff}
+@media(max-width:900px){.flow{grid-template-columns:minmax(0,1fr)}.fbox:not(:last-child)::after{content:"↓";right:auto;left:50%;top:auto;bottom:-24px}}
+@media(max-width:760px){.grid2{grid-template-columns:minmax(0,1fr)}.route{grid-template-columns:minmax(0,1fr);gap:6px}.route::before{display:none}.route a{display:flex;gap:12px;align-items:center}.route a::before{margin:0;flex:none;width:24px;height:24px}.row{grid-template-columns:7em minmax(0,1fr) 6.2em;font-size:14px}}
+@media(max-width:600px){table{font-size:13px}.stack thead{display:none}.stack tr{display:grid;padding-block:10px}.stack td{display:flow-root;border:0;padding:3px 0;padding-inline-start:7em}.stack td::before{content:attr(data-l);float:inline-start;width:6.5em;margin-inline-start:-7em;color:var(--mute)}}
+@media(prefers-reduced-motion:no-preference){.br .bt i,.row .tr i{transition:width .6s ease}}
+</style>
+<script>new MutationObserver(()=>{for(const c of document.querySelectorAll('.stack td:not([data-l])')){let i=0,p=c;while(p=p.previousElementSibling)i+=p.colSpan;c.dataset.l=c.closest('table').rows[0].cells[i]?.textContent||''}}).observe(document,{childList:true,subtree:true})</script>
+</head>
+<body>
+
+<header class="band top">
+<div class="wrap">
+<h1>The Lean proof of the Riemann Hypothesis, stage by stage</h1>
+<p class="lede">A visual map of Levent Alpöge's 20 November 2026 release: what is proved, the chain of theorems at the top, where the 17 million lines go, and how the ideas in his note show up in the code.</p>
+<p class="flag">Map, not proof. Several independent kernels accept the code. This page only shows its shape and labels what is checked and what is a reading.</p>
+<nav class="route" aria-label="Stages">
+<a href="#claim"><b>5</b><span>statements proved</span></a>
+<a href="#trunk"><b>8</b><span>theorems on the trunk</span></a>
+<a href="#bulk"><b>769,260</b><span>declarations used</span></a>
+<a href="#note"><b>20</b><span>steps in the note</span></a>
+<a href="#core"><b>√X</b><span>a reading of the core</span></a>
+</nav>
+</div>
+</header>
+
+<section class="band" id="claim">
+<div class="wrap grid2">
+<div>
+<h2>Everything hangs on one half-plane</h2>
+<p>The five theorems in <code>Main.lean</code> are stated against Mathlib's own definitions. All five come from one statement, which the code calls <code>EveryCharacter</code>: for every modulus <i>N</i> and every Dirichlet character χ, <i>L</i>(<i>s</i>, χ) has no zero with Re <i>s</i> &gt; ½ (the pole of ζ at <i>s</i> = 1 excepted).</p>
+<p>From there to the Riemann Hypothesis is classical and uses only Mathlib. Take χ trivial to get no zeros of ζ right of the line. A zero left of the line would reflect through the functional equation to a zero on the right, unless it is a trivial zero. In the code this is <code>rhOfAll</code> → <code>rh_of_every</code> → <code>rh_of_right</code>.</p>
+<p>So all 175,187 files serve one goal: proving <code>EveryCharacter</code>, the Generalized Riemann Hypothesis for Dirichlet <i>L</i>-functions.</p>
+<div class="scroll"><table class="stack">
+<thead><tr><th>Theorem in Main.lean</th><th>Says</th></tr></thead>
+<tbody>
+<tr><td><code>riemannHypothesis</code></td><td>Mathlib's <code>RiemannHypothesis</code></td></tr>
+<tr><td><code>riemannZeta_eq_zero_re</code></td><td>the same, written out</td></tr>
+<tr><td><code>LFunction_ne_zero_of_half_lt_re</code></td><td><code>EveryCharacter</code> itself</td></tr>
+<tr><td><code>LFunction_eq_zero_re</code></td><td>zeros in the strip lie on Re <i>s</i> = ½</td></tr>
+<tr><td><code>…_of_isPrimitive</code></td><td>the same for primitive χ</td></tr>
+</tbody></table></div>
+</div>
+<figure class="panel" style="margin:0">
+<div class="fig" id="strip" role="img" aria-label="The critical strip: the code proves no zeros right of the line Re s = 1/2; the functional equation reflects the left half onto the right."></div>
+<figcaption class="note">The critical strip. The shaded right half is what <code>EveryCharacter</code> rules out. The reflection <i>s</i> ↦ 1 − <i>s</i> covers the left half.</figcaption>
+</figure>
+</div>
+</section>
+
+<section class="band alt" id="trunk">
+<div class="wrap">
+<h2>Eight short theorems carry the whole weight</h2>
+<p>Below <code>EveryCharacter</code> the proof runs down a chain where each link is a few lines long and the work sits in branches hanging off it. Bars show each branch's size: the number of declarations that only it leads to, out of the 769,260 the top theorem uses. Open a theorem to see its branches.</p>
+<div class="grid2" style="margin-top:16px">
+<ol class="trunk" id="trunkList"></ol>
+<div class="panel">
+<h3>Sizes of the eight largest branches</h3>
+<div class="rows" id="brRows" style="margin-top:12px"></div>
+<p class="note" style="margin-top:12px">Together <span id="brSum"></span> of the 769,260 declarations. The rest is shared between branches or sits in smaller ones. Sizes come from tamnd's dominator analysis (name resolution without Lean, so close but not exact).</p>
+</div>
+</div>
+</div>
+</section>
+
+<section class="band" id="bulk">
+<div class="wrap grid2">
+<div>
+<h2>Every file is imported, but not every declaration is used</h2>
+<div class="stats">
+<div><div class="big">100%</div><div class="note">of 175,187 files are in <code>Main</code>'s import closure (my scan)</div></div>
+<div><div class="big" id="pctUsed"></div><div class="note">of 1,061,531 declarations are used by <code>riemannHypothesis</code> (tamnd's index)</div></div>
+</div>
+<p>This may reconcile two claims on Zulip. At the file level nothing is dead code. At the declaration level about 292,000 declarations are never reached from the top theorem, and that may be the "unreachable" code Kevin Barreto saw. tamnd's resolver is approximate, so treat the exact figure with care.</p>
+<p>Most of what is used is theorems (597,752), then definitions (130,322). The longest chain of uses from the top is 175 declarations deep; the longest import chain is 203 modules.</p>
+</div>
+<div class="panel">
+<h3>Declarations used, by library</h3>
+<div class="legend"><span><i class="sw" style="background:var(--bar)"></i>used by the top theorem</span><span><i class="sw" style="background:var(--barlite)"></i>in the library but not used</span></div>
+<div class="rows" id="libRows"></div>
+</div>
+</div>
+</section>
+
+<section class="band alt" id="note">
+<div class="wrap">
+<h2>Some names from the note never appear in the code</h2>
+<p>Alpöge's note ends with a 20-step timeline from 6 October to 16 November 2026. I searched all 175,187 files for each idea's name, matching whole words in CamelCase identifiers and paths. Theta lifts, seesaws, Bessel periods and covolumes are everywhere. <b>Stepanov, Guinand–Weil, "relative trace formula" and Vandiver never appear</b>, so those steps live in the code under other names, or were dropped on the way.</p>
+<figure class="panel" style="margin:16px 0 0">
+<div class="fig" id="tl" role="img" aria-label="The 20 steps of the note placed on a date axis from 6 October to 16 November 2026; eight steps fall on 15 November."></div>
+<figcaption class="note">Steps by date. Eight of the twenty fall on 15 November. Magenta: none of the step's names occur in the code. Dashed magenta ring: some do, some don't. Hollow: a step with no single name to search. Tap a dot to jump to its step.</figcaption>
+</figure>
+<div class="filters" role="group" aria-label="Filter steps">
+<button class="f" data-f="all" aria-pressed="true">All 20</button>
+<button class="f" data-f="zero" aria-pressed="false">Names not in code</button>
+<button class="f" data-f="found" aria-pressed="false">Names found</button>
+</div>
+<div class="steps" id="steps"></div>
+<p class="note" style="margin-top:14px">Counts are files whose text contains the term as whole words. A name match is not a semantic match: "Bessel period" in a file name does not show that file proves step 12. Summaries are mine. Read <a href="https://alpo.ge/remark.pdf">the note</a> for the author's words.</p>
+</div>
+</section>
+
+<section class="band" id="core">
+<div class="wrap">
+<h2>A community reading of the core mechanism</h2>
+<div class="warn"><b>Unverified.</b> This is Jonas Whidden's AI-assisted reading, posted on the Lean Zulip at 5:14 PM on 20 November, paraphrased. I checked only that each Lean name he cites exists at the file he gives. I did not check that these declarations lie on the path from <code>riemannHypothesis</code>, or that the reading is right.</div>
+<p>The note says a chain of theta lifts imitates the <i>multiplicity</i> in Stepanov's method over function fields, and that the right chain length for a von Mangoldt sum of length <i>X</i> is √<i>X</i>. The reading says that charging each lift's cost separately stalls at exponent 2/3. The fix is to track divisibility along the whole chain inside one integral lattice.</p>
+<div class="flow" id="flow"></div>
+</div>
+</section>
+
+<section class="band alt" id="who">
+<div class="wrap">
+<h2>Who is already working on understanding it</h2>
+<p>As of the evening of 20 November 2026. Build on these rather than repeating them.</p>
+<div class="scroll"><table class="stack">
+<thead><tr><th>Who</th><th>What</th><th>Form</th></tr></thead>
+<tbody id="whoRows"></tbody>
+</table></div>
+</div>
+</section>
+
+<footer class="band">
+<div class="wrap">
+<p><b>Sources and method.</b> Source: the archive from alpo.ge, 14 parts joined, sha256 9631b4f0…c7fc, 239,275,554 bytes, checked against the published value. Trunk, branch sizes and declaration counts: <a href="https://riemann.tamnd.com/code/">riemann.tamnd.com</a> data (CC0), riemann-lean commit 9110120. File reachability and the name search: my own text-only scans of the source (<code>reach.py</code>, <code>terms2.py</code>), no code compiled or run. Verification status: <a href="https://math.mit.edu/~drew/grh/">Andrew Sutherland's page</a>. Timeline: <a href="https://alpo.ge/remark.pdf">alpo.ge/remark.pdf</a>.</p>
+<p>Made by Ishaan Dixit with help from Claude. Corrections are welcome.</p>
+</div>
+</footer>
+
+<script>
+{
+const $=s=>document.querySelector(s);
+const fmt=n=>n.toLocaleString('en-US');
+const TOTAL=769260;
+
+/* ---------- stage 1: critical strip ---------- */
+const strip=$('#strip');
+const drawStrip=()=>{
+  const W=strip.clientWidth,H=strip.clientHeight;if(!W||!H)return;
+  const L=36,R=W-20,T=24,B=H-40;
+  const narrow=W<520;const xmin=narrow?-4.8:-6.8,xmax=2.3;const X=v=>L+(v-xmin)/(xmax-xmin)*(R-L);
+  const y0=(T+B)/2;
+  let s='<defs><marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0 0L10 5L0 10z" fill="currentColor"/></marker>'+
+  '<pattern id="hat" width="8" height="8" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="8" height="8" fill="#e0115f" opacity=".10"/><line x1="0" y1="0" x2="0" y2="8" stroke="#e0115f" stroke-width="2" opacity=".35"/></pattern></defs>';
+  s+=`<rect x="${X(0)}" y="${T}" width="${X(1)-X(0)}" height="${B-T}" fill="var(--soft)"/>`;
+  s+=`<rect x="${X(.5)}" y="${T}" width="${R-X(.5)}" height="${B-T}" fill="url(#hat)"/>`;
+  s+=`<line x1="${L}" y1="${y0}" x2="${R}" y2="${y0}" stroke="var(--mute)" stroke-width="1"/>`;
+  s+=`<line x1="${X(0)}" y1="${T}" x2="${X(0)}" y2="${B}" stroke="var(--mute)" stroke-width="1"/>`;
+  s+=`<line x1="${X(1)}" y1="${T}" x2="${X(1)}" y2="${B}" stroke="var(--mute)" stroke-width="1" stroke-dasharray="3 3"/>`;
+  s+=`<line x1="${X(.5)}" y1="${T}" x2="${X(.5)}" y2="${B}" stroke="#e0115f" stroke-width="3"/>`;
+  for(const k of (narrow?[-2,-4]:[-2,-4,-6])) s+=`<circle cx="${X(k)}" cy="${y0}" r="5" fill="var(--ink)"/><text x="${X(k)}" y="${y0+22}" text-anchor="middle" font-size="13" fill="var(--mute)">${k}</text>`;
+  s+=`<text x="${X(-3)}" y="${y0-14}" text-anchor="middle" font-size="13" fill="var(--mute)">trivial zeros</text>`;
+  s+=`<text x="${X(1)+6}" y="${y0+18}" font-size="13" fill="var(--mute)">pole at 1</text>`;
+  s+=`<text x="${X(.5)}" y="${B+24}" text-anchor="middle" font-size="14" font-weight="700" fill="#e0115f">Re s = ½</text>`;
+  if(!narrow)s+=`<text x="${X(0)-6}" y="${B+24}" text-anchor="end" font-size="13" fill="var(--mute)">0</text>`;
+  const yy=T+(B-T)*.22;
+  s+=`<text x="${X(.5)+8}" y="${T+18}" font-size="${narrow?12:14}" font-weight="700" fill="var(--ink)">${narrow?'no zeros':'no zeros here'}</text>`;
+  s+=`<path d="M${X(.25)} ${yy+44} C ${X(.3)} ${yy+10}, ${X(.7)} ${yy+10}, ${X(.75)} ${yy+44}" fill="none" stroke="var(--ink)" stroke-width="1.6" marker-start="url(#ah)" marker-end="url(#ah)" color="var(--ink)"/>`;
+  s+=`<text x="${X(-.15)}" y="${yy+4}" text-anchor="end" font-size="13" fill="var(--ink)">s ↔ 1 − s</text>`;
+  s+=`<text x="${X(-.15)}" y="${yy+22}" text-anchor="end" font-size="13" fill="var(--mute)">functional equation</text>`;
+  const ty=B-16;
+  s+=`<text x="${X(xmin)+4}" y="${ty}" font-size="13" fill="var(--mute)">${narrow?'':'left of the line: reflected, so covered too'}</text>`;
+  strip.innerHTML=`<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">${s}</svg>`;
+};
+const roStrip=new ResizeObserver(drawStrip);roStrip.observe(strip);
+
+/* ---------- stage 2: trunk ---------- */
+const TRUNK=[
+ ['riemannHypothesis','Main.lean','Mathlib’s RiemannHypothesis, proved as rhOfAll.'],
+ ['rhOfAll','Supplements/Kernels/MainTheorems.lean','Gets RH from EveryCharacter with the trivial character and the functional equation. Classical; Mathlib only.'],
+ ['allChi','Supplements/Kernels/MainTheorems.lean','EveryCharacter, the GRH statement for Dirichlet L-functions, passed down from below.'],
+ ['UpperTheory.FinalTheorems.everyCharacter','CharacterBoxes/MainConclusion.lean','One line: applies the next theorem to a proof of the “Galois row” statement.'],
+ ['UpperTheory.FinalTheorems.everyCharacter_of_row','CharacterBoxes/MainConclusion.lean','Uses the Galois row twice: to fill a three-field structure of “literature” statements, and to prove the window bound VWin.'],
+ ['UpperTheory.LiteratureTheorems.every_character_of_literature_of_vWin','…/ThirdPlaceSeries/EveryCharacterOfLiteratureOfVWin.lean','A file of 195 small theorems named after published results; 182 of them never read the structure they take. Calls the next step with seven inputs.'],
+ ['UpperTheory.Lit.every_character_of_theta_integrals_local_matching','…/ThirdPlaceSeries','Three lines: builds a 46-field record of hypotheses (next step), then the “green” branch gives zero-freeness for primitive, then all, characters.'],
+ ['UpperTheory.Lit.nonempty_hyps_definite_side_of_closed_bound','…/ThirdPlaceSeries','Shows the 46-field record HypsAlt, about families of arithmetic data on unitary groups, is inhabited. Three large branches.']
+];
+const BR=[
+ ['GlobalTheory.Fc.S0.StageU.hypotheses_nonempty_of_unramified_exponents_alt',89250,7,'Assembles the rows of the 46-field record HypsAlt.'],
+ ['UpperTheory.One.vwin_of_row',56145,4,'The window bound VWin: bounds on lengths of Tate–Shafarevich-type Galois cohomology over a family of abelian number fields, by a case-by-case count through 2-, 3- and 4-dimensional Galois representations.'],
+ ['UpperTheory.Gal.Int.galoisLocalGlobalStrong_recParameter',54225,3,'The Galois row: ℓ-adic Galois representations for regular algebraic polarized cuspidal representations of GL(a) over CM fields, with local–global compatibility. Largest inputs: a geometric statement (43,427) and a theta lift between definite unitary groups (5,201).'],
+ ['SelfIntersectionVolumeEstimates.topCovolSlim2_use_alt_alt',52322,5,'A covolume (volume) bound.'],
+ ["GlobalTheory.Fc.S0.ontoX_and_lamLow_of_unitaryGroupHypotheses'",19048,7,'Two estimates, SurjectiveOntoX and a lower bound λ₂.'],
+ ['UpperTheory.LiteratureTheorems.theta_integrals_agree_and_local_matching_of_literature',13076,5,'Theta integrals into the same unitary group are proportional when test functions match, and local Weil representations can be matched.'],
+ ['GlobalTheory.T.open0_of_unitary_group_hypotheses',12571,7,'Open-orbit statements for the parameters of the record.'],
+ ['UpperTheory.Top.every_character_of_green_v_win',12087,6,'From a statement about cuspidal characters of GL(d, F_g), VWin and the record, proves zero-freeness for primitive characters.']
+];
+const maxBr=BR[0][1];
+const short=n=>n.split('.').pop();
+$('#trunkList').innerHTML=TRUNK.map((t,i)=>{
+  const kids=BR.filter(b=>b[2]===i);
+  const kidsHtml=kids.map(b=>`<div class="br"><span class="bn">${short(b[0])}</span><span class="bv">${fmt(b[1])}</span><span class="bt"><i style="width:${(b[1]/maxBr*100).toFixed(1)}%"></i></span><span class="bd">${b[3]}</span></div>`).join('');
+  return `<li><details class="node"><summary><span class="nname">${short(t[0])}</span><span class="ngist">${kids.length?kids.length+' branch'+(kids.length>1?'es':''):''}</span></summary><div class="nbody"><p>${t[2]}</p><p class="note"><code>${t[0]}</code><br>${t[1]}</p>${kidsHtml}</div></details></li>`;
+}).join('');
+$('#brRows').innerHTML=BR.map(b=>`<div class="row" style="grid-template-columns:minmax(0,1fr) 6.5em"><span class="mono" style="overflow-wrap:anywhere">${short(b[0])}</span><span class="v">${fmt(b[1])} <span class="note">${(b[1]/TOTAL*100).toFixed(1)}%</span></span><span class="tr" style="grid-column:1/-1;height:12px"><i style="width:${(b[1]/maxBr*100).toFixed(1)}%;background:var(--acc)"></i></span></div>`).join('');
+const sum=BR.reduce((a,b)=>a+b[1],0);
+$('#brSum').textContent=fmt(sum)+' ('+(sum/TOTAL*100).toFixed(0)+'%)';
+
+/* ---------- stage 3: libraries ---------- */
+const LIB=[['Development',526163,693010],['Formalism',159203,240188],['GroundTheory',43244,75102],['ReciprocityTheory',27241,36446],['CompanionTheory',10280,11775],['PositivityTheory',2910,4746],['Lemmata',216,251]];
+const maxL=LIB[0][2];
+$('#libRows').innerHTML=LIB.map(l=>`<div class="row"><span>${l[0]}</span><span class="tr" style="width:${Math.max(l[2]/maxL*100,1.5).toFixed(1)}%"><i style="width:${(l[1]/l[2]*100).toFixed(1)}%"></i></span><span class="v">${fmt(l[1])} <span class="note">${Math.round(l[1]/l[2]*100)}%</span></span></div>`).join('');
+$('#pctUsed').textContent=Math.round(TOTAL/1061531*100)+'%';
+
+/* ---------- stage 4: note vs code ---------- */
+const TERMS=[["1","Stepanov",0],["2","Invariant derivation",38],["3","Path quadric",52],["3","Parseval",948],["5","Guinand–Weil",0],["5","von Mangoldt",133],["7","GGP periods",236],["7","Interlacing",481],["8","Theta lift",2629],["9","Chowla–Selberg",85],["9","Siegel mass",147],["11","Iwasawa tower/theory",2],["12","Seesaw",565],["12","Bessel period",359],["12","Rallis",241],["13","Bost / slope inequality",29],["16","Relative trace formula",0],["16","Poincaré series",82],["17","Vandiver",0],["18","Covolume",3670],["19","Behrend",17]];
+const STEPS=[
+ [1,'10-06','The “Stepanov determinant”: the starting idea, modelled on Stepanov’s method for curves over finite fields.'],
+ [2,'10-09','An invariant derivation on a CM curve, with a divisibility estimate at inert primes.'],
+ [3,'10-19','The toy identity qN = Mᵏ + R from a “path” quadric, with the remainder controlled by iterating Parseval.'],
+ [4,'10-06','A nonnegativity W(1_S) ≥ 0 from a determinant, read as Stepanov with multiplicity one, then bootstrapped.'],
+ [5,'10-20','Switch to sums of the von Mangoldt function Λ; the Guinand–Weil explicit formula supplies a sign.'],
+ [6,'10-08','Positivity for a weighted test function gives a density bound above 1 − η.'],
+ [7,'10-14','Determinants whose entries contain GGP periods; interlacing weights.'],
+ [8,'11-15','Iterated theta lifts between definite unitary groups, each adding multiplicity; chain length m about √X.'],
+ [9,'11-15','Norms and levels of the lifts, with divisibility from Chowla–Selberg, Weyl and the Siegel mass.'],
+ [10,'11-15','A lower bound on the divisibility of the m-fold iterated lift.'],
+ [11,'10-06','An Iwasawa tower, by analogy with pigeonholing over the extensions of a finite field.'],
+ [12,'11-15','Seesaw: the period of the iterated lift is a Bessel period, independent of the Hecke characters (Rallis).'],
+ [13,'10-06','Bost’s slope inequality.'],
+ [14,'11-15','The cost of each lift: alone it stops at exponent 2/3, which forces a “division” step.'],
+ [15,'11-15','An integral structure glued across Hecke characters: a “gcd” for extra averaging.'],
+ [16,'10-14','A relative trace formula and a bound on a projected Poincaré series; approximate orthogonality.'],
+ [17,'11-15','For classes twisting cannot kill, a weak form of Vandiver’s conjecture.'],
+ [18,'11-15','Covolumes, the index of theta series, congruences between lifts and forms.'],
+ [19,'10-19','The precise Iwasawa tower, chosen using Behrend’s construction.'],
+ [20,'11-16','GRH.']
+];
+const termsOf=n=>TERMS.filter(t=>+t[0]===n);
+const status=n=>{const t=termsOf(n);if(!t.length)return 'none';return t.every(x=>x[2]===0)?'zero':(t.some(x=>x[2]===0)?'mixed':'found')};
+let filt='all',sel=0;
+const renderSteps=()=>{
+  $('#steps').innerHTML=STEPS.filter(s=>{const st=status(s[0]);return filt==='all'||(filt==='zero'&&(st==='zero'||st==='mixed'))||(filt==='found'&&(st==='found'||st==='mixed'))}).map(s=>{
+    const t=termsOf(s[0]);
+    const hits=t.length?t.map(x=>`<span class="chip${x[2]===0?' hot':''}">${x[1]}: ${x[2]===0?'not in code':fmt(x[2])+' files'}</span>`).join(''):'<span class="chip">no single name to search</span>';
+    const d=s[1].split('-');
+    return `<div class="step${sel===s[0]?' sel':''}" id="st${s[0]}"><h3>Step ${s[0]} <span class="note">${['','','','','','','','','','','Oct','Nov'][+d[0]]} ${+d[1]}</span></h3><div>${s[2]}</div><div class="hits">${hits}</div></div>`;
+  }).join('');
+};
+document.querySelectorAll('button.f').forEach(b=>b.addEventListener('click',()=>{filt=b.dataset.f;document.querySelectorAll('button.f').forEach(x=>x.setAttribute('aria-pressed',x===b));renderSteps();}));
+renderSteps();
+const tl=$('#tl');
+const drawTl=()=>{
+  const W=tl.clientWidth,H=tl.clientHeight;if(!W||!H)return;
+  const L=24,R=W-24,base=H-46;
+  const d0=Date.UTC(2026,9,6),d1=Date.UTC(2026,10,16);
+  const dx=s=>{const [m,d]=s.split('-');return L+(Date.UTC(2026,+m-1,+d)-d0)/(d1-d0)*(R-L)};
+  const narrow=W<520;const r=narrow?9:12,gap=r*2+6;
+  let g=`<line x1="${L}" y1="${base}" x2="${R}" y2="${base}" stroke="var(--mute)" stroke-width="2"/>`;
+  const ticks=[['10-06','Oct 6'],['10-13','Oct 13'],['10-20','Oct 20'],['10-27','Oct 27'],['11-03','Nov 3'],['11-10','Nov 10'],['11-16','Nov 16']];
+  ticks.forEach((t,i)=>{if(narrow&&i%2)return;const x=dx(t[0]);g+=`<line x1="${x}" y1="${base}" x2="${x}" y2="${base+6}" stroke="var(--mute)"/><text x="${x}" y="${base+24}" text-anchor="${i===0?'start':(i===ticks.length-1?'end':'middle')}" font-size="13" fill="var(--mute)">${t[1]}</text>`;});
+  const stack={};
+  STEPS.forEach(s=>{
+    const k=s[1];stack[k]=(stack[k]||0)+1;const x=dx(k),y=base-r-4-(stack[k]-1)*gap;
+    const st=status(s[0]);
+    const fill=st==='zero'?'#e0115f':(st==='none'?'var(--panel)':'var(--bar)');
+    const stroke=st==='none'?'var(--mute)':((st==='zero'||st==='mixed')?'#e0115f':'var(--bar)');
+    const tc=st==='none'?'var(--ink)':'#fff';
+    g+=`<g class="dot" data-s="${s[0]}" style="cursor:pointer" tabindex="0" role="button" aria-label="Step ${s[0]}"><circle cx="${x}" cy="${y}" r="${r}" fill="${fill}" stroke="${stroke}" stroke-width="${st==='mixed'?3:2}" ${st==='mixed'?'stroke-dasharray="4 3"':''}/><text x="${x}" y="${y+4.5}" text-anchor="middle" font-size="${narrow?10:12}" font-weight="700" fill="${tc}" style="stroke:none">${s[0]}</text></g>`;
+  });
+  const top=base-r-4-7*gap;
+  g+=`<text x="${dx('11-15')-r-8}" y="${Math.max(top,16)}" text-anchor="end" font-size="13" fill="var(--mute)">8 steps on Nov 15</text>`;
+  tl.innerHTML=`<svg viewBox="0 0 ${W} ${H}">${g}</svg>`;
+  tl.querySelectorAll('.dot').forEach(el=>{const go=()=>{sel=+el.dataset.s;filt='all';document.querySelectorAll('button.f').forEach(x=>x.setAttribute('aria-pressed',x.dataset.f==='all'));renderSteps();const t=document.getElementById('st'+sel);if(t)t.scrollIntoView({block:'center',behavior:matchMedia('(prefers-reduced-motion: reduce)').matches?'auto':'smooth'});};el.addEventListener('click',go);el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();go();}});});
+};
+const roTl=new ResizeObserver(drawTl);roTl.observe(tl);
+
+/* ---------- stage 5: flow ---------- */
+const FLOW=[
+ ['A chain of m theta lifts','Each lift plays the role of one extra order of vanishing in Stepanov’s method.',''],
+ ['Track divisibility along the chain','How much each successive lift is divisible by, carried through the chain.','chain_into · Development/AbelianVarietyTheory/Proofs/GlobalInterpolation/LevelChainSharpColumnValuationOfStability.lean'],
+ ['One common integral lattice','The columns from all the lifts placed in one lattice, with local membership conditions.','RR_lattice, RR_mem · Formalism/LocalToGlobal/IndefiniteReal/PrincipalLevelLattice.lean'],
+ ['Gain against cross terms','Divisibility gain, off-diagonal bounds and the family size in one comparison; the same slope appears on both sides and cancels.','linkGLOBAL7_items · Formalism/SharpRestriction/GlobalSchurBounds/LinkMin.lean; Ga_bound5 · Formalism/SizeWindowBrackets/ChainSlopeWindows/LevelOfCongruence.lean'],
+ ['Balance at m ≈ √X, then Landau','Weighing X/m against m gives a square-root bound on prime-power sums; a windowed Landau argument turns it into no zeros right of ½.','']
+];
+$('#flow').innerHTML=FLOW.map(f=>`<div class="fbox"><h3>${f[0]}</h3><div>${f[1]}</div>${f[2]?`<code>${f[2]}</code><span class="chip" style="margin-top:6px">name exists ✓</span>`:''}</div>`).join('');
+
+/* ---------- stage 6: who ---------- */
+const WHO=[
+ ['tamnd / riemann','<a href="https://riemann.tamnd.com">riemann.tamnd.com</a>: the proof in words from the top down, with a one-page overview, 6 draft trunk chapters, a page per declaration and learning paths.','Text and tables'],
+ ['Andrii Kurdiumov','<a href="https://github.com/kant2002/riemann-hypothesis-supplimentary">Folder-level import graph</a>, marking parts that depend only on Mathlib.','Static picture'],
+ ['friederrr','<a href="https://github.com/friederrr/riemann-review">riemann-review</a>: an AI-written “A.U.Thor” preprint, grown in rounds with pooled tokens.','PDF'],
+ ['Devin Watson','<a href="https://github.com/DevinWatson/rh-weil-bound-toy">rh-weil-bound-toy</a>: the toy qN = Mᵏ + R route to Weil’s bound over finite fields, partly in Lean.','Study + Lean'],
+ ['Chris Birkbeck','Starting Tau Ceti roadmaps for the known pieces the proof uses.','Roadmaps'],
+ ['Bartosz Naskręcki, Manvir Jaswal','Own digests and write-ups; a study group has been proposed on Zulip.','Notes'],
+ ['Jonas Whidden','A Zulip reading of the core mechanism with named Lean declarations (stage 5).','Zulip post'],
+ ['Deicyde / riemann-hypothesis','Source mirror, comparator setup and a metaprogramming survey in its verification notes.','Repository']
+];
+$('#whoRows').innerHTML=WHO.map(w=>`<tr><td>${w[0]}</td><td>${w[1]}</td><td>${w[2]}</td></tr>`).join('');
+}
+</script>
+</body>
+</html>

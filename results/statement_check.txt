@@ -1,0 +1,22 @@
+Statement check, 2026-11-20
+
+1. Main.lean, line 4:   theorem riemannHypothesis : RiemannHypothesis := rhOfAll
+   No local redefinition of RiemannHypothesis exists in the project (text search).
+
+2. Mathlib at the pinned commit 0df444a360eaa60ab8c11dca51a86af692955474,
+   Mathlib/NumberTheory/LSeries/RiemannZeta.lean, line 185:
+     def RiemannHypothesis : Prop :=
+       ∀ (s : ℂ) (_ : riemannZeta s = 0) (_ : ¬∃ n : ℕ, s = -2 * (n + 1)) (_ : s ≠ 1), s.re = 1 / 2
+
+3. riemannZeta is the usual zeta function. Same file:
+     line 121  def riemannZeta := hurwitzZetaEven 0
+     line 207  zeta_eq_tsum_one_div_nat_cpow : 1 < re s → riemannZeta s = Σ 1/n^s
+     line 173  riemannZeta_neg_two_mul_nat_add_one : riemannZeta (-2 * (n + 1)) = 0   (trivial zeros)
+     line 178  riemannZeta_one_sub : the functional equation
+     line 151  riemannZeta_zero : riemannZeta 0 = -1/2
+   Agreement with the Dirichlet series on Re s > 1 determines it everywhere by analytic continuation.
+   s = 1 is a pole; Mathlib assigns a junk value there, so excluding it does not weaken the statement.
+
+Not done: the four Dirichlet L-function statements in Statements.lean were not compared line by line with
+Mathlib's DirichletCharacter.LFunction the same way. Comparator and con-leche --compare (run by others)
+checked that all five statements match the challenge file.

@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>RH proof mathematics</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Red+Hat+Display:wght@500;700;800&family=Red+Hat+Text:wght@400;500;700&family=Red+Hat+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+/* VOICE everyday learning: an illustrated lecture, calm and exact, each idea shown working
+   IDEA a lecturer's set of chalk-free demonstration plates, one per idea, each with its own controls
+   PICTURE every section is a live plot driven by sliders: primes, zeros, half-planes, finite fields, multiplicity, the chain of lifts
+   COLOUR oxford blue for structure, magenta for the critical line and anything "½", teal for data, white panels
+   TYPE Red Hat Display + Red Hat Text, Red Hat Mono for numbers
+   LAYOUT title band with the six-step route; each plate is text left, live figure right; stacks under 820px */
+:root{color-scheme:light dark;--bg:light-dark(#f4f6fb,#070f26);--panel:light-dark(#ffffff,#0e1a3d);--ink:light-dark(#0b1630,#e8ecf7);--mute:light-dark(#4f5b7c,#9aa6c7);--line:light-dark(#d5dbea,#26345e);--blue:#0b1f4b;--acc:#e0115f;--teal:light-dark(#0f8b8d,#4fd1c5);--data:light-dark(#2f4fa8,#8fa8f5);--soft:light-dark(#e9edf7,#15234d);--grid:light-dark(#e3e8f3,#1c2a55)}
+:root[data-theme=light]{color-scheme:light}
+:root[data-theme=dark]{color-scheme:dark}
+*{box-sizing:border-box;min-width:0}
+html{scroll-padding-top:20px}
+body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.6 "Red Hat Text",system-ui,sans-serif;overflow-x:clip}
+h1,h2,h3{font-family:"Red Hat Display",system-ui,sans-serif;letter-spacing:-.02em;line-height:1.08;margin:0}
+h1{font-size:clamp(32px,5vw,50px);font-weight:800;text-wrap:balance}
+h2{font-size:clamp(24px,3vw,34px);font-weight:800;text-wrap:balance;margin:6px 0 10px}
+h3{font-size:17px;font-weight:700;margin-top:14px}
+p{margin:.55em 0;max-width:66ch}
+a{color:inherit;text-decoration-color:var(--acc);text-underline-offset:3px}
+code,.mono{font-family:"Red Hat Mono",ui-monospace,monospace;font-size:.9em}
+.wrap{max-width:1240px;margin:0 auto}
+.band{padding:clamp(28px,4vw,60px) max(5vw,16px)}
+.top{background:var(--blue);color:#fff}
+.top p{color:#d6def3}
+.lede{font-size:18px;max-width:72ch;margin-top:12px}
+.route{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:8px;margin-top:26px;counter-reset:r}
+.route a{display:block;text-decoration:none;color:#fff;border-top:4px solid #ffffff55;padding:10px 4px 0;min-height:44px;font-size:15px;line-height:1.3}
+.route a:hover,.route a:focus-visible{border-top-color:var(--acc)}
+.route b{display:block;font-family:"Red Hat Display";font-size:18px}
+.plate{display:grid;grid-template-columns:minmax(0,5fr) minmax(0,7fr);gap:clamp(20px,3vw,44px);align-items:start}
+.alt{background:var(--soft)}
+.panel{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:14px}
+.fig{position:relative;height:300px}
+.fig.tall{height:360px}
+.fig.short{height:200px}
+.fig>svg{position:absolute;inset:0;width:100%;height:100%}
+svg text{font-family:"Red Hat Text",sans-serif;font-size:13px;paint-order:stroke;stroke:var(--panel);stroke-width:4px;fill:var(--mute)}
+.tag{display:inline-block;font-size:13px;font-weight:700;padding:3px 10px;border-radius:999px;margin-right:6px;white-space:nowrap}
+.t-est{background:light-dark(#d8f3ee,#0f3b3a);color:light-dark(#0b5d52,#7ee6d6)}
+.t-note{background:light-dark(#e3e8fb,#1e2d63);color:light-dark(#1f3a8f,#aebff7)}
+.t-read{background:light-dark(#fde2ec,#4a1027);color:light-dark(#a00c45,#ff9cc0)}
+.t-sch{background:light-dark(#f1ecdc,#3a3320);color:light-dark(#6b5510,#e6cf7e)}
+.ctl{display:grid;gap:10px;margin:12px 0 4px}
+.ctl label{display:grid;grid-template-columns:8.5em minmax(0,1fr) 6.5em;gap:10px;align-items:center;font-size:15px}
+.ctl output{font-family:"Red Hat Mono";text-align:right;white-space:nowrap;font-size:14px}
+input[type=range]{width:100%;height:44px;accent-color:var(--acc);background:transparent}
+input[type=number]{font:inherit;font-size:16px;width:100%;padding:8px;border-radius:8px;border:1px solid var(--line);background:var(--panel);color:var(--ink)}
+input:focus-visible,button:focus-visible{outline:3px solid var(--acc);outline-offset:2px}
+button.b{font:inherit;font-size:15px;min-height:44px;padding:0 14px;border-radius:999px;border:1px solid var(--line);background:var(--panel);color:var(--ink);cursor:pointer}
+button.b:hover{border-color:var(--acc)}
+.readout{display:flex;flex-wrap:wrap;gap:8px 20px;font-size:14px;color:var(--mute);margin-top:8px}
+.readout b{font-family:"Red Hat Mono";color:var(--ink);font-weight:500}
+.key{display:flex;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--mute);margin:6px 0 0}
+.sw{display:inline-block;width:18px;height:3px;vertical-align:4px;margin-right:6px;border-radius:2px}
+.eq{font-family:"Red Hat Mono";font-size:15px;background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:10px 12px;margin:10px 0;overflow-wrap:anywhere}
+.warn{border-left:5px solid var(--acc);padding:10px 14px;background:var(--panel);border-radius:0 8px 8px 0;margin:12px 0}
+.chain{display:flex;flex-wrap:wrap;align-items:center;gap:6px;margin-top:10px;font-size:15px}
+.chain span{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:8px 10px}
+.chain i{font-style:normal;color:var(--mute)}
+.chain span.hot{border-color:var(--acc);border-width:2px}
+.scroll{overflow-x:auto}
+table{border-collapse:collapse;width:100%;font-size:15px;background:var(--panel)}
+th,td{text-align:left;padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:top}
+th{font-family:"Red Hat Display";font-size:14px;color:var(--mute)}
+footer{background:var(--blue);color:#d6def3;font-size:14px}
+footer a{color:#fff}
+@media(max-width:820px){.plate{grid-template-columns:minmax(0,1fr)}.route{grid-template-columns:repeat(3,minmax(0,1fr))}}
+@media(max-width:600px){.ctl label{grid-template-columns:6.5em minmax(0,1fr) 5.5em;font-size:14px}.fig{height:260px}.fig.tall{height:300px}table{font-size:13px}}
+</style>
+</head>
+<body>
+
+<header class="band top">
+<div class="wrap">
+<h1>The mathematics behind the Lean proof of the Riemann Hypothesis</h1>
+<p class="lede">Six interactive plates, from primes up to the idea in Alpöge's note. Every plot is computed live in your browser from real data. Each plate is labelled by how solid it is: <span class="tag t-est">Established</span> classical mathematics, <span class="tag t-note">From the note</span> Alpöge's outline, <span class="tag t-read">Reading</span> an unverified community interpretation, <span class="tag t-sch">Schematic</span> the shape of an argument with constants dropped.</p>
+<nav class="route" aria-label="Plates">
+<a href="#p1"><b>Primes</b>the √x wall</a>
+<a href="#p2"><b>Zeros</b>make the waves</a>
+<a href="#p3"><b>Bounds</b>clear half-planes</a>
+<a href="#p4"><b>Finite fields</b>the solved case</a>
+<a href="#p5"><b>Stepanov</b>multiplicity buys √</a>
+<a href="#p6"><b>The note</b>a chain of √X lifts</a>
+</nav>
+</div>
+</header>
+
+<!-- 1 -->
+<section class="band" id="p1">
+<div class="wrap plate">
+<div>
+<span class="tag t-est">Established</span>
+<h2>RH is a statement about how evenly primes are spread</h2>
+<p>Weight each prime power pᵏ by log p and add up to <i>x</i>. That gives Chebyshev's function ψ(<i>x</i>). The prime number theorem says ψ(<i>x</i>) ≈ <i>x</i>. The Riemann Hypothesis says how close: the error never grows faster than about √<i>x</i>.</p>
+<div class="eq">RH ⇒ |ψ(x) − x| &lt; (1/8π) · √x · (log x)²   for every x ≥ 73.2</div>
+<p>That precise form is Schoenfeld's (1976), and Harald Helfgott raised it on the Lean Zulip as a check anyone can read. Conversely, any bound of this √x shape implies RH (plate 3). Drag the slider out to a million: the error, in teal, comes within about 8% of the band but never crosses it.</p>
+<div class="ctl">
+<label for="x1">Range up to x<input id="x1" type="range" min="2.3" max="6" step="0.05" value="4"><output id="x1o"></output></label>
+</div>
+<div class="readout"><span>closest approach to the band (x ≥ 73.2): <b id="r1a"></b></span><span>at x ≈ <b id="r1b"></b></span></div>
+</div>
+<div class="panel">
+<div class="fig short" id="f1a" role="img" aria-label="Chebyshev psi(x) against x"></div>
+<div class="fig" id="f1b" role="img" aria-label="The error psi(x) minus x inside the band plus or minus square root of x times log squared x"></div>
+<div class="key"><span><i class="sw" style="background:var(--data)"></i>ψ(x)</span><span><i class="sw" style="background:var(--mute)"></i>x</span><span><i class="sw" style="background:var(--teal)"></i>ψ(x) − x</span><span><i class="sw" style="background:var(--acc)"></i>±(1/8π)√x (log x)², x ≥ 73.2</span><span><i class="sw" style="background:var(--mute);opacity:.5"></i>±√x</span></div>
+</div>
+</div>
+</section>
+
+<!-- 2 -->
+<section class="band alt" id="p2">
+<div class="wrap plate">
+<div>
+<span class="tag t-est">Established</span>
+<h2>The error is a sum of waves, one per zero of ζ</h2>
+<p>Riemann's explicit formula writes the prime staircase exactly as <i>x</i> minus one wave for each nontrivial zero ρ = β + iγ of ζ:</p>
+<div class="eq">ψ(x) = x − Σ<sub>ρ</sub> x<sup>ρ</sup>/ρ − log 2π − ½ log(1 − x<sup>−2</sup>)</div>
+<p>A zero at height γ contributes a wave of frequency γ in log <i>x</i> and size about x<sup>β</sup>/|ρ|. If every β is ½ (that is RH), every wave grows like √<i>x</i>. Add zeros with the slider and watch the smooth curve snap onto the staircase. The zeros themselves are where Hardy's Z(t) crosses zero on the critical line (top plot).</p>
+<div class="ctl">
+<label for="n2">Zeros used<input id="n2" type="range" min="0" max="100" step="1" value="10"><output id="n2o"></output></label>
+<label for="x2">x up to<input id="x2" type="range" min="20" max="200" step="1" value="60"><output id="x2o"></output></label>
+</div>
+<h3>What if a zero were off the line?</h3>
+<p>Move the first zero to real part β. Its wave grows like x<sup>β</sup>, and for any β &gt; ½ it eventually outgrows Schoenfeld's band from plate 1. That is why RH and the square-root bound are the same statement.</p>
+<div class="ctl">
+<label for="b2">First zero at β<input id="b2" type="range" min="0.5" max="0.9" step="0.01" value="0.5"><output id="b2o"></output></label>
+</div>
+<div class="readout"><span>its wave escapes the band near x ≈ <b id="r2"></b></span></div>
+</div>
+<div class="panel">
+<div class="fig short" id="f2a" role="img" aria-label="Hardy Z function on the critical line with its zeros marked"></div>
+<div class="fig" id="f2b" role="img" aria-label="Prime staircase psi(x) and its reconstruction from zeros"></div>
+<div class="fig short" id="f2c" role="img" aria-label="Size of one zero's wave against the RH band"></div>
+<div class="key"><span><i class="sw" style="background:var(--data)"></i>ψ(x)</span><span><i class="sw" style="background:var(--acc)"></i>reconstruction from zeros</span><span><i class="sw" style="background:var(--teal)"></i>size of the first zero's wave (bottom, log scale)</span></div>
+</div>
+</div>
+</section>
+
+<!-- 3 -->
+<section class="band" id="p3">
+<div class="wrap plate">
+<div>
+<span class="tag t-est">Established</span>
+<h2>A bound on prime sums clears a half-plane of zeros</h2>
+<p>The logic also runs backwards, and this is the direction the proof uses. If the prime sums are controlled with exponent θ, then the integral ∫ (ψ(x) − x) x<sup>−s−1</sup> dx converges for Re s &gt; θ. That integral equals −ζ′(s)/(s ζ(s)) − 1/(s − 1), so ζ can have no zeros there.</p>
+<div class="eq">|ψ(x) − x| ≤ C·x<sup>θ+ε</sup>   ⇒   ζ(s) ≠ 0 for Re s &gt; θ</div>
+<p>Slide θ down to ½: the cleared half-plane meets the critical line and RH follows by symmetry. The same holds for each Dirichlet <i>L</i>(s, χ) with ψ(x, χ) = Σ χ(n)Λ(n). Doing it for every χ at once is exactly the statement <code>EveryCharacter</code> at the top of the Lean proof.</p>
+<p>Because Λ(n) ≥ 0, Landau's theorem on Dirichlet series with nonnegative coefficients means a <b>one-sided</b> bound already suffices. The community reading of the proof says its final step is a "windowed" version of this Landau argument.</p>
+<div class="ctl">
+<label for="t3">Exponent θ<input id="t3" type="range" min="0.5" max="1" step="0.01" value="0.75"><output id="t3o"></output></label>
+</div>
+</div>
+<div class="panel">
+<div class="fig tall" id="f3" role="img" aria-label="The complex plane with the half-plane Re s greater than theta shaded as zero-free"></div>
+<div class="key"><span><i class="sw" style="background:var(--teal)"></i>zero-free from the bound</span><span><i class="sw" style="background:var(--data)"></i>zero-free by reflection (apart from the trivial zeros −2, −4, …, off to the left)</span><span><i class="sw" style="background:var(--acc)"></i>Re s = ½</span></div>
+</div>
+</div>
+</section>
+
+<!-- 4 -->
+<section class="band alt" id="p4">
+<div class="wrap plate">
+<div>
+<span class="tag t-est">Established</span>
+<h2>Over finite fields, RH is a theorem</h2>
+<p>Count the points of an elliptic curve y² = x³ + ax + b modulo a prime p. You expect about p + 1. Hasse proved the error a<sub>p</sub> = p + 1 − #E(𝔽<sub>p</sub>) obeys |a<sub>p</sub>| ≤ 2√p. That is the Riemann Hypothesis for this curve's zeta function, and Weil extended it to all curves.</p>
+<p>Below, every dot is one prime, computed live. Its height is a<sub>p</sub>/(2√p), which is the error measured against √p. Try any curve: the dots never leave the band. This is the "toy setting" Alpöge's note starts from.</p>
+<div class="ctl">
+<label for="a4">a<input id="a4" type="number" value="-1" step="1"><span></span></label>
+<label for="c4">b<input id="c4" type="number" value="1" step="1"><span></span></label>
+<label for="p4m">primes up to<input id="p4m" type="range" min="100" max="4000" step="50" value="1500"><output id="p4o"></output></label>
+</div>
+<div class="readout"><span>primes counted: <b id="r4a"></b></span><span>largest |a<sub>p</sub>|/2√p: <b id="r4b"></b></span></div>
+</div>
+<div class="panel">
+<div class="fig tall" id="f4" role="img" aria-label="Normalised point-count errors for an elliptic curve, all inside plus or minus one"></div>
+<div class="key"><span><i class="sw" style="background:var(--data)"></i>a<sub>p</sub>/(2√p), one dot per prime</span><span><i class="sw" style="background:var(--acc)"></i>Hasse bound ±1</span></div>
+</div>
+</div>
+</section>
+
+<!-- 5 -->
+<section class="band" id="p5">
+<div class="wrap plate">
+<div>
+<span class="tag t-est">Established</span> <span class="tag t-sch">Schematic</span>
+<h2>Stepanov's trick: vanishing to high order buys a square root</h2>
+<p>Stepanov (1969) gave an elementary proof of these finite-field bounds. He builds an auxiliary polynomial that vanishes at every point being counted, and to order <i>m</i> at each, so each point "uses up" <i>m</i> of the polynomial's degree. A nonzero polynomial of degree D has at most D/m such roots, so the count is bounded.</p>
+<p>Raising <i>m</i> sharpens the count, but building the polynomial gets harder as <i>m</i> grows. The two costs pull in opposite directions, roughly q/m and m, and they balance at m ≈ √q. That is where the square root in |N − q| ≲ √q comes from.</p>
+<div class="ctl">
+<label for="m5">Multiplicity m<input id="m5" type="range" min="1" max="300" step="1" value="20"><output id="m5o"></output></label>
+<label for="q5">Field size q<input id="q5" type="range" min="2" max="6" step="0.05" value="4"><output id="q5o"></output></label>
+</div>
+<div class="readout"><span>best m ≈ √q = <b id="r5a"></b></span><span>cost at your m: <b id="r5b"></b></span><span>best cost: <b id="r5c"></b></span></div>
+</div>
+<div class="panel">
+<div class="fig short" id="f5a" role="img" aria-label="A polynomial whose roots each have multiplicity m, flattening as m grows"></div>
+<div class="fig" id="f5b" role="img" aria-label="The two costs q over m and m, balancing at the square root of q"></div>
+<div class="key"><span><i class="sw" style="background:var(--data)"></i>q/m (counting)</span><span><i class="sw" style="background:var(--teal)"></i>m (construction)</span><span><i class="sw" style="background:var(--acc)"></i>total, minimum at √q</span></div>
+</div>
+</div>
+</section>
+
+<!-- 6 -->
+<section class="band alt" id="p6">
+<div class="wrap plate">
+<div>
+<span class="tag t-note">From the note</span> <span class="tag t-read">Reading</span> <span class="tag t-sch">Schematic</span>
+<h2>The note's idea: multiplicity over the integers, one theta lift at a time</h2>
+<p>Over the integers there is no "vanishing to order m": the note likens it to differentiating whole numbers. Its proposal is to get multiplicity from automorphic forms instead. A chain of theta lifts between definite unitary groups U(X₀) → U(X₁) → ⋯ → U(X<sub>m</sub>) adds one unit of multiplicity per lift.</p>
+<p>The note says that for a von Mangoldt sum of length X, the right chain length is √X, adding "And yet, what else could it be?" It is Stepanov's balance again, with X in place of q. Slide X and the chain re-forms at its best length.</p>
+<p>The note also says that if each lift's cost is paid separately the method stops at exponent 2/3. Jonas Whidden's reading says the fix is to track divisibility along the whole chain inside one integral lattice, so the costs do not simply add up.</p>
+<div class="ctl">
+<label for="x6">Sum length X<input id="x6" type="range" min="1" max="4" step="0.05" value="2"><output id="x6o"></output></label>
+<label for="m6">Chain length m<input id="m6" type="range" min="1" max="40" step="1" value="6"><output id="m6o"></output></label>
+</div>
+<button class="b" id="best6" type="button">Snap to m = √X</button>
+<div class="warn"><b>Not verified.</b> Nobody has yet written out this argument in a form mathematicians have checked. The Lean code is checked; this plate is only the shape of the idea as the note and one reader describe it.</div>
+</div>
+<div class="panel">
+<div class="fig short" id="f6a" role="img" aria-label="A chain of theta lifts between unitary groups, one node per lift"></div>
+<div class="fig" id="f6b" role="img" aria-label="Schematic balance of X over m against m, minimum at the square root of X"></div>
+<div class="key"><span><i class="sw" style="background:var(--data)"></i>X/m</span><span><i class="sw" style="background:var(--teal)"></i>m</span><span><i class="sw" style="background:var(--acc)"></i>total, minimum at √X</span></div>
+</div>
+</div>
+</section>
+
+<section class="band" id="whole">
+<div class="wrap">
+<h2>The whole argument in one line, with how sure we are of each step</h2>
+<div class="chain">
+<span class="hot">Chain of ≈ √X theta lifts</span><i>→</i><span>square-root bound on Λ-sums for every χ</span><i>→</i><span>Landau: no zeros of L(s, χ) right of ½</span><i>→</i><span>functional equation</span><i>→</i><span>RH and GRH for Dirichlet L-functions</span>
+</div>
+<div class="scroll" style="margin-top:16px"><table>
+<thead><tr><th>Step</th><th>Status</th></tr></thead>
+<tbody>
+<tr><td>The chain of lifts gives the bound</td><td><span class="tag t-note">From the note</span> The new mathematics. Checked by Lean, not yet understood by people.</td></tr>
+<tr><td>Bound ⇒ zero-free half-plane (plate 3)</td><td><span class="tag t-est">Established</span> Classical, Landau.</td></tr>
+<tr><td>Zero-free right of ½ ⇒ RH (plate 2, functional equation)</td><td><span class="tag t-est">Established</span> Classical; in the Lean code it uses only Mathlib.</td></tr>
+<tr><td>The whole chain, formally</td><td><span class="tag t-est">Established</span> Accepted by several independent Lean kernels.</td></tr>
+</tbody></table></div>
+</div>
+</section>
+
+<footer class="band">
+<div class="wrap">
+<p><b>How this was made.</b> Plates 1, 2 and 4 are computed in your browser: ψ(x) by a sieve to 10⁶, the explicit formula from the first 100 zeros of ζ, and point counts by Legendre symbols. The zeros and Hardy's Z(t) were computed with mpmath. Plates 5 and 6 are schematic: q/m + m and X/m + m keep the shape of the trade-off and drop every constant. Sources: <a href="https://alpo.ge/remark.pdf">Alpöge's note</a>, the Lean Zulip discussion of 20 November 2026, and the Lean source (sha256 9631b4f0…c7fc).</p>
+<p>Made by Ishaan Dixit with help from Claude. Corrections welcome.</p>
+</div>
+</footer>
+
+<script>
+{
+const ZEROS=[14.134725, 21.02204, 25.010858, 30.424876, 32.935062, 37.586178, 40.918719, 43.327073, 48.005151, 49.773832, 52.970321, 56.446248, 59.347044, 60.831779, 65.112544, 67.079811, 69.546402, 72.067158, 75.704691, 77.14484, 79.337375, 82.910381, 84.735493, 87.425275, 88.809111, 92.491899, 94.651344, 95.870634, 98.831194, 101.317851, 103.725538, 105.446623, 107.168611, 111.029536, 111.874659, 114.320221, 116.22668, 118.790783, 121.370125, 122.946829, 124.256819, 127.516684, 129.578704, 131.087689, 133.497737, 134.75651, 138.116042, 139.736209, 141.123707, 143.111846, 146.000982, 147.422765, 150.05352, 150.925258, 153.024694, 156.112909, 157.597592, 158.849988, 161.188964, 163.03071, 165.537069, 167.18444, 169.094515, 169.911976, 173.411537, 174.754192, 176.441434, 178.377408, 179.916484, 182.207078, 184.874468, 185.598784, 187.228923, 189.416159, 192.026656, 193.079727, 195.265397, 196.876482, 198.01531, 201.264752, 202.493595, 204.189672, 205.394697, 207.906259, 209.57651, 211.690863, 213.347919, 214.547045, 216.169539, 219.067596, 220.714919, 221.430706, 224.007, 224.983325, 227.421444, 229.337413, 231.250189, 231.987235, 233.693404, 236.52423];
+const ZT=[-1.4604, -1.4536, -1.4338, -1.4027, -1.3628, -1.3165, -1.2665, -1.2149, -1.1635, -1.1133, -1.0653, -1.02, -0.9776, -0.9381, -0.9016, -0.8679, -0.8369, -0.8085, -0.7823, -0.7583, -0.7363, -0.7161, -0.6976, -0.6806, -0.6651, -0.6508, -0.6377, -0.6258, -0.6148, -0.6047, -0.5956, -0.5872, -0.5795, -0.5726, -0.5663, -0.5605, -0.5554, -0.5507, -0.5466, -0.5429, -0.5396, -0.5368, -0.5343, -0.5322, -0.5305, -0.529, -0.5279, -0.5271, -0.5266, -0.5263, -0.5263, -0.5265, -0.527, -0.5277, -0.5287, -0.5298, -0.5312, -0.5327, -0.5345, -0.5364, -0.5385, -0.5408, -0.5433, -0.546, -0.5488, -0.5517, -0.5549, -0.5581, -0.5616, -0.5652, -0.5689, -0.5727, -0.5767, -0.5809, -0.5852, -0.5896, -0.5941, -0.5988, -0.6036, -0.6085, -0.6136, -0.6188, -0.6241, -0.6295, -0.635, -0.6407, -0.6465, -0.6523, -0.6583, -0.6645, -0.6707, -0.677, -0.6835, -0.69, -0.6967, -0.7035, -0.7103, -0.7173, -0.7244, -0.7316, -0.7389, -0.7462, -0.7537, -0.7613, -0.769, -0.7768, -0.7846, -0.7926, -0.8006, -0.8088, -0.817, -0.8253, -0.8337, -0.8422, -0.8507, -0.8594, -0.8681, -0.8769, -0.8857, -0.8947, -0.9037, -0.9128, -0.9219, -0.9312, -0.9405, -0.9498, -0.9592, -0.9687, -0.9782, -0.9877, -0.9973, -1.007, -1.0167, -1.0265, -1.0362, -1.0461, -1.0559, -1.0658, -1.0757, -1.0856, -1.0956, -1.1055, -1.1155, -1.1255, -1.1355, -1.1455, -1.1555, -1.1655, -1.1754, -1.1854, -1.1954, -1.2053, -1.2152, -1.225, -1.2349, -1.2446, -1.2544, -1.2641, -1.2737, -1.2833, -1.2928, -1.3022, -1.3116, -1.3208, -1.33, -1.3391, -1.3481, -1.357, -1.3658, -1.3744, -1.383, -1.3914, -1.3997, -1.4078, -1.4158, -1.4237, -1.4313, -1.4388, -1.4462, -1.4533, -1.4603, -1.4671, -1.4736, -1.48, -1.4861, -1.4921, -1.4978, -1.5032, -1.5084, -1.5134, -1.5181, -1.5225, -1.5267, -1.5306, -1.5342, -1.5375, -1.5404, -1.5431, -1.5455, -1.5475, -1.5492, -1.5505, -1.5515, -1.5522, -1.5525, -1.5524, -1.5519, -1.551, -1.5498, -1.5481, -1.546, -1.5435, -1.5406, -1.5372, -1.5335, -1.5292, -1.5245, -1.5194, -1.5137, -1.5077, -1.5011, -1.494, -1.4865, -1.4784, -1.4698, -1.4608, -1.4512, -1.4411, -1.4304, -1.4193, -1.4075, -1.3953, -1.3825, -1.3691, -1.3552, -1.3408, -1.3257, -1.3101, -1.294, -1.2772, -1.2599, -1.242, -1.2235, -1.2044, -1.1848, -1.1646, -1.1438, -1.1224, -1.1004, -1.0778, -1.0546, -1.0309, -1.0066, -0.9816, -0.9561, -0.9301, -0.9034, -0.8762, -0.8484, -0.8201, -0.7911, -0.7617, -0.7317, -0.7011, -0.67, -0.6383, -0.6062, -0.5735, -0.5403, -0.5066, -0.4724, -0.4377, -0.4026, -0.367, -0.3309, -0.2944, -0.2575, -0.2201, -0.1823, -0.1442, -0.1056, -0.0667, -0.0275, 0.0121, 0.052, 0.0923, 0.1328, 0.1736, 0.2146, 0.2559, 0.2974, 0.339, 0.3809, 0.4229, 0.4651, 0.5074, 0.5498, 0.5923, 0.6348, 0.6774, 0.7199, 0.7625, 0.805, 0.8475, 0.8899, 0.9322, 0.9743, 1.0164, 1.0582, 1.0998, 1.1412, 1.1823, 1.2232, 1.2637, 1.3039, 1.3437, 1.3832, 1.4222, 1.4608, 1.4989, 1.5365, 1.5736, 1.6102, 1.6461, 1.6815, 1.7162, 1.7503, 1.7836, 1.8163, 1.8482, 1.8794, 1.9097, 1.9392, 1.9679, 1.9957, 2.0226, 2.0486, 2.0736, 2.0976, 2.1207, 2.1427, 2.1637, 2.1836, 2.2024, 2.2201, 2.2367, 2.2521, 2.2664, 2.2794, 2.2912, 2.3018, 2.3112, 2.3193, 2.3261, 2.3316, 2.3358, 2.3387, 2.3403, 2.3405, 2.3393, 2.3368, 2.3329, 2.3276, 2.321, 2.3129, 2.3035, 2.2926, 2.2804, 2.2667, 2.2516, 2.2352, 2.2173, 2.198, 2.1774, 2.1554, 2.1319, 2.1072, 2.081, 2.0535, 2.0247, 1.9946, 1.9631, 1.9304, 1.8964, 1.8612, 1.8247, 1.787, 1.7481, 1.7081, 1.6669, 1.6246, 1.5813, 1.5369, 1.4915, 1.445, 1.3977, 1.3494, 1.3002, 1.2502, 1.1994, 1.1478, 1.0955, 1.0425, 0.9889, 0.9347, 0.8799, 0.8246, 0.7689, 0.7127, 0.6562, 0.5993, 0.5422, 0.4849, 0.4274, 0.3698, 0.3122, 0.2546, 0.197, 0.1395, 0.0822, 0.0251, -0.0317, -0.0882, -0.1443, -0.2, -0.2551, -0.3097, -0.3637, -0.417, -0.4696, -0.5214, -0.5724, -0.6224, -0.6715, -0.7196, -0.7666, -0.8125, -0.8573, -0.9008, -0.943, -0.9839, -1.0234, -1.0615, -1.0982, -1.1333, -1.1668, -1.1987, -1.229, -1.2576, -1.2844, -1.3094, -1.3327, -1.3541, -1.3735, -1.3911, -1.4067, -1.4204, -1.432, -1.4416, -1.4492, -1.4546, -1.458, -1.4593, -1.4584, -1.4554, -1.4502, -1.4429, -1.4334, -1.4218, -1.408, -1.392, -1.3738, -1.3535, -1.3311, -1.3065, -1.2798, -1.251, -1.2201, -1.1871, -1.1521, -1.1151, -1.0761, -1.0351, -0.9923, -0.9475, -0.9009, -0.8525, -0.8024, -0.7505, -0.697, -0.6419, -0.5852, -0.527, -0.4674, -0.4063, -0.344, -0.2804, -0.2156, -0.1497, -0.0828, -0.0149, 0.054, 0.1236, 0.194, 0.2651, 0.3368, 0.409, 0.4816, 0.5546, 0.6279, 0.7013, 0.7748, 0.8483, 0.9218, 0.9951, 1.0681, 1.1407, 1.213, 1.2847, 1.3558, 1.4262, 1.4959, 1.5646, 1.6324, 1.6991, 1.7647, 1.8291, 1.8922, 1.9539, 2.0142, 2.0729, 2.1299, 2.1853, 2.2389, 2.2906, 2.3405, 2.3883, 2.4341, 2.4778, 2.5193, 2.5585, 2.5955, 2.6301, 2.6623, 2.6921, 2.7193, 2.7441, 2.7662, 2.7858, 2.8027, 2.8169, 2.8285, 2.8373, 2.8434, 2.8468, 2.8474, 2.8452, 2.8403, 2.8326, 2.8221, 2.8089, 2.793, 2.7744, 2.753, 2.729, 2.7023, 2.673, 2.6412, 2.6068, 2.5699, 2.5306, 2.4889, 2.4449, 2.3986, 2.3501, 2.2995, 2.2468, 2.1921, 2.1354, 2.077, 2.0167, 1.9549, 1.8914, 1.8265, 1.7601, 1.6925, 1.6237, 1.5538, 1.4829, 1.4111, 1.3386, 1.2654, 1.1917, 1.1175, 1.043, 0.9684, 0.8936, 0.8189, 0.7443, 0.67, 0.596, 0.5226, 0.4498, 0.3777, 0.3065, 0.2363, 0.1672, 0.0992, 0.0326, -0.0326, -0.0962, -0.1582, -0.2185, -0.2769, -0.3333, -0.3877, -0.44, -0.49, -0.5376, -0.5829, -0.6256, -0.6658, -0.7033, -0.7381, -0.7702, -0.7993, -0.8256, -0.8489, -0.8692, -0.8864, -0.9005, -0.9115, -0.9194, -0.924, -0.9255, -0.9238, -0.9188, -0.9106, -0.8992, -0.8846, -0.8668, -0.8458, -0.8217, -0.7944, -0.7641, -0.7307, -0.6943, -0.6549, -0.6127, -0.5676, -0.5198, -0.4694, -0.4163, -0.3606, -0.3026, -0.2422, -0.1796, -0.1148, -0.048, 0.0207, 0.0913, 0.1635, 0.2373, 0.3125, 0.3891, 0.4668, 0.5456, 0.6253, 0.7058, 0.7869, 0.8685, 0.9504, 1.0326, 1.1148, 1.1968, 1.2787, 1.3601, 1.441, 1.5212, 1.6006, 1.6789, 1.7561, 1.8321, 1.9066, 1.9795, 2.0507, 2.12, 2.1874, 2.2526, 2.3156, 2.3762, 2.4343, 2.4898, 2.5426, 2.5925, 2.6394, 2.6833, 2.724, 2.7615, 2.7957, 2.8265, 2.8538, 2.8775, 2.8976, 2.9141, 2.9268, 2.9358, 2.941, 2.9424, 2.9399, 2.9335, 2.9233, 2.9092, 2.8912, 2.8694, 2.8438, 2.8143, 2.7811, 2.7441, 2.7035, 2.6592, 2.6113, 2.56, 2.5052, 2.4471, 2.3858, 2.3213, 2.2537, 2.1832, 2.1099, 2.0338, 1.9552, 1.8741, 1.7907, 1.7051, 1.6175, 1.528, 1.4367, 1.3439, 1.2497, 1.1542, 1.0577, 0.9602, 0.8619, 0.7631, 0.6639, 0.5645, 0.4651, 0.3657, 0.2667, 0.1682, 0.0703, -0.0267, -0.1227, -0.2176, -0.311, -0.403, -0.4932, -0.5816, -0.668, -0.7522, -0.8341, -0.9135, -0.9903, -1.0644, -1.1355, -1.2037, -1.2687, -1.3305, -1.389, -1.444, -1.4954, -1.5432, -1.5873, -1.6276, -1.6641, -1.6966, -1.7252, -1.7498, -1.7704, -1.787, -1.7994, -1.8078, -1.8122, -1.8125, -1.8087, -1.801, -1.7893, -1.7736, -1.7541, -1.7309, -1.7038, -1.6732, -1.6389, -1.6013, -1.5602, -1.5159, -1.4685, -1.4181, -1.3649, -1.3089, -1.2503, -1.1893, -1.1261, -1.0607, -0.9935, -0.9244, -0.8538, -0.7819, -0.7087, -0.6345, -0.5594, -0.4838, -0.4077, -0.3314, -0.2551, -0.1789, -0.1032, -0.028, 0.0465, 0.1199, 0.1921, 0.263, 0.3323, 0.3999, 0.4655, 0.5289, 0.5901, 0.6487, 0.7047, 0.7579, 0.8081, 0.8551, 0.8989, 0.9392, 0.976, 1.0091, 1.0384, 1.0638, 1.0852, 1.1025, 1.1156, 1.1244, 1.129, 1.1292, 1.1249, 1.1162, 1.1031, 1.0855, 1.0634, 1.0368, 1.0057, 0.9702, 0.9304, 0.8862, 0.8377, 0.785, 0.7282, 0.6674, 0.6026, 0.534, 0.4616, 0.3857, 0.3064, 0.2238, 0.138, 0.0492, -0.0423, -0.1365, -0.2331, -0.332, -0.4329, -0.5357, -0.6401, -0.746, -0.853, -0.9611, -1.0699, -1.1792, -1.2888, -1.3985, -1.5081, -1.6172, -1.7257, -1.8333, -1.9399, -2.0451, -2.1487, -2.2505, -2.3504, -2.448, -2.5431, -2.6356, -2.7252, -2.8118, -2.8951, -2.9749, -3.0511, -3.1235, -3.192, -3.2563, -3.3163, -3.372, -3.4231, -3.4696, -3.5113, -3.5482, -3.5801, -3.607, -3.6288, -3.6456, -3.6571, -3.6635, -3.6646, -3.6606, -3.6513, -3.6369, -3.6173, -3.5927, -3.563, -3.5283, -3.4887, -3.4443, -3.3953, -3.3416, -3.2836, -3.2212, -3.1546, -3.084, -3.0096, -2.9316, -2.8501, -2.7653, -2.6774, -2.5866, -2.4932, -2.3974, -2.2994, -2.1994, -2.0977, -1.9946, -1.8902, -1.7848, -1.6787, -1.5721, -1.4654, -1.3586, -1.2522, -1.1463, -1.0413, -0.9372, -0.8346, -0.7334, -0.6341, -0.5368, -0.4417, -0.3492, -0.2593, -0.1724, -0.0886, -0.0081, 0.0689, 0.1422, 0.2116, 0.2771, 0.3384, 0.3954, 0.448, 0.496, 0.5395, 0.5782, 0.6122, 0.6413, 0.6655, 0.6848, 0.6991, 0.7085, 0.713, 0.7125, 0.7071, 0.6968, 0.6818, 0.6621, 0.6377, 0.6089, 0.5756, 0.538, 0.4963, 0.4505, 0.401, 0.3478, 0.2911, 0.2311, 0.1681, 0.1021, 0.0336, -0.0374, -0.1106, -0.1857, -0.2625, -0.3407, -0.4201, -0.5004, -0.5814, -0.6627, -0.7441, -0.8253, -0.9061, -0.9861, -1.0651, -1.1429, -1.2191, -1.2935, -1.3659, -1.4359, -1.5034, -1.568, -1.6296, -1.6879, -1.7427, -1.7937, -1.8409, -1.8839, -1.9226, -1.9569, -1.9866, -2.0114, -2.0314, -2.0464, -2.0562, -2.0608, -2.0601, -2.0541, -2.0426, -2.0257, -2.0034, -1.9756, -1.9423, -1.9037, -1.8597, -1.8103, -1.7557, -1.696, -1.6313, -1.5616, -1.4871, -1.408, -1.3245, -1.2366, -1.1446, -1.0488, -0.9492, -0.8462, -0.74, -0.6307, -0.5188, -0.4044, -0.2878, -0.1693, -0.0492, 0.0722, 0.1947, 0.3178, 0.4414, 0.5651, 0.6886, 0.8115, 0.9336, 1.0546, 1.1741, 1.2918, 1.4075, 1.5208, 1.6315, 1.7391, 1.8436, 1.9445, 2.0417, 2.1348, 2.2237, 2.308, 2.3876, 2.4623, 2.5318, 2.5959, 2.6546, 2.7076, 2.7547, 2.796, 2.8312, 2.8602, 2.883, 2.8995, 2.9097, 2.9135, 2.9109, 2.902, 2.8867, 2.8651, 2.8373, 2.8033, 2.7632, 2.7171, 2.6652, 2.6076, 2.5444, 2.4759, 2.4022, 2.3235, 2.24, 2.1519, 2.0596, 1.9632, 1.8631, 1.7594, 1.6525, 1.5426, 1.4301, 1.3153, 1.1985, 1.08, 0.9601, 0.8392, 0.7175, 0.5955, 0.4734, 0.3516, 0.2304, 0.1101, -0.0089, -0.1263, -0.2419, -0.3552, -0.4661, -0.5742, -0.6792, -0.7809, -0.879, -0.9732, -1.0634, -1.1493, -1.2306, -1.3072, -1.379, -1.4457, -1.5071, -1.5633, -1.614, -1.6591, -1.6987, -1.7325, -1.7606, -1.783, -1.7996, -1.8105, -1.8156, -1.8151, -1.809, -1.7974, -1.7804, -1.7581, -1.7307, -1.6983, -1.6611, -1.6193, -1.573, -1.5226, -1.4682, -1.4101, -1.3485, -1.2838, -1.2161, -1.1458, -1.0733, -0.9987, -0.9224, -0.8448, -0.7661, -0.6867, -0.607, -0.5272, -0.4477, -0.3689, -0.291, -0.2145, -0.1395, -0.0666, 0.0041, 0.0722, 0.1374, 0.1994, 0.2579, 0.3127, 0.3634, 0.4099, 0.4519, 0.4891, 0.5215, 0.5486, 0.5705, 0.587];
+const $=s=>document.querySelector(s);
+const css=n=>getComputedStyle(document.documentElement).getPropertyValue(n).trim();
+const f0=n=>n.toLocaleString('en-US',{maximumFractionDigits:0});
+const sup=e=>'10'+String(e).split('').map(c=>'⁰¹²³⁴⁵⁶⁷⁸⁹'[+c]).join('');
+const nice=v=>{if(v>=1e6)return (v/1e6).toFixed(v%1e6?1:0)+'M';if(v>=1e3)return (v/1e3).toFixed(v%1e3?1:0)+'k';return String(+v.toFixed(2))};
+
+/* generic plot: returns svg string and scale fns */
+function frame(el,o){
+  const W=el.clientWidth,H=el.clientHeight,narrow=W<520;
+  const L=o.L??(narrow?42:52),R=12,T=12,B=o.B??28;
+  const X=v=>L+(o.log?(Math.log10(v)-Math.log10(o.x0))/(Math.log10(o.x1)-Math.log10(o.x0)):(v-o.x0)/(o.x1-o.x0))*(W-L-R);
+  const Y=v=>T+(1-(v-o.y0)/(o.y1-o.y0))*(H-T-B);
+  let g='';
+  (o.yt||[]).forEach(v=>{g+=`<line x1="${L}" x2="${W-R}" y1="${Y(v)}" y2="${Y(v)}" stroke="var(--grid)"/><text x="${L-6}" y="${Y(v)+4}" text-anchor="end">${o.yf?o.yf(v):nice(v)}</text>`});
+  (o.xt||[]).filter((v,i)=>!narrow||i%2===0).forEach(v=>{g+=`<line x1="${X(v)}" x2="${X(v)}" y1="${T}" y2="${H-B}" stroke="var(--grid)"/><text x="${X(v)}" y="${H-B+18}" text-anchor="${X(v)>W-R-24?'end':(X(v)<L+12?'start':'middle')}">${o.xf?o.xf(v):nice(v)}</text>`});
+  if(o.xl)g+=`<text x="${W-R}" y="${H-B-6}" text-anchor="end">${o.xl}</text>`;
+  return {W,H,L,R,T,B,X,Y,g,narrow};
+}
+const path=(pts,X,Y)=>pts.map((p,i)=>(i?'L':'M')+X(p[0]).toFixed(1)+' '+Y(p[1]).toFixed(1)).join('');
+const put=(el,inner)=>{el.innerHTML=`<svg viewBox="0 0 ${el.clientWidth} ${el.clientHeight}">${inner}</svg>`};
+const watch=(els,fn)=>{const ro=new ResizeObserver(()=>fn());els.forEach(e=>ro.observe(e));return ro};
+
+/* ---------- data: psi via sieve to 1e6 ---------- */
+const NMAX=1000000;
+const PSI=new Float64Array(NMAX+1);
+{const spf=new Uint32Array(NMAX+1);
+ for(let i=2;i<=NMAX;i++){if(!spf[i]){spf[i]=i;if(i*i<=NMAX)for(let j=i*i;j<=NMAX;j+=i)if(!spf[j])spf[j]=i;}}
+ for(let n=2;n<=NMAX;n++){let p=spf[n],m=n;while(m%p===0)m/=p;PSI[n]=PSI[n-1]+(m===1?Math.log(p):0);}}
+
+/* ---------- plate 1 ---------- */
+const x1=$('#x1'),f1a=$('#f1a'),f1b=$('#f1b');
+function draw1(){
+  const xm=Math.round(10**+x1.value);$('#x1o').textContent=f0(xm);
+  // top: psi vs x
+  let o=frame(f1a,{x0:2,x1:xm,y0:0,y1:xm,yt:[0,xm/2,xm],xt:[xm/2,xm],B:24});
+  const step=Math.max(1,Math.floor(xm/400));let pp=[];for(let x=2;x<=xm;x+=step)pp.push([x,PSI[x]]);
+  put(f1a,o.g+`<path d="${path([[2,2],[xm,xm]],o.X,o.Y)}" stroke="var(--mute)" stroke-width="1.5" fill="none"/><path d="${path(pp,o.X,o.Y)}" stroke="var(--data)" stroke-width="2" fill="none"/>`);
+  // bottom: error with band
+  const band=x=>Math.sqrt(x)*Math.log(x)**2/(8*Math.PI);const bm=band(xm);
+  let mx=0,at=74;for(let x=74;x<=xm;x++){for(const t of [x,x+0.999]){const r=Math.abs(PSI[x]-t)/band(t);if(r>mx){mx=r;at=x}}}
+  $('#r1a').textContent=xm<74?'–':(mx*100).toFixed(1)+'% of the band';$('#r1b').textContent=xm<74?'–':f0(at);
+  let emax=0;for(let x=2;x<=xm;x++)emax=Math.max(emax,Math.abs(PSI[x]-x),Math.abs(PSI[x]-x-1));const ylim=Math.max(bm,emax)*1.08;
+  o=frame(f1b,{x0:2,x1:xm,y0:-ylim,y1:ylim,yt:[-Math.round(ylim/1.08),0,Math.round(ylim/1.08)],xt:[xm/4,xm/2,3*xm/4,xm],xl:'x'});
+  const cols=Math.max(50,Math.floor(o.W-o.L-o.R));let up=[],lo=[];
+  for(let c=0;c<cols;c++){const a=Math.max(2,Math.floor(2+(xm-2)*c/cols)),b=Math.max(a,Math.floor(2+(xm-2)*(c+1)/cols));let mn=1e18,mxv=-1e18;for(let x=a;x<=b;x++){const e=PSI[x]-x;if(e<mn)mn=e;if(e>mxv)mxv=e}up.push([a,mxv]);lo.push([a,mn]);}
+  const area='M'+up.map(p=>o.X(p[0]).toFixed(1)+' '+o.Y(p[1]).toFixed(1)).join('L')+'L'+lo.reverse().map(p=>o.X(p[0]).toFixed(1)+' '+o.Y(p[1]).toFixed(1)).join('L')+'Z';
+  const bp=[],bn=[],sp=[],sn=[];for(let c=0;c<=160;c++){const x=2+(xm-2)*c/160;if(x>=73.2){bp.push([x,band(x)]);bn.push([x,-band(x)])}sp.push([x,Math.sqrt(x)]);sn.push([x,-Math.sqrt(x)])}
+  put(f1b,o.g+`<path d="${path(bp,o.X,o.Y)}" stroke="var(--acc)" stroke-width="2" fill="none"/><path d="${path(bn,o.X,o.Y)}" stroke="var(--acc)" stroke-width="2" fill="none"/><path d="${path(sp,o.X,o.Y)}" stroke="var(--mute)" stroke-opacity=".5" stroke-dasharray="4 4" fill="none"/><path d="${path(sn,o.X,o.Y)}" stroke="var(--mute)" stroke-opacity=".5" stroke-dasharray="4 4" fill="none"/><path d="${area}" fill="var(--teal)" stroke="var(--teal)" stroke-width="1"/>`);
+}
+x1.addEventListener('input',draw1);watch([f1a,f1b],draw1);
+
+/* ---------- plate 2 ---------- */
+const n2=$('#n2'),x2=$('#x2'),b2=$('#b2'),f2a=$('#f2a'),f2b=$('#f2b'),f2c=$('#f2c');
+function recon(x,N,beta){
+  let s=x-Math.log(2*Math.PI)-0.5*Math.log(1-x**-2);const lx=Math.log(x);
+  for(let k=0;k<N;k++){const g=ZEROS[k],b=k===0?beta:0.5;const amp=Math.exp(b*lx),th=g*lx;
+    // 2 Re( x^(b+ig) / (b+ig) )
+    const re=Math.cos(th),im=Math.sin(th),d=b*b+g*g;s-=2*amp*(re*b+im*g)/d;}
+  return s;
+}
+function draw2(){
+  const N=+n2.value,xm=+x2.value,beta=+b2.value;$('#n2o').textContent=N;$('#x2o').textContent=xm;$('#b2o').textContent=beta.toFixed(2);
+  // Z(t)
+  let zmax=0;ZT.forEach(v=>{if(Math.abs(v)>zmax)zmax=Math.abs(v)});
+  let o=frame(f2a,{x0:0,x1:60,y0:-zmax,y1:zmax,yt:[0],xt:[0,10,20,30,40,50,60],B:24,xl:'t on the line ½ + it'});
+  const zp=ZT.map((v,i)=>[i*0.05,v]);let marks='';ZEROS.filter(g=>g<=60).forEach((g,i)=>{marks+=`<circle cx="${o.X(g)}" cy="${o.Y(0)}" r="${i<N?5:3.5}" fill="${i<N?'var(--acc)':'var(--panel)'}" stroke="var(--acc)" stroke-width="2"/>`});
+  put(f2a,o.g+`<path d="${path(zp,o.X,o.Y)}" stroke="var(--data)" stroke-width="1.8" fill="none"/>${marks}`);
+  // staircase + reconstruction
+  o=frame(f2b,{x0:2,x1:xm,y0:0,y1:xm*1.08,yt:[0,Math.round(xm/2),xm],xt:[Math.round(xm/4),Math.round(xm/2),Math.round(3*xm/4),xm],xl:'x'});
+  let st=[[2,0]];for(let x=2;x<=xm;x++){st.push([x,PSI[x-1]]);st.push([x,PSI[x]])}
+  const rc=[];const S=Math.min(900,Math.max(300,o.W*1.5));for(let i=0;i<=S;i++){const x=2.01+(xm-2.01)*i/S;rc.push([x,recon(x,N,beta)])}
+  put(f2b,o.g+`<path d="${path(st,o.X,o.Y)}" stroke="var(--data)" stroke-width="2" fill="none"/><path d="${path(rc,o.X,o.Y)}" stroke="var(--acc)" stroke-width="1.6" fill="none"/>`);
+  // wave size vs band (log x axis)
+  const g0=ZEROS[0],amp=x=>2*x**beta/Math.hypot(beta,g0),band=x=>Math.sqrt(x)*Math.log(x)**2/(8*Math.PI);
+  let cross=null;for(let e=1;e<=60;e+=0.01){const x=10**e;if(amp(x)>band(x)){cross=e;break}}
+  $('#r2').textContent=beta<=0.5001?'never (β = ½)':(cross?'10^'+cross.toFixed(1):'beyond 10^60');
+  const xe=Math.max(8,Math.min(60,cross?Math.ceil(cross*1.25):20));
+  const ly=v=>Math.log10(Math.max(v,1e-9));const pa=[],pb=[];
+  for(let i=0;i<=200;i++){const e=0.5+(xe-0.5)*i/200,x=10**e;pa.push([x,ly(amp(x))]);pb.push([x,ly(band(x))])}
+  const ymaxL=Math.max(...pa.map(p=>p[1]),...pb.map(p=>p[1]))*1.05;
+  const xts=[];for(let e=0;e<=xe;e+=Math.ceil(xe/6))xts.push(10**Math.max(e,0.5));
+  o=frame(f2c,{x0:10**0.5,x1:10**xe,log:true,y0:-1,y1:ymaxL,yt:[0,Math.round(ymaxL/2),Math.floor(ymaxL)],yf:v=>'10^'+v,xt:xts.map(v=>v),xf:v=>'10^'+Math.round(Math.log10(v)),B:24});
+  put(f2c,o.g+`<path d="${path(pb,o.X,o.Y)}" stroke="var(--acc)" stroke-width="2" fill="none"/><path d="${path(pa,o.X,o.Y)}" stroke="var(--teal)" stroke-width="2.4" fill="none"/>`);
+}
+[n2,x2,b2].forEach(e=>e.addEventListener('input',draw2));watch([f2a,f2b,f2c],draw2);
+
+/* ---------- plate 3 ---------- */
+const t3=$('#t3'),f3=$('#f3');
+function draw3(){
+  const th=+t3.value;$('#t3o').textContent=th.toFixed(2);
+  const W=f3.clientWidth,H=f3.clientHeight,L=20,R=W-20,T=16,B=H-34;
+  const sx=v=>L+(v+0.6)/2.2*(R-L),sy=v=>T+(1-(v+40)/80)*(B-T);
+  let g=`<rect x="${sx(th)}" y="${T}" width="${R-sx(th)}" height="${B-T}" fill="var(--teal)" opacity=".22"/>`;
+  g+=`<rect x="${L}" y="${T}" width="${sx(1-th)-L}" height="${B-T}" fill="var(--data)" opacity=".14"/>`;
+  g+=`<rect x="${sx(0)}" y="${T}" width="${sx(1)-sx(0)}" height="${B-T}" fill="none" stroke="var(--mute)" stroke-dasharray="4 4"/>`;
+  g+=`<line x1="${L}" x2="${R}" y1="${sy(0)}" y2="${sy(0)}" stroke="var(--mute)"/>`;
+  g+=`<line x1="${sx(.5)}" x2="${sx(.5)}" y1="${T}" y2="${B}" stroke="var(--acc)" stroke-width="3"/>`;
+  g+=`<line x1="${sx(th)}" x2="${sx(th)}" y1="${T}" y2="${B}" stroke="var(--teal)" stroke-width="2.5"/>`;
+  ZEROS.filter(z=>z<40).forEach(z=>{g+=`<circle cx="${sx(.5)}" cy="${sy(z)}" r="4" fill="var(--acc)"/><circle cx="${sx(.5)}" cy="${sy(-z)}" r="4" fill="var(--acc)"/>`});
+  g+=`<text x="${sx(.5)}" y="${B+20}" text-anchor="middle" style="fill:var(--acc);font-weight:700">½</text><text x="${sx(0)}" y="${B+20}" text-anchor="middle">0</text><text x="${sx(1)}" y="${B+20}" text-anchor="middle">1</text>`;
+  if(th>0.52)g+=`<text x="${sx(th)+6}" y="${T+18}" style="fill:var(--ink);font-weight:700">no zeros</text><text x="${sx(1-th)-6}" y="${T+18}" text-anchor="end" style="fill:var(--ink)">none here either</text>`;
+  else g+=`<text x="${sx(.5)+8}" y="${T+18}" style="fill:var(--ink);font-weight:700">only the line is left: RH</text>`;
+  g+=`<text x="${R}" y="${sy(0)-8}" text-anchor="end">Re s</text>`;
+  f3.innerHTML=`<svg viewBox="0 0 ${W} ${H}">${g}</svg>`;
+}
+t3.addEventListener('input',draw3);watch([f3],draw3);
+
+/* ---------- plate 4 ---------- */
+const a4=$('#a4'),c4=$('#c4'),p4m=$('#p4m'),f4=$('#f4');
+const PR=[];{const s=new Uint8Array(4001);for(let i=2;i<=4000;i++){if(!s[i]){PR.push(i);for(let j=i*i;j<=4000;j+=i)s[j]=1}}}
+let pts4=[];
+function compute4(){
+  const a=Math.trunc(+a4.value||0),b=Math.trunc(+c4.value||0),pm=+p4m.value;$('#p4o').textContent=pm;
+  pts4=[];const disc=4*a**3+27*b**2;
+  if(disc===0){$('#r4a').textContent='0 (singular curve: pick other a, b)';$('#r4b').textContent='–';return}
+  for(const p of PR){if(p>pm)break;if(p<5||disc%p===0)continue;
+    const sq=new Int8Array(p).fill(-1);sq[0]=0;for(let y=1;y<p;y++)sq[(y*y)%p]=1;
+    let s=0;const A=((a%p)+p)%p,B2=((b%p)+p)%p;for(let x=0;x<p;x++){const v=((x*x%p)*x+A*x+B2)%p;s+=sq[v]}
+    const N=p+1+s,ap=p+1-N;pts4.push([p,ap/(2*Math.sqrt(p))]);}
+  $('#r4a').textContent=pts4.length;$('#r4b').textContent=pts4.length?Math.max(...pts4.map(q=>Math.abs(q[1]))).toFixed(3):'–';
+}
+function draw4(){
+  const pm=+p4m.value;const o=frame(f4,{x0:0,x1:pm,y0:-1.15,y1:1.15,yt:[-1,-0.5,0,0.5,1],xt:[pm/4,pm/2,3*pm/4,pm].map(Math.round),xl:'prime p'});
+  let g=o.g+`<line x1="${o.L}" x2="${o.W-o.R}" y1="${o.Y(1)}" y2="${o.Y(1)}" stroke="var(--acc)" stroke-width="2"/><line x1="${o.L}" x2="${o.W-o.R}" y1="${o.Y(-1)}" y2="${o.Y(-1)}" stroke="var(--acc)" stroke-width="2"/>`;
+  const r=pts4.length>300?2:3;pts4.forEach(q=>{g+=`<circle cx="${o.X(q[0]).toFixed(1)}" cy="${o.Y(q[1]).toFixed(1)}" r="${r}" fill="var(--data)"/>`});
+  put(f4,g);
+}
+[a4,c4,p4m].forEach(e=>e.addEventListener('input',()=>{compute4();draw4()}));compute4();watch([f4],draw4);
+
+/* ---------- plate 5 ---------- */
+const m5=$('#m5'),q5=$('#q5'),f5a=$('#f5a'),f5b=$('#f5b');
+function draw5(){
+  const q=Math.round(10**+q5.value);const mmax=Math.max(4,Math.ceil(Math.sqrt(q)*3));m5.max=mmax;if(+m5.value>mmax)m5.value=mmax;const m=+m5.value;const mp=Math.min(m,7);$('#m5o').textContent=m;$('#q5o').textContent=f0(q);
+  // polynomial with roots of multiplicity m at r1..r4
+  const roots=[-1.5,-0.5,0.5,1.5];const f=x=>roots.reduce((a,r)=>a*(x-r)**mp,1);
+  let ymax=0;const pts=[];for(let i=0;i<=400;i++){const x=-2+4*i/400;const y=f(x);pts.push([x,y]);ymax=Math.max(ymax,Math.abs(y))}
+  ymax=Math.min(ymax,Math.max(...pts.filter(p=>Math.abs(p[0])<1.8).map(p=>Math.abs(p[1]))))*1.1||1;
+  let o=frame(f5a,{x0:-2,x1:2,y0:-ymax,y1:ymax,yt:[0],yf:()=>'0',xt:[],B:10,L:24});
+  let g=o.g+`<line x1="${o.L}" x2="${o.W-o.R}" y1="${o.Y(0)}" y2="${o.Y(0)}" stroke="var(--mute)"/>`;
+  const clip=pts.map(p=>[p[0],Math.max(-ymax,Math.min(ymax,p[1]))]);
+  g+=`<path d="${path(clip,o.X,o.Y)}" stroke="var(--data)" stroke-width="2.2" fill="none"/>`;
+  roots.forEach(r=>{g+=`<circle cx="${o.X(r)}" cy="${o.Y(0)}" r="5" fill="var(--acc)"/><text x="${o.X(r)}" y="${o.Y(0)-10}" text-anchor="middle" style="fill:var(--ink)">×${m}</text>`});
+  g+=`<text x="${o.W-o.R}" y="22" text-anchor="end">4 points × order ${m} = ${4*m} of the degree</text>`;
+  put(f5a,g);
+  // balance
+  const c=mm=>q/mm+mm;const best=Math.sqrt(q);
+  const ymx=Math.min(c(1),c(mmax))*1.05;
+  o=frame(f5b,{x0:1,x1:mmax,y0:0,y1:ymx,yt:[0,Math.round(ymx/2),Math.round(ymx)],xt:[1,Math.round(best),mmax],xl:'multiplicity m'});
+  const A=[],B=[],C=[];for(let i=0;i<=200;i++){const mm=1+(mmax-1)*i/200;A.push([mm,Math.min(q/mm,ymx)]);B.push([mm,Math.min(mm,ymx)]);C.push([mm,Math.min(c(mm),ymx)])}
+  const mc=m;
+  g=o.g+`<path d="${path(A,o.X,o.Y)}" stroke="var(--data)" stroke-width="2" fill="none"/><path d="${path(B,o.X,o.Y)}" stroke="var(--teal)" stroke-width="2" fill="none"/><path d="${path(C,o.X,o.Y)}" stroke="var(--acc)" stroke-width="2.6" fill="none"/>`;
+  g+=`<line x1="${o.X(best)}" x2="${o.X(best)}" y1="${o.Y(0)}" y2="${o.Y(c(best))}" stroke="var(--acc)" stroke-dasharray="4 4"/><circle cx="${o.X(best)}" cy="${o.Y(c(best))}" r="6" fill="var(--acc)"/><text x="${o.X(best)+8}" y="${o.Y(c(best))-10}" style="fill:var(--ink);font-weight:700">m = √q</text>`;
+  g+=`<circle cx="${o.X(mc)}" cy="${o.Y(Math.min(c(mc),ymx))}" r="6" fill="var(--panel)" stroke="var(--ink)" stroke-width="2"/>`;
+  put(f5b,g);
+  $('#r5a').textContent=f0(best);$('#r5b').textContent=f0(c(mc));$('#r5c').textContent=f0(2*best);
+}
+[m5,q5].forEach(e=>e.addEventListener('input',draw5));watch([f5a,f5b],draw5);
+
+/* ---------- plate 6 ---------- */
+const x6=$('#x6'),m6=$('#m6'),f6a=$('#f6a'),f6b=$('#f6b');
+function draw6(){
+  const X=Math.round(10**+x6.value),m=+m6.value;$('#x6o').textContent=f0(X);$('#m6o').textContent=m;
+  const best=Math.sqrt(X);
+  // chain
+  const W=f6a.clientWidth,H=f6a.clientHeight;const show=Math.min(m,W<520?8:14);const gap=(W-40)/(show);
+  let g='';for(let i=0;i<=show;i++){const x=20+i*gap,y=H/2;
+    if(i<show)g+=`<line x1="${x+12}" x2="${x+gap-14}" y1="${y}" y2="${y}" stroke="var(--mute)" stroke-width="2"/><polygon points="${x+gap-14},${y-5} ${x+gap-6},${y} ${x+gap-14},${y+5}" fill="var(--mute)"/>`;
+    const last=i===show;g+=`<circle cx="${x}" cy="${y}" r="12" fill="${last?'var(--acc)':'var(--panel)'}" stroke="${last?'var(--acc)':'var(--data)'}" stroke-width="2.5"/>`;
+    if(i===0||last||!(W<520))g+=`<text x="${x}" y="${y+32}" text-anchor="middle">${last&&m>show?'U(X'+m+')':'U(X'+i+')'}</text>`;}
+  if(m>show)g+=`<text x="${W-20}" y="${H/2-22}" text-anchor="end">… ${m} lifts in all</text>`;
+  g+=`<text x="20" y="20">each arrow: one theta lift, one more unit of multiplicity</text>`;
+  f6a.innerHTML=`<svg viewBox="0 0 ${W} ${H}">${g}</svg>`;
+  // balance
+  const mmax=Math.max(40,Math.ceil(best*3));m6.max=mmax;const c=mm=>X/mm+mm;const ymx=Math.min(c(1),c(mmax))*1.05;
+  const o=frame(f6b,{x0:1,x1:mmax,y0:0,y1:ymx,yt:[0,Math.round(ymx/2),Math.round(ymx)],xt:[1,Math.round(best),mmax],xl:'chain length m'});
+  const A=[],B=[],C=[];for(let i=0;i<=200;i++){const mm=1+(mmax-1)*i/200;A.push([mm,Math.min(X/mm,ymx)]);B.push([mm,Math.min(mm,ymx)]);C.push([mm,Math.min(c(mm),ymx)])}
+  g=o.g+`<path d="${path(A,o.X,o.Y)}" stroke="var(--data)" stroke-width="2" fill="none"/><path d="${path(B,o.X,o.Y)}" stroke="var(--teal)" stroke-width="2" fill="none"/><path d="${path(C,o.X,o.Y)}" stroke="var(--acc)" stroke-width="2.6" fill="none"/>`;
+  g+=`<circle cx="${o.X(best)}" cy="${o.Y(c(best))}" r="6" fill="var(--acc)"/><text x="${o.X(best)+8}" y="${o.Y(c(best))-10}" style="fill:var(--ink);font-weight:700">m = √X ≈ ${f0(best)}</text>`;
+  const mm=Math.min(m,mmax);g+=`<circle cx="${o.X(mm)}" cy="${o.Y(Math.min(c(mm),ymx))}" r="6" fill="var(--panel)" stroke="var(--ink)" stroke-width="2"/>`;
+  put(f6b,g);
+}
+[x6,m6].forEach(e=>e.addEventListener('input',draw6));
+$('#best6').addEventListener('click',()=>{m6.value=Math.max(1,Math.round(Math.sqrt(10**+x6.value)));draw6()});
+watch([f6a,f6b],draw6);
+}
+</script>
+</body>
+</html>
