@@ -59,27 +59,37 @@ cd "$PROJ"
 LEAN_BIN=$(lake env which lean)
 LP=$(lake env printenv LEAN_PATH)
 echo "lean: $LEAN_BIN ($("$LEAN_BIN" --version))"
-# leanOptions / moreLeanArgs from lakefile.toml, passed the way Lake passes them (-Dkey=value)
-OPTS=$(python3 -I - "$PROJ" <<'PY'
-import sys, os
-p = os.path.join(sys.argv[1], "lakefile.toml")
-if not os.path.exists(p):
-    sys.exit(0)
-import tomllib
-c = tomllib.load(open(p, "rb"))
-args = []
-def add(t):
-    for k, v in (t.get("leanOptions") or {}).items():
-        v = str(v).lower() if isinstance(v, bool) else str(v)
-        args.append("-D{}={}".format(k, v))
-    args.extend(t.get("moreLeanArgs") or [])
-add(c)
-for lib in c.get("lean_lib", []):
-    add(lib)
-print(" ".join(args))
+# leanOptions / moreLeanArgs from lakefile.toml, merged per module (package, then its lean_lib),
+# passed the way Lake passes them (-Dkey=value with dotted keys).
+mkdir -p "$WD"
+cat > "$WD/opts.py" <<'PY'
+import sys, os, re, tomllib
+c = tomllib.load(open(os.path.join(sys.argv[1], "lakefile.toml"), "rb"))
+mod = sys.argv[2]
+def flat(d, pre=""):
+    for k, v in d.items():
+        if isinstance(v, dict):
+            yield from flat(v, pre + k + ".")
+        else:
+            yield pre + k, (str(v).lower() if isinstance(v, bool) else str(v))
+def matches(lib, m):
+    globs = lib.get("globs") or [lib["name"]]
+    for g in globs:
+        if g.endswith(".+"):
+            if m.startswith(g[:-2] + "."): return True
+        elif g.endswith(".*"):
+            if m == g[:-2] or m.startswith(g[:-2] + "."): return True
+        elif m == g:
+            return True
+    return False
+opts = dict(flat(c.get("leanOptions") or {})); more = list(c.get("moreLeanArgs") or [])
+libs = [l for l in c.get("lean_lib", []) if matches(l, mod)]
+for l in libs:
+    opts.update(flat(l.get("leanOptions") or {})); more += list(l.get("moreLeanArgs") or [])
+print("\n".join(["-D{}={}".format(k, v) for k, v in opts.items()] + more))
 PY
-)
-echo "options: ${OPTS:-(none)}"
+modopts() { python3 -I "$WD/opts.py" "$PROJ" "$(echo "${1%.olean}" | tr / .)"; }
+echo "options for a Development module:"; modopts Development/X.olean | sed "s/^/  /"
 [ -f "$PROJ/lakefile.lean" ] && echo "NOTE: lakefile.lean present; its options are not parsed. Calibration will tell."
 
 python3 -I - "$MAN" "$MIS" "$N" "$SEED" "$WD" <<'PY'
@@ -106,12 +116,13 @@ PY
 compile() {
   local root="$1" rel="$2" od="$3" mod="${2%.olean}"
   local out="$od/$rel"; mkdir -p "$(dirname "$out")"
-  ( cd "$root" && LEAN_PATH="$LP" "$LEAN_BIN" $OPTS -R "$root/src" \
+  local -a opts; mapfile -t opts < <(modopts "$rel")
+  ( cd "$root" && LEAN_PATH="$LP" "$LEAN_BIN" "${opts[@]}" -R "$root/src" \
       -o "$out" -i "${out%.olean}.ilean" "$root/src/$mod.lean" ) > "${out%.olean}.log" 2>&1 \
     || { echo "COMPILE_FAIL $rel"; return 0; }
   echo "OK $rel"
 }
-export -f compile; export LP LEAN_BIN OPTS
+export -f compile modopts; export LP LEAN_BIN PROJ WD
 
 log "Calibration 1: three differing modules at OUR path must equal our own lake-built .olean"
 cal_ok=1
