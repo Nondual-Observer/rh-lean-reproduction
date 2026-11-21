@@ -101,7 +101,14 @@ So the error, relative to the main term, is about **x/m + m**, and both are √x
 
 **Where 2/3 would come from (Reading, checked by arithmetic).** The m-term is m·B0 with B0 ≤ 2n·m·b·x^ε (`BNBounds`, `Formalism/SizeWindowBrackets/SChain.lean:34`, Exact: used). So the total chain cost is quadratic in m, and per unit of main term it is linear in m. If that cost were one power of m worse (cubic total, for example each of the m lifts paying an O(m²) integrality cost on its own), the balance would be x/m + m², minimised at m = x^(1/3) with value x^(2/3). That matches the outline's statement that charging lifts separately stalls at 2/3. The code does not mention 2/3 anywhere on the proof path; this is my reconstruction of the counterfactual.
 
-**So the crux is one hypothesis:** `BNBounds`, B0 ≤ 2|H|·m·b·x^ε, together with `EComp5` (below). Everything after it is the arithmetic above.
+**Correction (checked after writing the line above).** B0 is not a free quantity that must be shown small. It is *defined* as a budget: `SizeData₂.B0 := sizeBudget D.R x ε = f·m·b·x^ε` (`Formalism/LocalRingCardinality/DataParams₂.lean`, with `sizeBudget` in `DataArith.lean:200`; f = `R.f`, b = exp(x^ε)). So `BNBounds` is bookkeeping (it should reduce to f ≤ 2|H|; not yet checked). The content is in the statements that real quantities **fit inside** this budget, chiefly the per-lift energy condition `EComp` (section 6), which the family proof gets from `LinkDIV_at` (`Formalism/SharpRestriction/GlobalTheoremInputs.lean`):
+
+```
+for every word u and every lift j = 1..m:
+  | Σ_w sz(w, E(u,j,w))  −  (Σ_t aT t)·log(g₀·g₁) |  ≤  C·B0 = C·f·m·b·x^ε
+```
+
+The budget per lift grows linearly in m. Summed over m lifts that is the m² total cost of section 5.
 
 ## 6. The slope layer: where the "same slope cancels"
 
@@ -117,11 +124,26 @@ The cancellation Whidden described is visible: `Ga_bound5` (line 113) combines `
 
 `ChainTied` (`…/GlobalSchurBounds/TieGlobal.lean:97`) is the bridge. It asserts that an abstract `Data` record exists whose fields equal the arithmetic objects of the family (`TiePts`, `TieGlobal`, `TieLocal`, `TieArith`), and that `SizeData₂`, `ErrWindows`, `BNBounds`, `RestSize` and the rest hold for it. In particular `TieLocal` sets `Dd.EeJ u0 u j = Σ_w sz(w, E(u, j+1, w))`: the energy of step j of the chain, summed over places w. Verified.
 
-`ChainTied` is produced by `linkCore` (`…/GlobalSchurBounds/LossesSmallShares.lean:38`, Exact: used) from fourteen family-level hypotheses: `CountF`, `SlopesMF`, `SlopesNF`, `LatF`, `NodesF`, `FrameF`, `LossFS`, `CharF`, `WinF`, `ChosenTT`, `ChosenQD`, `ChosenThin`, `LinkIRR`, `LinkDIV`. Those in turn come from `linkGLOBAL7_pk` (same file, line ~470), whose inputs name the automorphic machinery: `KudlaFamilyStatement` (three of them: `flipTwoThree`, `StandardLattice`, `product_first_zeroth_parts`), `TaylorLogMetric` (theta norms, a twelfth root of the discriminant), `ExistsTwelfthRootCharacterThetaFamily`, `ThFree`, `IncidenceTransportConditions`. This is the theta-lift layer. Verified as names and signatures; not yet read.
+`ChainTied` is produced by `linkCore` (`…/GlobalSchurBounds/LossesSmallShares.lean:38`, Exact: used) from fourteen family-level hypotheses: `CountF`, `SlopesMF`, `SlopesNF`, `LatF`, `NodesF`, `FrameF`, `LossFS`, `CharF`, `WinF`, `ChosenTT`, `ChosenQD`, `ChosenThin`, `LinkIRR`, `LinkDIV`.
+
+Two theorems call `linkCore`. Only one of them is used:
+
+| Caller | File | Used? |
+|---|---|---|
+| `linkGLOBAL7_items` | `…/GlobalSchurBounds/LinkMin.lean:693` (call at line 720) | **Yes** (Exact) |
+| `linkGLOBAL7_pk` | `…/GlobalSchurBounds/LossesSmallShares.lean:468` | **No** (Exact) |
+
+So the named "Kudla family statements" and `TaylorLogMetric` inputs of `linkGLOBAL7_pk` are not on the proof path. The used route, `linkGLOBAL7_items`, takes these inputs instead:
+
+- `StandardLattice.PartFiveFamilyBounds` (gives `CountF` via `countF_fam`);
+- `flipTwoThree.ConclusionF5`, `ConclusionF6` and `ColVal` (give `SlopesMF` via `slopesMF_of_count_fam`);
+- `FamU Fm product_first_zeroth_parts.family_property_and` and `FamU Fm LocalLatticeBases.CongruenceLatticeLengthBound` (give the level structure `J.LvlF` via `lvlF_of`, then `NuCommensF`, `NuFullF`, `J.MuRank`, `RamRankF`).
+
+`linkGLOBAL7_min` (line 723) supplies those from still smaller pieces: `MassRatio₂`, `BaseVolumeEqualsMass`, `SigmaDegreeTwoSidedBoundOfGap`, `FamilySlopeLowerOpenPart`, `FamilySlopeMaxOpenPart`, `FreeT`, `SlopeLine`, `HeckeIntegralLevelZero`, `HeckeRamifiedLevelZero`, `SecondBranchInclusionLength`. `linkGLOBAL7_min` is used (Exact). Verified as names and signatures; the bodies are not yet read.
 
 ## 8. Next steps
 
 1. **Done:** exact dependency list (section 4).
 2. **Done:** `ChainTied` and the balance (sections 5 to 7). `ErrorFormsWeakWindowsFalse.lean` turned out to define unused propositions; only `ErrWindows`, `ErrText` and `errorBracketSizeWindows` from it are used.
-3. **Find where `BNBounds` and `EComp5` are proved for the family.** These two hypotheses carry the m-linear cost. Follow `LinkDIV`, `SlopesMF` and `LatF` in `linkGLOBAL7_pk` down to the theta-lift statements, and find what bounds `(Fm.L x i).B0`.
+3. **Find where `BNBounds` and `EComp5` are proved for the family.** These two hypotheses carry the m-linear cost. Follow `LinkDIV`, `SlopesMF` and `LatF` from `linkGLOBAL7_items` down to the theta-lift statements, and find what bounds `(Fm.L x i).B0`.
 4. **Bring it to people who know the theory.** The automorphic layer needs number theorists. A short, factual Zulip post (written by me) with sections 1, 2 and 4 could help the people already working on understanding.
