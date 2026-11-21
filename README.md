@@ -181,6 +181,13 @@ python3 more.py ~/rh/lean/src && python3 cyclo.py ~/rh/lean/src
 - `docs/`: the GitHub Pages site with the readable account, its figures and the PDF.
 - `writeup/`: the LaTeX source of the readable account.
 
+## Contact
+
+Ishaan Dixit. Questions, corrections and suggestions are welcome, by email or as a GitHub issue on this repository.
+
+- Personal: [ishaandixit2017@gmail.com](mailto:ishaandixit2017@gmail.com)
+- Student (Arizona State University): [idixit@asu.edu](mailto:idixit@asu.edu)
+
 ## License
 
 MIT, for everything in this repository. The Lean proof itself is Levent Alpöge's and is not covered by this licence.
