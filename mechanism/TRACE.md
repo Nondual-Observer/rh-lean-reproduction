@@ -141,9 +141,224 @@ So the named "Kudla family statements" and `TaylorLogMetric` inputs of `linkGLOB
 
 `linkGLOBAL7_min` (line 723) supplies those from still smaller pieces: `MassRatio₂`, `BaseVolumeEqualsMass`, `SigmaDegreeTwoSidedBoundOfGap`, `FamilySlopeLowerOpenPart`, `FamilySlopeMaxOpenPart`, `FreeT`, `SlopeLine`, `HeckeIntegralLevelZero`, `HeckeRamifiedLevelZero`, `SecondBranchInclusionLength`. `linkGLOBAL7_min` is used (Exact). Verified as names and signatures; the bodies are not yet read.
 
-## 8. Next steps
+## 8. What the local energy `E u j w` is
+
+`E` is a field of `SizeData₂` (`Formalism/LocalRingCardinality/DataParams₂.lean`). The proof pins it down through the condition `SizeData₂.EDef`, part of `ErrDefs` (`Formalism/LocalRingCardinality/DataErr.lean`, both Exact: used):
+
+```
+EDef:  for every word u, lift j ∈ 1..m, place w:   E u j w = Eval L X K c u j w
+```
+
+(The constructor `SizeData₂.withEval`, which would set E := Eval directly, is not used; Exact.) `Eval` is a case split on the residue characteristic p of the place w. All of the following is Verified (`DataErr.lean`, lines 82–169):
+
+| Place w lies over | E u j w = | Depends on j? |
+|---|---|---|
+| p = T_u, the auxiliary prime of word u | `EatT`: twice the total weight deviation `Wtau` + f·Nm + (#tops)(t+1)(m+1)/4, if w is "seen" | no |
+| p = g₀ or g₁ (the two host primes) | v_p(DGam) + `EatG`: `FTypeG j` + `vNN` + c_g·f·(Nm² + m²·etaSz) | yes |
+| p in the ramified class at d | v_p(DGam) + `EatD j` = `FRamD j` + (max over words of Σ_t ctD)/2 | yes |
+| small p (residue class zero or "Sg"), p ≤ X'' | v_p(DGam) + `EatC` or `EatI` (log terms, weights wj, wPl, N(j−1)·N(j)) | yes |
+| anything else | v_p(DGam) (usually 0) | no |
+
+**The main term lives at g₀ and g₁.** Over those primes,
+
+```
+vNN(i,u,j,w) = ( Σ_τ nuAbs(u,j,τ) · v_w( τ(π̄_{g_i}) ) ) / e_w,    nuAbs(u,j,τ) = Σ_{i < N(j−1)} nuRow(u,j,τ,i)
+```
+
+where π_{g_i} is an element of the CM field E with π·π̄ = g_i (`ErrX.piG_norm`). *Reading:* summing sz(w, ·) = 2·lw(w)·e_w·(·) over the places w above g_i turns the valuations of π̄_{g_i} into log g_i (a product-formula computation). So the g-place part of Σ_w sz(w, E(u,j,w)) is roughly (Σ_τ nuAbs(u,j,τ))·log(g₀g₁). Comparing with `EComp`, which says Σ_w sz(w, E(u,j,w)) = (Σ_t aT t)·log(g₀g₁) + O(B0), the per-lift condition seems to amount to:
+
+1. **row sums match the top window:** Σ_τ nuAbs(u,j,τ) ≈ Σ_t aT t at every lift j, and
+2. **every other place contributes at most O(B0):** the T_u place, the d-ramified places, the small primes, and the correction terms in `EatG`.
+
+Not yet checked against the proof of `EComp` for the family (`data_EComp5` and the `LinkDIV` provers in `Formalism.L2.DIV`).
+
+**Where j enters (Verified):** through N(j−1) and N(j) (the number of rows), `FTypeG j` = −(D⁺_j + D⁻_j)/2, `FRamD j`, and the weights wj(j). The ranks come from `Ranks` (`Formalism/LocalRingCardinality/Params.lean`):
+
+```
+N(j)     = k + j·(t+1)          rows at lift j
+rankY(j) = r + j·t              lattice rank at lift j   (r = k + m − 1)
+sigW(j)  = (k + j − 1, m − j)   a signature at lift j
+```
+
+with m ≤ f = 2·ord ≤ k, t odd, 3m < t. *Reading:* a signature that moves from (k, m−1) to (k+m−1, 0) as j goes from 1 to m, with ranks growing linearly, looks like a chain of theta lifts along a tower of unitary groups, one step per lift. Each step adds t+1 rows. `D⁺_j` and `D⁻_j` sum the parameters a⁺, a⁻ over the two parts of the signature (`Formalism/LocalToGlobal/Divisibility/Numbers.lean:189–193`).
+
+## 9. How the per-lift energy condition is proved (all Exact: used)
+
+```
+EComp per lift (adm11, LocalQuadraticParts.lean:316)
+ ⇐ secondComplement_of_split            g-part + off-g part
+     g-part: C2atG_of (WeightDegreeSizes.lean:433) from
+        NormDecompositionCond   Σ_{w|g_i} sz(w, vNN) = (Σ_τ nuAbs(u,j,τ))·log g_i     (exact equality)
+        factEtaMean             Σ_{w|l} lw(w)·e_w = log l                              (product formula)
+        DegreeCountBound        |Σ_τ nuAbs(u,j,τ) − fockDeg(j) − Σ_t aT t| ≤ errG(j)
+        TypePrimeSizeBound      (errG(j) + 2v_g(DGam) + 2c_g f(Nm² + m²·etaSz))·log g_i ≤ C·B0
+     off-g part: C2off_of from LevelPrimeBudget, StabiliserLogBound,
+        DiscriminantOffsetBound, InertPrimeLossBound
+ DegreeCountBound ⇐ admissibleDegreeCount_along_family
+                   ⇐ FockDegreeFine.degree_fine ⇐ nuAbs_place_fine   (NuAbsPlaceFine.lean)
+```
+
+So the product-formula reading in section 8 is confirmed: the g-place energy is *exactly* (Σ_τ nuAbs)·log g_i. `fockDeg D j` = Σ_τ (Σ_a |kaBig j τ a| + Σ_a |kaSmall j τ a|) (`DataForced.lean:119`), and `FTypeG j = −fockDeg(j)/2` cancels it inside `EatG`.
+
+**The row structure (Verified, `nuAbs_place_fine`, `FockDegreeGapBound.lean`).** At lift j = i+1 and archimedean place τ, nuAbs sums N(j−1) = k + i(t+1) rows `nuRow(u,j,τ,r)`:
+
+| Rows | Each row is | Error per row |
+|---|---|---|
+| r = 0 and r = k−1 (ends) | top weight / off-top weight | 4Sc + 2N(m) + 1 + etaSz + … |
+| 1 ≤ r ≤ k−2 (middle) | ≈ wj(j,τ) | Sc + N(m) (`head_row`, `cloud_u`) |
+| k ≤ r < N(j−1): **i(t+1) block rows** | ≈ 0 | 2·etaSz (`block_row`, `be_close`) |
+
+with `nuRow(u,j,τ,r) = srcPar(u,τ,r) + wSz(j,τ) − (N(j−1) + N(j) − 1 − 2r)/2` (`DataDIVDefs.lean:70`). *Reading:* a parameter plus a weight minus a ρ-type half-sum looks like the Harish-Chandra parameters of the archimedean component at lift j, and `kerPlace` sums φ(ν) = ν log ν − ν over the rows (a Stirling / log Γ shape). Not confirmed.
+
+**Where the lift index enters:** the block rows. Each lift adds t+1 of them, so the per-lift row-sum error contains i·(t+1)·2·etaSz ≤ m(t+1)·2·etaSz, which grows linearly with the lift index (Verified). This is the term f·m·t·etaSz in `errG`.
+
+**This revises section 5's reading.** The per-lift error `errG(j)` is dominated by 2·Σ_τ wj(j,τ) ≈ 2·f·b (wj ≈ b on thick places), which has no factor m, while the budget is B0 = f·m·b·x^ε. So the energy condition `EComp` has a spare factor of about m·x^ε / log g. It is **not** what forces the m² total. Something else that is charged against B0 (candidates: `DIV`, `HComp`, `QuotientSlopeBoundsWith`, `Lo`, all of which contain m·B0) must need it. Open question.
+
+## 10. The divisibility inequality `DIV`: a height bound for a chain of m maps
+
+`DIV` is the 7th part of `LinkDIV_at`: μ_CC + h(u) − Fo ≤ MAIN(u) + C·nT·a·La + C·m·(B0 + Nc)·x^(Cabs·ε). The used route (all Exact: used):
+
+```
+LinkDIV_at  ⇐ linkDIV_at_words (RecBridge.lean:327), 7th part from WordFacts (RecBridge.lean:128)
+WordFacts   ⇐ DivClausesR clause 3:   μ_CC − meanLog κ + h_u − 2·Fo  ≤  R.rhs
+                (ConstantGeTwentyEight.lean:111), with divClausesR_of (line 184)
+R.rhs       =  m·Σ_t (φ(aT) − aT·logOm) − Σ_t aT·log T  +  (50C0+10)·nT·a·La  +  60·ce·m·x^ε·(B0 + Nc)
+                (RecNums.rhs, Inputs.lean;  rhs_le_record, RecBridge.lean)
+h_u         =  hA + Σ_{j=1..m} (hB(j) − hX(j))          (RecNums.hu)
+```
+
+**The chain (Verified, `height_chain_atR`, ConstantGeTwentyEight.lean:123).** For the pairing map B_u, at each archimedean place v:
+
+```
+log ‖B_u‖²_v  ≤  hP  +  Σ_{j=1..m} hK(j,v)  −  log κ_v  −  min_p Σ_j log λ_j(p,v)
+```
+
+where B_u factors through a column chain `ColChain` of m maps `Kj` (one per lift) with ‖K_j‖²_v ≤ exp(hK(j,v)). This is submultiplicativity of operator norms along the chain: the height of the composite is at most the sum of the heights of the m steps. *Reading:* this is where "a chain of theta lifts" is turned into an inequality.
+
+**The per-lift charge is built in (Verified, `ZscOfNum`, ZscOfNum.lean:63–66; `errB_of_units`, DivisionHeightBoundStatement.lean).** The scale data for the family sets, **per lift**:
+
+| Field | Value | Meaning |
+|---|---|---|
+| `E1u` | `unitE Nc` = x^ε·(B0 + Nc) | per-lift error unit |
+| `l3m j` | Σ_ρ [(k + j − 1) − (m − j)]·w(j,ρ)·logOm | per-lift main term: (p_j − q_j) for the signature sigW(j) = (k+j−1, m−j), times weights |
+| `l3u` | B0·log log x | per-lift error |
+
+`errB_of_units` then requires E1u ≤ x^ε(B0+Nc) and l3u, E2(j) ≤ c·x^ε(B0+Nc) **for each lift**, and LG, E3 ≤ c·m·x^ε(B0+Nc) in total. Summing m lifts gives the m·x^ε·(B0 + Nc) term in `DIV`.
+
+So, unlike `EComp` (section 9), `DIV` is explicitly built as **m lifts, each charged a full B0** (times x^ε or log log x). With B0 = f·m·b·x^ε, that is the m² total. Whether the per-lift map K_j *really* costs that much, or whether the budget is again generous, depends on the size of hK(j,v) (`hn.sz`, `CBData`, `nKcb`), which is not yet read.
+
+Note: Σ_j (p_j − q_j) = Σ_j (k − m − 1 + 2j) = m·k, matching p22 (|pq j − k| ≤ m).
+
+## 11. Which error term in `DIV` actually needs the full m·B0
+
+The final assembly of `DIV` is two theorems, both Exact: used:
+
+- `divisor_inequality_assembly` (`Formalism/QuotientMetricDivisors/HermitianTwistDivisors/DivAssembly.lean:11`), proving `DivAssembly` (`StatementJ.lean`);
+- `error_absorption` (`…/HermitianTwistDivisors/AbsorbE.lean:26`), proving `AbsorbE` (`StatementE.lean`);
+- combined in `divisor_inequality` (`TheoremDivIneq.lean`).
+
+**The assembly (Verified).** On one side, the μ-bound carries the signature main term Σ_j Σ_ρ pq_j·w(j,ρ)·logOm, with pq_j = (k + j − 1) − (m − j) = p_j − q_j for the signature sigW(j) (`NumbersLink.lean:574`). On the other side, the per-lift map sizes carry Σ_i ν = aT + **k**·w(j,ρ) + δ, with the fixed k. `DivAssembly` subtracts the two and keeps the difference as an error term, **in absolute values**:
+
+```
+Σ_j Σ_ρ |pq_j − k| · |w(j,ρ)| · |logOm|
+```
+
+**The absorption (Verified, `error_absorption`).** Every error term is bounded against the budget m·(B0 + Nc)·x^ε, with B0 = f·m·b·x^ε. Their real sizes from the proof:
+
+| Error term | Bound used in the proof | Size vs the budget m·B0·x^ε |
+|---|---|---|
+| Σ eE (place heights) | 15·C0·f·m·b·L | ≈ B0: spare factor ≈ m |
+| Σ \|δ\|·\|logOm\| | 15·C0·f·m·b·L + C0·nT·a·La | ≈ B0: spare factor ≈ m |
+| Σ eK (per-lift polynomial terms) | 5·C0·m·f·b·L | ≈ B0: spare factor ≈ m |
+| e6, eP, Lpass | ≤ B0 or smaller | spare factor ≥ m |
+| **Σ \|pq_j − k\|·\|w\|·\|logOm\|** | **m lifts × f places × m·2b·3L = 6·m·B0** | **uses the full budget** |
+| **Eb** (μ-side error, the per-lift E1/l3 charges of section 10) | **hypothesis: C0·m·x^ε·(B0 + Nc)** | **uses the full budget** |
+
+So inside `DIV` exactly two things need the m² total:
+1. **The signature drift.** |p_j − q_j − k| = |2j − 1 − m| ≤ m at lift j, times the weight w ≤ 2b, times log ≤ 3x^ε, over m lifts and f places: f·m²·b·x^ε. This is the most concrete source of "m² cost" found so far.
+2. **Eb**, the per-lift charges of section 10, which enter as a hypothesis. Their real size is not read yet.
+
+**Observation (Reading, checked by arithmetic, not against the code).** The signed version of term 1 nearly cancels. Σ_{j=1}^{m} (2j − 1 − m) = 0 exactly, and the weights barely depend on j (on thick places b ≤ w(j,τ) ≤ b + etaSz + 1, `SizeData₂.win_thick`). So the signed sum is at most about f·m²·(etaSz + 1)·x^ε, far below f·m²·b·x^ε. The proof does not use this cancellation; it bounds term by term in absolute value.
+
+**Caution.** This does **not** mean the argument could beat √x. The ζ-part Gz(x) is Ω(√x) (an explicit-formula fact), so no valid argument can prove Gz(x) ≤ x^(1/2 − δ). If term 1 were removed, some other constraint would have to stop m at about √x. Candidates: the hard-coded size windows (`RestSize`: m ≥ x^(1/2−ε), k ≤ n²·x^(1/2−ε); `ErrWindows0`: x·m ≤ k, m ≤ x^(1/2+ε/2)) and Eb. So the √X is at least partly **imposed by the parameter windows**, not only derived from one error term. Finding which constraint is *forced* (rather than chosen) is the open question. (Answered in section 12: the windows are chosen; only T1 against T3 pins m.)
+
+## 12. Where m, n and k are built: the windows are chosen, not forced (check b)
+
+**The construction path (Verified; every declaration named here is Exact: used).**
+
+```
+FamP (Formalism/SharpRestriction/ParConsts.lean:31) has fields
+    params : ParameterChoice' (D x i) (L x i)      sizes : SizesAt (L x i)
+  filled by szRow_numAt (…/GlobalInterpolation/SzRowNumAt.lean) from RankVal + HostVal
+
+RankVal s R   (Development/AbelianVarietyTheory/Definitions/GlobalTwisting/PairRowIffQdRows.lean:28)
+    x^(2+8ε)    ≤ n ≤ 2·x^(2+8ε)              n = |H| = R.ord, f = 2n
+    √(x·δ1)     ≤ m ≤ 2·√(x·δ1)               δ1 = x^(−ε/8), so m ≈ x^(1/2 − ε/16)
+    x^(9/2+10ε) ≤ k ≤ 2·x^(9/2+10ε)
+
+R comes from exists_ranks_rankVal_frame (…/GlobalInterpolation/ExistsRanksRankValFrame.lean:45):
+    m := an even number in [√(xδ1), 2√(xδ1)]       (exists_even_between)
+    k := an even number in [x^(9/2+10ε), 2x^(9/2+10ε)]
+    exists_ranks_of_frame then builds a Ranks for ANY even k, m with
+        2 ≤ m,  m + 3 ≤ k,  m ≤ 2n ≤ k            (t is solved for afterwards)
+
+The host: admissible_ranks_of_CMDatum (Development/AutomorphicArithmetic/CoprimeRanks/AdmChi.lean:11)
+    proves `admitted R` for EVERY Ranks R; it only needs the primes q, d > 4·t·r + 1.
+
+Sizes first, arithmetic second: exists_sizeData_explicit (…/ExistsExplicitParameters.lean:74) builds
+    SizeData₂ with E, F, gain, tau, io := 0 and supp := ∅; GlobalTheory.Refill.refill
+    (…/ExistsRefill.lean:272) then sets E := Eval, F := Fval, … as `{ L with … }`, keeping sc and the ranks.
+```
+
+So m ≈ √x is a **literal in `RankVal`**. Nothing in `Ranks`, the host construction or the refill step asks for it.
+
+**How the windows of section 5 are proved (Verified, `QuadraticLogDerivCongr.lean`).** `WinF` is proved by `size_windows_of_thick_set` (line 1816) and `size_windows_of_thick_density` (`LossesSmallShares.lean:315`), both through `size_window_at_five` (line 1807). The four windows come from:
+
+| Window (`RestSize` / `ErrWindows0`) | Lemma | Proved from | Slack in the family | Other consumers |
+|---|---|---|---|---|
+| m ≥ x^(1/2−ε) | `winL` (1417) | `SizeM` ← `RankVal` | ≈ x^(0.93ε) | none (only `size_window_at_five`) |
+| m ≤ x^(1/2+ε/2) | `winA` (1414) | `SizeM` | ≈ x^(0.55ε) | one crude use (m ≤ x) |
+| x·m ≤ k | `winB` (1420) | `SizeM`, `SizeK` | ≈ x^3 | |
+| k ≤ n²·x^(1/2−ε) | `winM` (1439) | `ParameterChoice'.k_up` | ≈ x^(5ε) | none |
+
+`k_up` (`DataParams.lean:139`, k ≤ √x·n·R0 with R0 = n·x^(−ε)) is referenced by name only in `winM`. It exists to feed term T4 of the balance.
+
+**Why n and k have the exponents they do: the word count (Verified).** The one real arithmetic link between m and k is the number of words:
+
+1. `gamB D L CB = exp(CB · mR^5 · f · log b)` (`…/CokernelGLCounts/RowsConc.lean:52`), with `mR D = 2·rS + 2 = m` (line 43). Each member's `GamP` must be at least about `gamB` (line 213, the rows count).
+2. `exists_sizeData_explicit` takes `log GamP = CGam·m^5·f·L` and `#words = ⌈3·GamP²·x^CF⌉` as hypotheses.
+3. `exists_injective_words` (`…/MPowFiveMulFMulLLe.lean`) codes the words injectively by k − 2 bits, and `Win_at` requires log|W| ≤ (k − 3)·log 2. So k ≳ m^5·f·L = 2·m^5·n·x^ε. This is `ParameterChoice'.k_low` with `jG = 5`.
+4. `m_pow_five_mul_f_mul_L_le` (same file) proves m^5·f·L ≤ 128·x^(9/2+9ε) from `RankVal`, against k ≥ x^(9/2+10ε). This is the tightest window in the family: the slack is one factor x^ε, used to absorb the constants.
+
+Writing m = x^μ, n = x^ν, k = x^κ (checked by arithmetic):
+
+```
+k_low (word count):   κ ≥ 5μ + ν          (+ O(ε))
+k_up  (balance T4):   κ ≤ 2ν + 1/2        (− ε)
+   ⟹  ν ≥ 5μ − 1/2
+μ = 1/2  ⟹  ν = 2,  κ = 5·(1/2) + 2 = 9/2  =  2·2 + 1/2
+```
+
+So n's exponent 2 and k's exponent 9/2 are **derived** from m ≈ √x and the m^5 word count, not independent inputs. The unused definition `LevelStarExponents.hExp := (jG − 1)/2 + 8ε` (`DataParams.lean`, Exact: unused) records the same relation: it equals n's exponent 2 + 8ε.
+
+**`BNBounds` (next step 5, closed; Verified, `linkCore`, `LossesSmallShares.lean:250`).** It is proved by `le_of_eq`: B0 = 2·|H|·m·b·x^ε exactly, with |H| = n and f = 2n (`Ranks.f := 2 * n`). Pure bookkeeping, as expected.
+
+**Answer to check (b) (Reading; checked at the exponent level for the constraints that link m, n and k).**
+
+1. **m ≈ √x is chosen.** The constructor accepts any even m in [2, 2n]. On the arithmetic side the only lower bound found is "m ≥ any fixed constant, eventually" (`eventually_nodeGap_ge_rank_pow`, `…/IwasawaDecomposition/EventuallyNodeGapGeRankPow.lean:42`).
+2. **k ≤ n²·x^(1/2−ε) is not a real restriction.** n is free and is chosen so that m^5·n ≤ k ≤ n²·√x. A larger m would only need n ≈ m^5/√x and k ≈ m^5·n. The n upper bounds that are used (`n_le'`, `n_le_x_cubed`) are crude polynomial bounds weighed against exp(x^(ε/8)) or b = exp(x^ε). New literals would satisfy them.
+3. **x·m ≤ k** has slack about x^3.
+4. **Only the balance pins m to √x:** term T1 (x/m, from top weights aT ≈ a = x·b, `Scale.a := x * b`) against term T3 (m, from the m·B0 chain cost).
+
+Not checked: all ~24 components of `SizesAt` under a different choice of exponents. The ones sampled scale as described in point 2.
+
+**Consequence for the open question (Reading).** Gz(x) = Ω(√x). As far as these constraints go, the family could be built with m = x^(1/2+δ). So the √x barrier has to be paid on the error side, in T3. If every m·B0 charge could be removed, the same balance with larger m would give Gz(x) ≤ x^(1/2−δ+O(ε)), which is false. Section 11 found two users of the full m·B0. The signature drift probably is not essential: its signed sum is about f·m²·(etaSz+1)·x^ε, and etaSz = m·h0v is polynomial in x, while b = exp(x^ε). That leaves **Eb** (open question a), or the proofs of `EComp`/`DIV` for larger m, as the place where the √x must really be paid. This makes (a) the decisive next check.
+
+## 13. Next steps
 
 1. **Done:** exact dependency list (section 4).
 2. **Done:** `ChainTied` and the balance (sections 5 to 7). `ErrorFormsWeakWindowsFalse.lean` turned out to define unused propositions; only `ErrWindows`, `ErrText` and `errorBracketSizeWindows` from it are used.
-3. **Find where `BNBounds` and `EComp5` are proved for the family.** These two hypotheses carry the m-linear cost. Follow `LinkDIV`, `SlopesMF` and `LatF` from `linkGLOBAL7_items` down to the theta-lift statements, and find what bounds `(Fm.L x i).B0`.
-4. **Bring it to people who know the theory.** The automorphic layer needs number theorists. A short, factual Zulip post (written by me) with sections 1, 2 and 4 could help the people already working on understanding.
+3. **Done:** `E u j w` (section 8) and how `EComp` is proved (section 9). **Next:** read how `EComp` is proved for the family: `QuadraticLogDerivCongr.lean:594` (`data_EComp5`) and the `Formalism.L2.DIV.linkDIVt_of_*` lemmas; check whether the product-formula reading of the g-place term is what they do, and where Σ_τ nuAbs(u,j,τ) ≈ Σ_t aT t is proved.
+4. **Done:** inside `DIV`, the full m·B0 is used by the signature drift and by Eb (section 11). **Done (b):** the windows are chosen, not forced; only the balance itself pins m to √x (section 12). **Next, and now the decisive check:** (a) find what proves the Eb hypothesis for the family and its real size. Section 12 implies the √x must be paid there, or in the proofs of `EComp`/`DIV` at larger m.
+5. **Done:** `BNBounds` is proved by equality, B0 = 2·|H|·m·b·x^ε with f = 2|H| (section 12).
+6. **Bring it to people who know the theory.** The automorphic layer needs number theorists. A short, factual Zulip post (written by me) with sections 1, 2 and 4 could help the people already working on understanding.
