@@ -578,11 +578,51 @@ So RR.L is the lattice whose localisation at each place w is the 𝓞-span of th
 
 **Why it matters for the cost (Reading, connecting to sections 13 to 15).** Because RR is one lattice for all words and all places, the divisibility of the m-fold chain is measured once, in RR, rather than once per character or per lift. This fits the observation in section 13 that each local piece is charged to exactly one lift (`NData.locs_mem`). Whether this gluing is what saves the factor m relative to the outline's a-priori 2/3 (section 15, candidate 2) is still not checked.
 
-## 18. Next steps
+## 18. Why the two m's in Eb are the same m, where b enters, and no 2/3 route in the archive
+
+### Why the Bloch–Kato rank per piece is m (Verified, Reading for the last step)
+
+Section 13 found that the rank bound `rank_le_row` is met with |Lo| = m, by equality, from the family's own weight pattern. That pattern is `ShapeJumps k m t` (`Formalism/SharpRestriction/LevelLetterCocycles/EmbeddingTypes.lean:99`, used), required by `admG2` (line 122) at every small prime, place and embedding τ:
+
+```
+Hodge–Tate multiplicity of the twisted lifted representation rTwO at τ
+   = indicator of   C  ∪  L  ∪  [0, t)          (each weight with multiplicity 1)
+   C : exactly k − 1 weights in a far "cloud" s ≤ sgn·a ≤ s + S
+   L : exactly m weights near 0 (|a| ≤ η), outside [0, t), not −1 or t
+   [0, t) : the t-block, from the cyclotomic twists χ^c, c = 1..t   (ambBlock)
+```
+
+The dimensions match the ranks exactly (`Formalism/LocalRingCardinality/Params.lean`): r = k + m − 1 (line 32), nV = r + t (line 34). So `WpO` (dimension r) has weights C ∪ L, of sizes (k − 1, m). That is the **starting signature** of the chain, sigW(0) = (k − 1, m) (line 46). Each lift moves one unit across, sigW(j) = (k + j − 1, m − j), until the definite group at j = m.
+
+**Reading.** The m low weights L are the m-side of the signature, and the chain has exactly m lifts because it has to walk that m-side down to 0. So Eb's m² = (number of lifts) × (Bloch–Kato rank per piece) is **one m used twice, by construction**: a chain from U(k − 1, m) to the definite U(k + m − 1, 0) has length m, and the indefinite part it starts from has m low weights. Making either factor smaller would mean a shorter chain or a smaller indefinite part, i.e. smaller m, which costs on the x/m side.
+
+### Where b enters the per-piece cost (Verified)
+
+The per-piece colength is (rank) × (lift exponent e′). In the family, e′ is **`eL ℓ N h₁`** (`Development/AutomorphicArithmetic/ResidueCharacters/InvariantsKilledOverCyclotomicAlt.lean:15`):
+
+```
+eL l N h = 32·(2·h·sN(l, N) + 1) + lamN(l, N, h),      lamN = sN + log_l(2h) + log_l N + 1
+h = h₁ = hN = ⌊hB⌋      (RowAtOfSetup.lean:33, LocalErrorBoundPlaces.lean:18)
+hB = b + Sc + etaSz + t + 2,     b ≤ hB ≤ 6b      (RowSmall.lean:15, `hB_bounds`, NumCost.lean:13)
+```
+
+So e′ is linear in a height h ≈ hB. hB adds up the scales of the weight pattern above: the thick-place weights (≈ b), the cloud (Sc), the η-spread (etaSz) and the t-block (t). *Reading:* this is a lifting exponent that grows linearly with the Hodge–Tate height, as in Fontaine–Laffaille-type bounds, and the height is ≈ b because the weights of the lifts are ≈ b by the size windows. b = exp(x^ε) is the common weight (heights a = x·b, `Scale.a`), chosen exponential so that every polynomial loss is negligible against it (for example etaSz ≤ b/(t³·f·k³), section 16). **b cancels in the balance:** both the main term nT·m·b and the m·B0 = f·m²·b·x^ε cost are linear in b. So e′ ≈ b sets the absolute size of Eb, not its dependence on m.
+
+### No 2/3 route in the archive (Exact search)
+
+Searched the unused part of the archive for remnants of the outline's "one would stop at 2/3 a priori":
+
+- **Balance theorems.** About 20 unused variants of the final growth bound exist (`ChainAt`, `Chain6At`, `ChainAt7`, `FixedEpsilonGrowthBound`, `GrowthBracketBoundAtPoint`, `PowerBoundGivesRiemannHypothesis`, …). **Every one concludes G(x) ≤ x^(1/2 + O(ε))**. None has exponent 2/3, and no exponent x^(2/3) or x^(1/3) appears in a balance anywhere. The windows x^(1/3) ≤ m that do occur (for example `GL2LinkSizeRanges`, unused, and `levelPrime_unconditional`, used) are weak lower bounds used to find auxiliary primes.
+- **Error budgets.** No m²·B0 budget appears anywhere in `Divisibility`, `QuotientMetricDivisors`, `RankGapBounds`, `SizeWindowBrackets` or `GlobalSchurBounds`, and `errB` has a single definition (`Inputs.lean:205`).
+- **Lattices.** No per-word or per-character dual lattices; every RR in the divisibility layer is the place-by-place glued lattice of section 17 (the per-place conditions `hRRw` in `functional_lower_bound_of_conditions` are the same gluing, and used).
+
+So the archive keeps many abandoned **√x** variants of the endgame, but **no trace of a weaker 2/3 route**. The 2/3 calculation exists only in the outline (entry 14). The comparison in section 15 therefore stays a reconstruction: the code shows that every per-lift charge is at most B0, but not which naive accounting would cost m·B0.
+
+## 19. Next steps
 
 1. **Done:** exact dependency list (section 4).
 2. **Done:** `ChainTied` and the balance (sections 5 to 7). `ErrorFormsWeakWindowsFalse.lean` turned out to define unused propositions; only `ErrWindows`, `ErrText` and `errorBracketSizeWindows` from it are used.
 3. **Done:** `E u j w` (section 8) and how `EComp` is proved (section 9). **Next:** read how `EComp` is proved for the family: `QuadraticLogDerivCongr.lean:594` (`data_EComp5`) and the `Formalism.L2.DIV.linkDIVt_of_*` lemmas; check whether the product-formula reading of the g-place term is what they do, and where Σ_τ nuAbs(u,j,τ) ≈ Σ_t aT t is proved.
-4. **Done:** inside `DIV`, the full m·B0 is used by the signature drift and by Eb (section 11). **Done (b):** the windows are chosen, not forced; only the balance itself pins m to √x (section 12). **Done (a):** Eb uses the full per-lift budget, not the `VWinAt` loss. Its m² is (m lifts) × (Bloch–Kato rank m per piece, fixed by equality in the family), section 13. **Done:** the "+m" side of the balance is the `DIV` error m·(B0 + Nc), i.e. drift + Eb; the energy and slope charges of the same order are not needed by the size layer (`exists_data_completion`), section 14. **Done:** the drift is a bookkeeping artefact; its signed size is below the proof's bound by a factor ≥ x^1131 (section 16). **Done:** the energy and slope m·B0 budgets are slack (energy ≈ m·2fb, slope exactly 0); the outline's 2/3 matched against the code (section 15). **Done:** the common lattice RR is built place by place by `prescribedRowLat` in `exists_divStage_of_pk`, gluing each place's own twist data (section 17, answers Whidden's open question). **Next:** ask number theorists which naive accounting costs m·B0 per lift (compounding along the chain, or no gcd across Hecke characters); find why the lift exponent e' is as large as b = exp(x^ε).
+4. **Done:** inside `DIV`, the full m·B0 is used by the signature drift and by Eb (section 11). **Done (b):** the windows are chosen, not forced; only the balance itself pins m to √x (section 12). **Done (a):** Eb uses the full per-lift budget, not the `VWinAt` loss. Its m² is (m lifts) × (Bloch–Kato rank m per piece, fixed by equality in the family), section 13. **Done:** the "+m" side of the balance is the `DIV` error m·(B0 + Nc), i.e. drift + Eb; the energy and slope charges of the same order are not needed by the size layer (`exists_data_completion`), section 14. **Done:** the drift is a bookkeeping artefact; its signed size is below the proof's bound by a factor ≥ x^1131 (section 16). **Done:** the energy and slope m·B0 budgets are slack (energy ≈ m·2fb, slope exactly 0); the outline's 2/3 matched against the code (section 15). **Done:** the common lattice RR is built place by place by `prescribedRowLat` in `exists_divStage_of_pk`, gluing each place's own twist data (section 17, answers Whidden's open question). **Done:** the two m's in Eb are one m used twice (lifts = indefinite part of the starting signature (k−1, m) = Bloch–Kato rank); e′ ≈ b because e′ is linear in the Hodge–Tate height hB ∈ [b, 6b]; no 2/3 route survives in the archive (section 18). **Next:** ask number theorists which naive accounting costs m·B0 per lift (compounding along the chain, or no gcd across Hecke characters), and whether a chain with a smaller indefinite part per lift is possible.
 5. **Done:** `BNBounds` is proved by equality, B0 = 2·|H|·m·b·x^ε with f = 2|H| (section 12).
 6. **Bring it to people who know the theory.** The automorphic layer needs number theorists. A short, factual Zulip post (written by me) with sections 1, 2 and 4 could help the people already working on understanding.
