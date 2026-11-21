@@ -13,4 +13,4 @@ myRH typechecked : yes
 OVERALL: CLEAN
 
 replay (Main only, imports trusted): run by hand, see 5_replay.sh
-export hash (8_export_hash.sh): TODO, pending
+export hash (8_export_hash.sh): running at release; to be added in a follow-up update

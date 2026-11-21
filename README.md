@@ -90,7 +90,7 @@ The two groups do not overlap. In the one module I examined by hand, the only di
 
 **Open question.** Jack McCarthy reported on Zulip that two independent builds of his match the sha256 reported by Sutherland's build exactly. If that refers to the per-file hashes, his builds do not embed machine paths, and my explanation needs revisiting (for example, his builds may use a different working directory layout or relative paths). The full comparison keeps the split exact (every differing file stores a path, no identical file does), so the path explanation holds for all 175,187 files. Whether the path is the only difference is settled by the export hash below.
 
-`scripts/8_export_hash.sh` exports my build with `lean4export` (v4.33.0, commit `15f6055e`) and compares it with the published export hash `5ea74b91…244e`. Result: TODO, fill in when the run finishes. The export records only kernel declarations, so it should be comparable across machines. My build is not sandboxed, so this does not close the "sandboxed re-export" gap on Sutherland's page.
+`scripts/8_export_hash.sh` exports my build with `lean4export` (v4.33.0, commit `15f6055e`) and compares it with the published export hash `5ea74b91…244e`. It was still running at release; the result will be added in a follow-up update, together with the perturbation test of the size windows (`mechanism/PERTURB.md`). Sutherland's page lists no independent reproduction of this hash yet. The export records only kernel declarations, so it should be comparable across machines. My build is not sandboxed, so this does not close the "sandboxed re-export" gap on Sutherland's page.
 
 ## 7. The note's vocabulary against the code
 
@@ -145,7 +145,11 @@ The balance x/m + m was stated independently, from other sources, in Jonas Whidd
 - [Infatoshi/rh-verification-receipts](https://github.com/Infatoshi/rh-verification-receipts): an independent build and nanoda run.
 - [DevinWatson/rh-weil-bound-toy](https://github.com/DevinWatson/rh-weil-bound-toy): the note's toy finite-field argument.
 - [friederrr/riemann-review](https://github.com/friederrr/riemann-review): a pooled AI-written informal write-up.
-- Also used or checked against: the dead-code counts by Sonoda and by James Shore (256,620 of 1,061,531 declarations unused), patunz's report on path-dependent `.olean` hashes, the expositions by Yao Xu and jae-63, and JoseClaudioSJr's reader's map (community issue #5).
+- [james-shore/rh-proof-dependencies](https://github.com/james-shore/rh-proof-dependencies): exact dependency and dead-code counts from the kernel proof terms (256,620 of 1,061,531 declarations unused).
+- [nasqret/riemann-rev book](https://nasqret.github.io/riemann-rev/book/): Bartosz Naskręcki's book on the architecture; it also covers the localized Landau step, the auxiliary primes and the Ferrero–Washington and Poitou–Tate premises.
+- [JoseClaudioSJr's reader's map](https://github.com/leanprover-community/riemann-hypothesis/issues/5) (community issue #5): independently traces the windowed Landau route and the gain chain.
+- [keithadler/rh-trim](https://github.com/keithadler/rh-trim), [jae-63/rh-alpoge-blueprint](https://github.com/jae-63/rh-alpoge-blueprint), [cadamcat/riemann-hypothesis-exposition](https://github.com/cadamcat/riemann-hypothesis-exposition): trimming, a blueprint and an exposition.
+- Also: the dead-code counts by Sonoda, patunz's report on path-dependent `.olean` hashes, and the full kernel replays and rebuilds by Simon DeDeo and Elliot Arledge.
 
 ## 13. Reproduce
 
@@ -170,7 +174,7 @@ python3 more.py ~/rh/lean/src && python3 cyclo.py ~/rh/lean/src
 
 - `scripts/`: the build pipeline (steps 1 to 6), `7_compare.sh` and `8_export_hash.sh`.
 - `analysis/`: `reach.py`, `census.py`, `levels.py`, `note_terms.py`, and `kernel-computations/`.
-- `results/`: every output quoted above, with the date it was taken.
+- `results/`: every output quoted above, with the date it was taken, and `used_decls.txt.gz`, the names of the 1,484,733 declarations in the export of `Main` (one `kind name` per line), so anyone can check "used / not used" with `zgrep -w`.
 - `mechanism/TRACE.md`: the mechanism trace of section 10.
 - `analysis/dead_code/`: the exact dead-code count, to be run on the finished build.
 - `visuals/`: the two interactive pages and the script for their data.

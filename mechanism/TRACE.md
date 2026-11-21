@@ -893,7 +893,19 @@ All of these are proved in Lean and the axiom check is clean, so the comparison 
 
 **SizesAt statically (Exact definitions, Reading for the summary).** With m = x^μ, n = x^ν, k = x^κ, the size layer (`SizesAt`, `ErrWindows0`, `RestSize`, `CostWindows`, `GrowthInequalitySizes`) constrains exponents only by 1/2 − ε ≤ μ ≤ 1/2 + ε/2, κ ≥ 1 + μ, κ ≤ 2ν + 1/2 − ε, κ ≤ eK, plus the family's word count κ ≥ 5μ + ν. Everything else compares polynomials in x with b = exp(x^ε). So statically μ is pinned only by the two windows encoding the balance; the perturbation run checks the downstream arithmetic modules mechanically.
 
-## 28. Next steps
+## 28. Others' progress at release time (21 Nov, 06:45 UTC)
+
+Checked before releasing, to credit overlaps and avoid claiming what others already have.
+
+- **Bartosz Naskręcki** (`nasqret/riemann-rev`, last commit 01:19 UTC) now has a book on the architecture. It states the x/m + m balance and the size windows, a "localized Landau" step, the auxiliary primes from `QH.pairEx`, and the Ferrero–Washington and Poitou–Tate premises. A grep of the book finds no treatment of the 2/3 count, `NData.locs_mem`, the Bloch–Kato rank in `Eb`, `prescribedRowLat`, the drift, or the m⁵ word-count derivation of n and k.
+- **JoseClaudioSJr** (community issue #5) independently traces the windowed Landau route and the gain chain through `AuxBlock8.Conclusion1`, `starAll_of`, `gain_bound_all_of_star`, and asked for the constant list. His latest name lists, checked against `used_decls.txt`: all "expected in the cone" are used except `GlobalTheory.Top.link_g` (absent); all "expected not in the cone" are absent (`LocalQuadraticParts.adm19` absent; other `adm19`s are used and unrelated). All four `LinkMu` providers are used: `J.linkMu_of_linkDIV` on the final path (via `topDesWin`), `SlopeId.linkMu_of_full`/`_of_sizes` in the separate `bRest_all_alt` branch.
+- **Verification by others** (Sutherland's page and the riemann-rev dashboard): full `leanchecker` replays of 175,187 modules (Sutherland; Simon DeDeo), an independent rebuild and export (Elliot Arledge), lean4lean, con-leche, nanoda. Sutherland's page still lists only a 77-module `.olean` sample and no independent reproduction of the solution export hash, so our full comparison is new and our export hash, when done, would be the first such report.
+- **Analyses**: James Shore (`james-shore/rh-proof-dependencies`, CC0: 256,620 of 1,061,531 declarations unused, 28,897 files with no used declaration), Drew Carlson (`drew2apps/rh-lean-decomposition` CLEANUP), Keith Adler (`rh-trim`), expositions by cadamcat and jae-63.
+- **Community repo**: transferred to `leanprover-community/riemann-hypothesis` (Jack McCarthy); `lake exe cache get` now gives oleans; CI being set up (Kim Morrison). The release carries no licence; the thread treats use as implied and suggests asking the author.
+
+Added for others: `results/used_decls.txt.gz`, the names-only list of the 1,484,733 declarations in the export of `Main`.
+
+## 29. Next steps
 
 1. **Done:** exact dependency list (section 4).
 2. **Done:** `ChainTied` and the balance (sections 5 to 7). `ErrorFormsWeakWindowsFalse.lean` turned out to define unused propositions; only `ErrWindows`, `ErrText` and `errorBracketSizeWindows` from it are used.

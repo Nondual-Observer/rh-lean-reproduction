@@ -2041,8 +2041,8 @@ lemmas (<code>szRow_rankSizes</code>, <code>winA</code>) and in the
 <span class="math inline">\(m^5\)</span> word-count lemma, not in the
 arithmetic layers, because <span class="math inline">\(m\)</span> and
 <span class="math inline">\(k\)</span> are locked with only about <span
-class="math inline">\(x^{0.26\varepsilon}\)</span> of headroom. Results
-are pending.</p>
+class="math inline">\(x^{0.26\varepsilon}\)</span> of headroom. The
+results will be posted as an update to this document.</p>
 <h1 data-number="10" id="sec:verify"><span
 class="header-section-number">10</span> The verification record</h1>
 <div class="center">
@@ -2086,12 +2086,16 @@ Sutherland’s manifest, including <code>Main.olean</code>;
 </tr>
 <tr class="even">
 <td style="text-align: left;">Export hash</td>
-<td style="text-align: left;">running</td>
+<td style="text-align: left;">running at release; will be posted as an
+update (no independent reproduction of the solution export’s hash had
+been reported as of 21 November)</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">Full kernel replay
-(<code>–fresh</code>)</td>
-<td style="text-align: left;">running</td>
+<td style="text-align: left;">Kernel replay</td>
+<td style="text-align: left;"><code>Main</code> with imports trusted:
+done; full <code>–fresh</code> replay not run by us (others report full
+replays: Sutherland’s <code>leanchecker</code>, 175<span>,</span>187 of
+175<span>,</span>187 modules; Simon DeDeo, likewise)</td>
 </tr>
 </tbody>
 </table>
@@ -2345,14 +2349,34 @@ their statements; numerical values of the constants; the perturbation
 run.</p>
 <h1 class="unnumbered" id="acknowledgements">Acknowledgements</h1>
 <p>The formal proof is Levent Alpöge’s. This account builds on public
-work by others on 20 November 2026: Jonas Whidden’s Zulip readings (the
-balance, the frame lemma, the common-lattice question); Bartosz
-Naskręcki’s proof guide; Andrew Sutherland’s build manifest; the
-dead-code counts of Sonoda and of James Shore (256<span>,</span>620 of
-1<span>,</span>061<span>,</span>531 declarations unused); patunz’s
-report on path-dependent olean hashes; the expositions of Yao Xu and
-jae-63; the declaration index at <code>riemann.tamnd.com</code>; and
-JoseClaudioSJr’s issue #5. Errors of interpretation are ours.</p>
+work by others on 20 and 21 November 2026, and overlaps with some of
+it:</p>
+<ul>
+<li><p>Jonas Whidden’s Zulip readings (the balance, the frame lemma, the
+common-lattice question);</p></li>
+<li><p>Bartosz Naskręcki’s proof guide and book
+(<code>nasqret/riemann-rev</code>), which also state the <span
+class="math inline">\(x/m+m\)</span> balance, the localized Landau step,
+the choice of auxiliary primes and the Ferrero–Washington and
+Poitou–Tate premises;</p></li>
+<li><p>JoseClaudioSJr’s reader’s map (community issue #5), which
+independently traces the windowed Landau route and the gain chain
+through <code>AuxBlock8.Conclusion1</code> and
+<code>starAll_of</code>;</p></li>
+<li><p>Andrew Sutherland’s verification record and build manifest; the
+full kernel replays and independent rebuilds reported by Simon DeDeo and
+Elliot Arledge;</p></li>
+<li><p>the dependency and dead-code analyses of James Shore
+(<code>james-shore/rh-proof-dependencies</code>, 256<span>,</span>620 of
+1<span>,</span>061<span>,</span>531 declarations unused), Sonoda, Drew
+Carlson and Keith Adler (<code>rh-trim</code>); patunz’s report on
+path-dependent olean hashes;</p></li>
+<li><p>the expositions of Yao Xu
+(<code>cadamcat/riemann-hypothesis-exposition</code>) and jae-63
+(<code>rh-alpoge-blueprint</code>), and the declaration index at
+<code>riemann.tamnd.com</code>.</p></li>
+</ul>
+<p>Errors of interpretation are ours.</p>
 <h1 data-number="12" id="map-from-steps-to-lean-declarations"><span
 class="header-section-number">12</span> Map from steps to Lean
 declarations</h1>

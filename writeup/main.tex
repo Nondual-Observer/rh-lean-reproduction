@@ -1335,7 +1335,7 @@ on $m$ in \lean{RankVal} by $x^{1/40}$, rebuild the roughly 13{,}000 dependent m
 which proofs fail. Our prediction, written before running it: the failures appear in the window
 lemmas (\lean{szRow_rankSizes}, \lean{winA}) and in the $m^5$ word-count lemma, not in the
 arithmetic layers, because $m$ and $k$ are locked with only about $x^{0.26\eps}$ of headroom.
-Results are pending.
+The results will be posted as an update to this document.
 
 % ======================================================================
 \section{The verification record}\label{sec:verify}
@@ -1352,8 +1352,8 @@ Full build & 175{,}187 modules, 183{,}893 jobs, OK, 401 minutes on 94 cores\\
 Statement & identical to Mathlib's \lean{RiemannHypothesis} (\lean{Mathlib.NumberTheory.LSeries.RiemannZeta})\\
 Axioms & \lean{propext}, \lean{Quot.sound}, \lean{Classical.choice} only; \texttt{OVERALL: CLEAN}\\
 Olean comparison & 76{,}968 byte-identical to Sutherland's manifest, including \texttt{Main.olean}; 98{,}219 differ, every one embedding the absolute build path; 0 differ without a path\\
-Export hash & running\\
-Full kernel replay (\texttt{--fresh}) & running\\
+Export hash & running at release; will be posted as an update (no independent reproduction of the solution export's hash had been reported as of 21 November)\\
+Kernel replay & \texttt{Main} with imports trusted: done; full \texttt{--fresh} replay not run by us (others report full replays: Sutherland's \texttt{leanchecker}, 175{,}187 of 175{,}187 modules; Simon DeDeo, likewise)\\
 \bottomrule
 \end{tabular}
 \end{center}
@@ -1515,12 +1515,24 @@ opposed to their statements; numerical values of the constants; the perturbation
 \section*{Acknowledgements}
 % ======================================================================
 
-The formal proof is Levent Alp\"oge's. This account builds on public work by others on 20 November
-2026: Jonas Whidden's Zulip readings (the balance, the frame lemma, the common-lattice question);
-Bartosz Naskr\k{e}cki's proof guide; Andrew Sutherland's build manifest; the dead-code counts of
-Sonoda and of James Shore (256{,}620 of 1{,}061{,}531 declarations unused); patunz's report on
-path-dependent olean hashes; the expositions of Yao Xu and jae-63; the declaration index at
-\texttt{riemann.tamnd.com}; and JoseClaudioSJr's issue~\#5. Errors of interpretation are ours.
+The formal proof is Levent Alp\"oge's. This account builds on public work by others on 20 and 21
+November 2026, and overlaps with some of it:
+\begin{itemize}
+\item Jonas Whidden's Zulip readings (the balance, the frame lemma, the common-lattice question);
+\item Bartosz Naskr\k{e}cki's proof guide and book (\texttt{nasqret/riemann-rev}), which also state the
+  $x/m+m$ balance, the localized Landau step, the choice of auxiliary primes and the
+  Ferrero--Washington and Poitou--Tate premises;
+\item JoseClaudioSJr's reader's map (community issue~\#5), which independently traces the windowed
+  Landau route and the gain chain through \texttt{AuxBlock8.Conclusion1} and \texttt{starAll\_of};
+\item Andrew Sutherland's verification record and build manifest; the full kernel replays and
+  independent rebuilds reported by Simon DeDeo and Elliot Arledge;
+\item the dependency and dead-code analyses of James Shore (\texttt{james-shore/rh-proof-dependencies},
+  256{,}620 of 1{,}061{,}531 declarations unused), Sonoda, Drew Carlson and Keith Adler
+  (\texttt{rh-trim}); patunz's report on path-dependent olean hashes;
+\item the expositions of Yao Xu (\texttt{cadamcat/riemann-hypothesis-exposition}) and jae-63
+  (\texttt{rh-alpoge-blueprint}), and the declaration index at \texttt{riemann.tamnd.com}.
+\end{itemize}
+Errors of interpretation are ours.
 
 \appendix
 
