@@ -276,7 +276,7 @@ The final assembly of `DIV` is two theorems, both Exact: used:
 
 So inside `DIV` exactly two things need the m² total:
 1. **The signature drift.** |p_j − q_j − k| = |2j − 1 − m| ≤ m at lift j, times the weight w ≤ 2b, times log ≤ 3x^ε, over m lifts and f places: f·m²·b·x^ε. This is the most concrete source of "m² cost" found so far.
-2. **Eb**, the per-lift charges of section 10, which enter as a hypothesis. Their real size is not read yet.
+2. **Eb**, the per-lift charges of section 10, which enter as a hypothesis. Their real size is not read yet. (Read in section 13: the full m·B0, from m lifts times a Bloch–Kato rank m.)
 
 **Observation (Reading, checked by arithmetic, not against the code).** The signed version of term 1 nearly cancels. Σ_{j=1}^{m} (2j − 1 − m) = 0 exactly, and the weights barely depend on j (on thick places b ≤ w(j,τ) ≤ b + etaSz + 1, `SizeData₂.win_thick`). So the signed sum is at most about f·m²·(etaSz + 1)·x^ε, far below f·m²·b·x^ε. The proof does not use this cancellation; it bounds term by term in absolute value.
 
@@ -354,13 +354,69 @@ Not checked: all ~24 components of `SizesAt` under a different choice of exponen
 
 **Consequence for the open question (Reading).** Gz(x) = Ω(√x). As far as these constraints go, the family could be built with m = x^(1/2+δ). So the √x barrier has to be paid on the error side, in T3. If every m·B0 charge could be removed, the same balance with larger m would give Gz(x) ≤ x^(1/2−δ+O(ε)), which is false. Section 11 found two users of the full m·B0. The signature drift probably is not essential: its signed sum is about f·m²·(etaSz+1)·x^ε, and etaSz = m·h0v is polynomial in x, while b = exp(x^ε). That leaves **Eb** (open question a), or the proofs of `EComp`/`DIV` for larger m, as the place where the √x must really be paid. This makes (a) the decisive next check.
 
-**Others' work on the same question (checked 20 Nov, 19:40 local).** The balance x/m + m at m ≍ √X was stated independently in Jonas Whidden's second Zulip reading (17:14 local) and in Bartosz Naskręcki's proof guide (`nasqret/riemann-rev`, `guide/proof-guide.pdf` §4, which writes (ASK − MAIN)/b ≤ x^O(ε)(x/m + m + √x) and quotes the `RankVal` window for m). Neither explains n₀ ≍ x^(9/2+10ε) or says where the per-lift m cost is charged; the word-count derivation and the drift/Eb split above are, as far as I can see, not posted elsewhere. Naskręcki's §6 adds a lead for (a): the divisibility holds only up to a per-lift loss bounded on a window by Σ_ℓ log ℓ Σ_h len Ш¹ ≤ exp(x^ε/2) (`VWinAt`, `window1`). That is about √b, far below B0 = f·m·b·x^ε, so if `Eb` were fed only by this loss it would not be where the m cost lives either. (Reading.)
+**Others' work on the same question (checked 20 Nov, 19:40 local).** The balance x/m + m at m ≍ √X was stated independently in Jonas Whidden's second Zulip reading (17:14 local) and in Bartosz Naskręcki's proof guide (`nasqret/riemann-rev`, `guide/proof-guide.pdf` §4, which writes (ASK − MAIN)/b ≤ x^O(ε)(x/m + m + √x) and quotes the `RankVal` window for m). Neither explains n₀ ≍ x^(9/2+10ε) or says where the per-lift m cost is charged; the word-count derivation and the drift/Eb split above are, as far as I can see, not posted elsewhere. Naskręcki's §6 adds a lead for (a): the divisibility holds only up to a per-lift loss bounded on a window by Σ_ℓ log ℓ Σ_h len Ш¹ ≤ exp(x^ε/2) (`VWinAt`, `window1`). That is about √b, far below B0 = f·m·b·x^ε, so if `Eb` were fed only by this loss it would not be where the m cost lives either. (Reading.) (Section 13: `Eb` is not fed only by this loss; the loss is a separate additive term.)
 
-## 13. Next steps
+## 13. What proves Eb, and how big it really is (check a)
+
+Question from section 11: `Eb` enters `DIV` as a hypothesis of size ce·m·x^ε·(B0 + Nc). Is that size really needed, or is it fed only by the small Iwasawa/Ш loss (`VWinAt`, about √b)?
+
+**Answer: the full budget is used, and both factors of m are structural.** Eb = (number of lifts) × (per-lift charge). The number of lifts is m. The per-lift charge is a sum over small primes of a Selmer colength, and that colength is (rank of H¹_f) × (lift exponent), where the rank is a Bloch–Kato count that is again m. The Ш loss is a separate additive term and is tiny.
+
+**Step 1: the outer m is the number of lifts (Verified).** `errB_of_units` (`Formalism/LocalToGlobal/Divisibility/DivisionHeightBoundStatement.lean:846`, Exact: used) proves m·C·l3u + LG + Σ_j (E1_j + E2_j) + E3 ≤ ce·m·x^ε·(B0 + Nc). The sum over j has |J| = m terms (`RecNums.p12`, `Divisibility/Inputs.lean:116`: card J = m), each charged C·E1u.
+
+**Step 2: E1u is a defined unit; the real obligation is `IndefData.ON` (Verified).** In `ZscOfNum` (`Divisibility/ZscOfNum.lean:59`, Exact: used) the field is set by definition, E1u := x^ε·(B0 + Nc), so the hypothesis `hE1` is reflexive. The actual content is the `ON` field of `IndefSide` (`IndefiniteForms/IndefSide.lean:323`): for each lift j,
+
+```
+Σ_{w ∈ Tw} log(w) · (ram_w · err0(w,j) + ram_w · J0(w,j))  ≤  E1_j = C · E1u
+```
+
+i.e. the log-weighted lift exponents at the twisted places. On the family side this is `DIVinN_at` / `LinkN_at` (`Formalism/SharpRestriction/GlobalTheoremInputs.lean:59` and `:40`, both Exact: used):
+
+```
+etaSum(j) ≤ dZ0(j) · ( C·(f·m·b·L² + log²x·Nc) + Σ_ℓ vvTerm(ℓ) )
+```
+
+The Ш loss is the last term, Σ_ℓ vvTerm(ℓ), added once and bounded by √b (`VVle`). The f·m·b·L² term is the one that matters.
+
+**Step 3: lifts do not share local pieces (Verified).** `linkN_of_gd` (`HeckeGaloisCriteria/LinkNOfGd.lean:38`, Exact: used) bounds etaSum(j) through `etaJ_le` (`IsHeckeGaloisIff.lean:73`, Exact: used), which unfolds etaJ(j,w) = Σ_{i ∈ locs j w} etaLoc(i) (`etaJ_tie`). By `NData.locs_mem` (`LevelLetterCocycles/DataN.lean:83`, Exact: used), i ∈ locs j w ↔ j(i) = j ∧ w(i) = w. So every local piece belongs to exactly one lift. There is no m-fold double count across lifts: the m lifts are charged for m disjoint sets of pieces.
+
+**Step 4: the inner m is a Bloch–Kato rank (Verified).** The per-piece allowance at a small prime ℓ is
+
+```
+costC(ℓ) = 6000 · f·m·hB·sl(ℓ) + 30000 · f²·t²·nV·abelian₂(ℓ)        (RowDef.lean:11, Exact: used)
+hB      = b + Sc + etaSz + t + 2                                     (RowSmall.lean:15, used)
+```
+
+so the dominant term is f·m·b per prime (b = exp(x^ε) dominates hB). The colength bound behind it is `rowNum` = locDeg(u)·m·e' + r·c0(u) (`EmbeddingTypes.lean:284`, used), and the m there comes from `length_bound_of_admitted` (`JumpAndLengthOfAdmitted.lean:961`, used) calling `rank_le_row` (`:67`, used) with m := D.R.m:
+
+```
+finrank H¹_f(K_w, T)  ≤  locDeg(w) · m
+```
+
+This is the Bloch–Kato dimension count: for a crystalline T with H⁰ = 0, dim H¹_f = Σ_τ #{non-negative Hodge–Tate weights}. The hypothesis `hJ` asks for a set Lo of such weights per embedding with Lo.card ≤ m, and the family supplies it by **equality** (`le_of_eq hs.2.2.1`, line 982 of the same file), from its own gain pattern (`admG2`). So the family's pieces have exactly m non-negative weights per embedding, and the rank bound is attained by the hypothesis itself; it is not slack. Summing locDeg over places above ℓ gives f, so the colength is f·m·e', with e' ≈ hB ≈ b.
+
+**Step 5: putting it together (Reading).** Per lift: Σ_{ℓ small} log ℓ · f·m·b·sl(ℓ) ≈ f·m·b·x^ε = B0, plus √b of Ш loss. Over m lifts: m·B0, which is exactly the Eb budget. So:
+
+| Piece of Eb | Source | Size |
+|---|---|---|
+| number of lifts | card J = m | m |
+| rank per piece | Bloch–Kato: #non-negative HT weights = m (by equality in the family) | m·locDeg |
+| exponent per piece | lift exponent e' ≈ hB ≈ b = exp(x^ε) | b |
+| primes | Σ log ℓ over small primes | ≈ x^ε |
+| Ш loss (`VWinAt`) | Σ vvTerm ≤ √b, added once per lift | negligible |
+
+**What this settles.** The `VWinAt` lead (section 12, credits) does not carry the size: Eb is fed by the per-lift Selmer colengths, not the Ш loss. Unlike the signature drift of section 11 (whose signed sum nearly cancels), neither factor of m here looks removable inside this argument: one is the number of lifts, the other is a Hodge–Tate count that the family fixes by equality. Shrinking it would mean a family with fewer non-negative weights per lift, which changes the representations, not a bound. This is consistent with Gz(x) = Ω(√x): Eb ≈ m²·b·x^(2ε) is a genuine m² cost, and it is a natural candidate for the "+m" side of the balance x/m + m.
+
+**Not checked (open).**
+- Whether Eb is literally the term that produces "+m" in `proposition_size_bound`. That theorem works on an abstracted growth inequality (`GrowthSizeBound`), so connecting the two needs the `DIV` → `EComp` → `SizeWindows` chain read end to end.
+- Why the lift exponent e' must be as large as b = exp(x^ε) rather than polynomial in x. If e' could be taken polynomial, B0 would shrink by a factor b, which affects the absolute size but not the m-dependence.
+- The K_j norms (`hn.sz`, `CBData`, `nKcb`) from item 4 of the old plan. Given the above, they no longer decide (a).
+
+## 14. Next steps
 
 1. **Done:** exact dependency list (section 4).
 2. **Done:** `ChainTied` and the balance (sections 5 to 7). `ErrorFormsWeakWindowsFalse.lean` turned out to define unused propositions; only `ErrWindows`, `ErrText` and `errorBracketSizeWindows` from it are used.
 3. **Done:** `E u j w` (section 8) and how `EComp` is proved (section 9). **Next:** read how `EComp` is proved for the family: `QuadraticLogDerivCongr.lean:594` (`data_EComp5`) and the `Formalism.L2.DIV.linkDIVt_of_*` lemmas; check whether the product-formula reading of the g-place term is what they do, and where Σ_τ nuAbs(u,j,τ) ≈ Σ_t aT t is proved.
-4. **Done:** inside `DIV`, the full m·B0 is used by the signature drift and by Eb (section 11). **Done (b):** the windows are chosen, not forced; only the balance itself pins m to √x (section 12). **Next, and now the decisive check:** (a) find what proves the Eb hypothesis for the family and its real size. Section 12 implies the √x must be paid there, or in the proofs of `EComp`/`DIV` at larger m. Concretely: does the proof of Eb use the `VWinAt` Iwasawa loss (≈ exp(x^ε/2), tiny), or the per-lift unit E1u = x^ε·(B0 + Nc) of section 10 (the full budget)? If the latter, check whether the K_j norms hK(j,v) (`hn.sz`, `CBData`, `nKcb`) really need it.
+4. **Done:** inside `DIV`, the full m·B0 is used by the signature drift and by Eb (section 11). **Done (b):** the windows are chosen, not forced; only the balance itself pins m to √x (section 12). **Done (a):** Eb uses the full per-lift budget, not the `VWinAt` loss. Its m² is (m lifts) × (Bloch–Kato rank m per piece, fixed by equality in the family), section 13. **Next:** connect Eb to the "+m" side of `proposition_size_bound` through `DIV` → `EComp` → `SizeWindows`, and find why the lift exponent e' is as large as b = exp(x^ε).
 5. **Done:** `BNBounds` is proved by equality, B0 = 2·|H|·m·b·x^ε with f = 2|H| (section 12).
 6. **Bring it to people who know the theory.** The automorphic layer needs number theorists. A short, factual Zulip post (written by me) with sections 1, 2 and 4 could help the people already working on understanding.
