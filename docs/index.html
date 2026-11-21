@@ -484,7 +484,13 @@ class="math inline">\(m,n,k\)</span> are the literal content of
 (<code>.../GlobalTwisting/PairRowIffQdRows.lean:28</code>); <span
 class="math inline">\(m\)</span> and <span
 class="math inline">\(k\)</span> are picked as even numbers in their
-windows by <code>exists_ranks_rankVal_frame</code>. <span
+windows by <code>exists_ranks_rankVal_frame</code>. Concretely
+<code>exists_even_between</code> takes <span
+class="math inline">\(m=2\lceil\tfrac12\sqrt{x\delta_1}\rceil=2\lceil\tfrac12x^{1/2-\varepsilon/16}\rceil\)</span>,
+so for fixed <span class="math inline">\(\varepsilon&gt;0\)</span> the
+chain is slightly shorter than <span class="math inline">\(\sqrt
+x\)</span> (<span class="math inline">\(m/\sqrt x\to0\)</span>); this
+was pointed out by hhh2210 in the community repository’s issue #5. <span
 class="math inline">\(B_0\)</span> is a definition, not an estimate:
 <code>SizeData_2.B0 := sizeBudget D.R x eps</code>, and the hypothesis
 <code>BNBounds</code> is proved by equality (<span

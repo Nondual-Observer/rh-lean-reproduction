@@ -239,7 +239,10 @@ $\eta=\eta_{Sz}$ & $\le b/(t^3 f k^3)$ & spread of the weights across lifts \\
 
 \Exact{} The windows for $m,n,k$ are the literal content of \lean{RankVal}
 (\lean{.../GlobalTwisting/PairRowIffQdRows.lean:28}); $m$ and $k$ are picked as even numbers in their
-windows by \lean{exists_ranks_rankVal_frame}. $B_0$ is a definition, not an estimate:
+windows by \lean{exists_ranks_rankVal_frame}. Concretely \lean{exists_even_between} takes
+$m=2\lceil\tfrac12\sqrt{x\delta_1}\rceil=2\lceil\tfrac12x^{1/2-\eps/16}\rceil$, so for fixed $\eps>0$ the chain is
+slightly shorter than $\sqrt x$ ($m/\sqrt x\to0$); this was pointed out by hhh2210 in the community
+repository's issue~\#5. $B_0$ is a definition, not an estimate:
 \lean{SizeData_2.B0 := sizeBudget D.R x eps}, and the hypothesis \lean{BNBounds} is proved by
 equality ($B_0 = 2|H|\cdot m\cdot b\cdot x^\eps$).
 
