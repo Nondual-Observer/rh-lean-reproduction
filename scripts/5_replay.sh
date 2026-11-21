@@ -5,7 +5,7 @@
 # without the kernel checking it. Runs in the background like step 3; watch with
 # 3_status.sh, stop with 3_stop.sh.
 #
-#   default:   bash 5_replay.sh          parallel, re-checks every compiled module
+#   default:   bash 5_replay.sh          re-checks Main only (imports trusted); fast, about a minute
 #   strongest: FRESH=1 bash 5_replay.sh  replays everything Main depends on into a
 #              fresh environment. Single-threaded: expect it to be much slower.
 if [ "${RH_FOREGROUND:-0}" = 1 ]; then
@@ -40,8 +40,8 @@ if [ "${FRESH:-0}" = 1 ]; then
   echo "=== replay (fresh, single-threaded) started $_now ==="
   cmd=(lake env leanchecker --fresh Main)
 else
-  echo "=== replay (parallel, all modules) started $_now ==="
-  cmd=(lake env leanchecker)
+  echo "=== replay (Main only, imports trusted; use FRESH=1 for the full replay) started $_now ==="
+  cmd=(lake env leanchecker Main)   # leanchecker with no module name looks for a module called Tree and fails
 fi
 res="$OUT/replay_result.txt"
 if LEAN_NUM_THREADS="$JOBS" "${cmd[@]}" 3<&-; then
