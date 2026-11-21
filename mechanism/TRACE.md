@@ -549,11 +549,40 @@ So the signed drift is smaller than the bound the proof uses by a factor of at l
 
 **Consequence (Reading).** With section 15, every m·B0 charge in the per-point error except **Eb** is now either slack (energy, slope) or an artefact of bookkeeping (drift). The "+m" side of the balance, the reason the chain is cut at m ≈ √x, rests on one term: **Eb, m lifts × a Bloch–Kato rank of m per piece** (section 13).
 
-## 17. Next steps
+## 17. Where the common lattice is built: the "gcd" of entry 15 (Whidden's open question)
+
+Jonas Whidden (Zulip, 20 Nov, 20:01 local) located where the shared lattice `D.div.RR.dualL` is *used* (the frame lemma, `linkGLOBAL7_items`, `Ga_bound5`) and asked which exported declaration *constructs* it from the character-wise local data. Answer (every declaration named here is Exact: used):
+
+**The construction (Verified).** `GlobalTheory.Mem.R3.Rw.exists_divStage_of_pk` (`Development/AbelianVarietyTheory/Proofs/IwasawaDecomposition/ExistsDivStageOfPk.lean:76`) sets
+
+```
+Lr := prescribedRowLat (p.what₂ …) (coordForm …)                         (line 85)
+RR := { V := Fin p.nR → LL, b := Pi.basisFun …, X := X, L := Lr }         (lines 86–87)
+div := { RR := RR, Nu := Nu, Bk := bkOf …, h := h, … }                    (line 92)
+```
+
+and `prescribedRowLat` (line 54) is defined **place by place**:
+
+```
+x ∈ RR.L  ⟺  for every place w of LL there is d ∈ 𝓞_LL, d ∉ 𝔭_w, with
+              d·x ∈ 𝓞_LL-span { y | jE y ∈ RRset (muAt w) }
+RRset μ   =  iota μ '' LamSet μ          (PrincipalHermitianLattice.lean:82; DataRows.lean:199)
+iota μ    =  multZero ∘ downTo μ m ∘ multTop⁻¹     (the m lift steps composed)
+```
+
+So RR.L is the lattice whose localisation at each place w is the 𝓞-span of the chain images of the integral points for **that place's own tuple** μ = muAt w. Globally it is the intersection over places of these localisations, which is a lattice gcd. The same construction appears generically as `GoodSideLattices.locMeet` (`ExistsSideReadingLevelZeroMoved.lean`, used: carrier {x | ∀ w, ∃ d ∉ P_w, d·x ∈ S w}).
+
+**How the family carries it (Verified).** Every family has the field `FamP.rrDef : DV.RRDef (D x i)` (`Formalism/SharpRestriction/ParConsts.lean:72`), where `DV.RRDef` (`Formalism/LocalRingCardinality/DataDIVDefs.lean:26`) is exactly the membership criterion above. `AbsolutelyIrreducibleSpan.sharp_RRDef` translates it to the `RowSide` form used by the lattice proofs, and the construction stages supply it (`ExistsConstructedCoreOfAllConstructionStages.lean:57`).
+
+**What the tuple is (Reading).** In the base construction the tuples are `Tup := T.set f`, and `muAt w = ⟨T.xiTw f w, …⟩` (`ExistsBaseJointFld.lean:89, 112`): the ξ-twist data at w. In the guide's notation the ξ_j are the Hecke characters of the theta lifts. So the gluing takes each place's integral structure from its own character twist, and intersects them into one lattice. That matches the outline's entry 15 ("glue together an integral structure across Hecke characters for a 'gcd', i.e. extra averaging") closely.
+
+**Why it matters for the cost (Reading, connecting to sections 13 to 15).** Because RR is one lattice for all words and all places, the divisibility of the m-fold chain is measured once, in RR, rather than once per character or per lift. This fits the observation in section 13 that each local piece is charged to exactly one lift (`NData.locs_mem`). Whether this gluing is what saves the factor m relative to the outline's a-priori 2/3 (section 15, candidate 2) is still not checked.
+
+## 18. Next steps
 
 1. **Done:** exact dependency list (section 4).
 2. **Done:** `ChainTied` and the balance (sections 5 to 7). `ErrorFormsWeakWindowsFalse.lean` turned out to define unused propositions; only `ErrWindows`, `ErrText` and `errorBracketSizeWindows` from it are used.
 3. **Done:** `E u j w` (section 8) and how `EComp` is proved (section 9). **Next:** read how `EComp` is proved for the family: `QuadraticLogDerivCongr.lean:594` (`data_EComp5`) and the `Formalism.L2.DIV.linkDIVt_of_*` lemmas; check whether the product-formula reading of the g-place term is what they do, and where Σ_τ nuAbs(u,j,τ) ≈ Σ_t aT t is proved.
-4. **Done:** inside `DIV`, the full m·B0 is used by the signature drift and by Eb (section 11). **Done (b):** the windows are chosen, not forced; only the balance itself pins m to √x (section 12). **Done (a):** Eb uses the full per-lift budget, not the `VWinAt` loss. Its m² is (m lifts) × (Bloch–Kato rank m per piece, fixed by equality in the family), section 13. **Done:** the "+m" side of the balance is the `DIV` error m·(B0 + Nc), i.e. drift + Eb; the energy and slope charges of the same order are not needed by the size layer (`exists_data_completion`), section 14. **Done:** the drift is a bookkeeping artefact; its signed size is below the proof's bound by a factor ≥ x^1131 (section 16). **Done:** the energy and slope m·B0 budgets are slack (energy ≈ m·2fb, slope exactly 0); the outline's 2/3 matched against the code (section 15). **Next:** ask number theorists which naive accounting costs m·B0 per lift (compounding along the chain, or no gcd across Hecke characters); find why the lift exponent e' is as large as b = exp(x^ε).
+4. **Done:** inside `DIV`, the full m·B0 is used by the signature drift and by Eb (section 11). **Done (b):** the windows are chosen, not forced; only the balance itself pins m to √x (section 12). **Done (a):** Eb uses the full per-lift budget, not the `VWinAt` loss. Its m² is (m lifts) × (Bloch–Kato rank m per piece, fixed by equality in the family), section 13. **Done:** the "+m" side of the balance is the `DIV` error m·(B0 + Nc), i.e. drift + Eb; the energy and slope charges of the same order are not needed by the size layer (`exists_data_completion`), section 14. **Done:** the drift is a bookkeeping artefact; its signed size is below the proof's bound by a factor ≥ x^1131 (section 16). **Done:** the energy and slope m·B0 budgets are slack (energy ≈ m·2fb, slope exactly 0); the outline's 2/3 matched against the code (section 15). **Done:** the common lattice RR is built place by place by `prescribedRowLat` in `exists_divStage_of_pk`, gluing each place's own twist data (section 17, answers Whidden's open question). **Next:** ask number theorists which naive accounting costs m·B0 per lift (compounding along the chain, or no gcd across Hecke characters); find why the lift exponent e' is as large as b = exp(x^ε).
 5. **Done:** `BNBounds` is proved by equality, B0 = 2·|H|·m·b·x^ε with f = 2|H| (section 12).
 6. **Bring it to people who know the theory.** The automorphic layer needs number theorists. A short, factual Zulip post (written by me) with sections 1, 2 and 4 could help the people already working on understanding.
