@@ -59,39 +59,43 @@ cd "$PROJ"
 LEAN_BIN=$(lake env which lean)
 LP=$(lake env printenv LEAN_PATH)
 echo "lean: $LEAN_BIN ($("$LEAN_BIN" --version))"
-# leanOptions / moreLeanArgs from lakefile.toml, merged per module (package, then its lean_lib),
-# passed the way Lake passes them (-Dkey=value with dotted keys).
+# Replay Lake's own recorded command for each module. Lake writes the exact command line into
+# <module>.trace ("log": [{"message": ".> LEAN_PATH=... lean ... --setup ..."}]). We re-run it,
+# changing only (1) the output paths (-o/-i/-c/-b) to a scratch directory, never the build, and
+# (2) for the sample, the source path prefix $PROJ -> $SUTH.
 mkdir -p "$WD"
-cat > "$WD/opts.py" <<'PY'
-import sys, os, re, tomllib
-c = tomllib.load(open(os.path.join(sys.argv[1], "lakefile.toml"), "rb"))
-mod = sys.argv[2]
-def flat(d, pre=""):
-    for k, v in d.items():
-        if isinstance(v, dict):
-            yield from flat(v, pre + k + ".")
-        else:
-            yield pre + k, (str(v).lower() if isinstance(v, bool) else str(v))
-def matches(lib, m):
-    globs = lib.get("globs") or [lib["name"]]
-    for g in globs:
-        if g.endswith(".+"):
-            if m.startswith(g[:-2] + "."): return True
-        elif g.endswith(".*"):
-            if m == g[:-2] or m.startswith(g[:-2] + "."): return True
-        elif m == g:
-            return True
-    return False
-opts = dict(flat(c.get("leanOptions") or {})); more = list(c.get("moreLeanArgs") or [])
-libs = [l for l in c.get("lean_lib", []) if matches(l, mod)]
-for l in libs:
-    opts.update(flat(l.get("leanOptions") or {})); more += list(l.get("moreLeanArgs") or [])
-print("\n".join(["-D{}={}".format(k, v) for k, v in opts.items()] + more))
+cat > "$WD/replay.py" <<'PY'
+import json, os, shlex, subprocess, sys
+proj, root, rel, od = sys.argv[1:5]
+mod = rel[:-len(".olean")]
+tr = json.load(open(os.path.join(proj, ".lake/build/lib/lean", mod + ".trace")))
+cmds = [e["message"][3:] for e in tr.get("log", []) if e.get("message", "").startswith(".> ")]
+if not cmds:
+    print("NO_COMMAND", rel); sys.exit(0)
+toks = shlex.split(cmds[0])
+env = dict(os.environ)
+while toks and "=" in toks[0] and not toks[0].startswith("-") and not toks[0].startswith("/"):
+    k, v = toks.pop(0).split("=", 1); env[k] = v
+out = os.path.join(od, rel); os.makedirs(os.path.dirname(out), exist_ok=True)
+base = out[:-len(".olean")]
+red = {"-o": out, "-i": base + ".ilean", "-c": base + ".c", "-b": base + ".bc"}
+args, k = [], 0
+src_ours = os.path.join(proj, "src", mod + ".lean")
+src_new = os.path.join(root, "src", mod + ".lean")
+while k < len(toks):
+    t = toks[k]
+    if t in red and k + 1 < len(toks):
+        args += [t, red[t]]; k += 2; continue
+    long = {"--o=": "-o", "--i=": "-i", "--c=": "-c", "--bc=": "-b"}
+    hit = next((f for f in long if t.startswith(f)), None)
+    if hit:
+        args.append(hit + red[long[hit]]); k += 1; continue
+    args.append(src_new if t == src_ours else t); k += 1
+with open(base + ".cmd", "w") as fh:
+    fh.write(" ".join(shlex.quote(a) for a in args) + "\n")
+r = subprocess.run(args, env=env, cwd=root, stdout=open(base + ".log", "w"), stderr=subprocess.STDOUT)
+print(("OK " if r.returncode == 0 and os.path.exists(out) else "COMPILE_FAIL ") + rel)
 PY
-modopts() { python3 -I "$WD/opts.py" "$PROJ" "$(echo "${1%.olean}" | tr / .)"; }
-echo "options for a Development module:"; modopts Development/X.olean | sed "s/^/  /"
-[ -f "$PROJ/lakefile.lean" ] && echo "NOTE: lakefile.lean present; its options are not parsed. Calibration will tell."
-
 python3 -I - "$MAN" "$MIS" "$N" "$SEED" "$WD" <<'PY'
 import random, sys, os
 man, mis, n, seed, wd = sys.argv[1], sys.argv[2], int(sys.argv[3]), int(sys.argv[4]), sys.argv[5]
@@ -112,17 +116,9 @@ w("manifest_subset.txt", ["{}  {}".format(want[x], x) for x in cal_diff + cal_sa
 print("population: {:,} differing, {:,} identical; sample {:,}".format(len(diff), len(same), len(sample)))
 PY
 
-# compile ROOT REL OUTDIR: compile <ROOT>/src/<mod>.lean as Lake does, output to OUTDIR/<rel>
-compile() {
-  local root="$1" rel="$2" od="$3" mod="${2%.olean}"
-  local out="$od/$rel"; mkdir -p "$(dirname "$out")"
-  local -a opts; mapfile -t opts < <(modopts "$rel")
-  ( cd "$root" && LEAN_PATH="$LP" "$LEAN_BIN" "${opts[@]}" -R "$root/src" \
-      -o "$out" -i "${out%.olean}.ilean" "$root/src/$mod.lean" ) > "${out%.olean}.log" 2>&1 \
-    || { echo "COMPILE_FAIL $rel"; return 0; }
-  echo "OK $rel"
-}
-export -f compile modopts; export LP LEAN_BIN PROJ WD
+# compile ROOT REL OUTDIR: replay Lake's command with the source under ROOT, outputs under OUTDIR
+compile() { python3 -I "$WD/replay.py" "$PROJ" "$1" "$2" "$3"; }
+export -f compile; export PROJ WD
 
 log "Calibration 1: three differing modules at OUR path must equal our own lake-built .olean"
 cal_ok=1
