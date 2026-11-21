@@ -881,7 +881,19 @@ All three are used.
 
 **Gap in 21/25.2 closed at the call level (Exact).** `extendedClosedForm` is field `p15` of `local_flatness_results` (AdmissibleFamilyNoKernel.lean:62) → `loc8All_of` → `first_theorem_threshold_functions` → `first_theorem_closed_form` → `FirstTheoremAtFamily` → `family_first_bound_of_theorem` → `Adm8F` → `linkG_without_kernels` → `admissible_family_no_kernel` → `AuxBlock8.Pf.stmtF` (the gain clause). Not checked: which lines of the gain proof use `p15`.
 
-## 27. Next steps
+## 27. The remaining opens: Kato and CM statements, the constants, SizesAt (20 Nov, 23:45 local)
+
+**Kato-type input (Exact statement, Reading for the comparison).** `KatoTwoW`: ℓ odd; K imaginary quadratic with ℓ ∤ disc(K)·h_K; W a 2-dimensional ℓ-adic representation with det W = θ (the quadratic character of K), ordinary at ℓ (`flag`), residually Eisenstein (`red`: trace ≡ θ·χ^e ψ + (χ^e ψ)^(−1)), irreducible over the cyclotomic extension of K (`irr`), attached to a newform of weight 2e+1. Conclusion: the Bloch–Kato Selmer groups of W and W⊗θ vanish (`BlochKatoSelmerVanishes`: every BK cocycle is a coboundary). No L-value hypothesis appears; ℓ ∤ h_K plays that role, as in Eisenstein-ideal arguments. Not a verbatim published theorem; a specialist should confirm its strength. Proved by `katoTwoW_of_printsH_of_rT_of_quadBC2`.
+
+**CM inputs (Exact statements).** `LiteratureCMHypothesis` fields: `EllipticMainTheoremCM` (Shimura's main theorem of CM, imaginary quadratic K, idelic Artin action on analytic uniformisations), `HilbertClassFieldJ` (K(j) = Hilbert class field, degree h_K, j(𝔞) = j(𝔟) ⟺ same class), `SiegelKlingenDeligneRibet`, `PartialZetaFunctionalEquation` (totally real F), `HeckeTateFunctionalEquation` (Hecke characters of CM fields), `GrothendieckDeformation` (Grothendieck–Messing, nilpotent divided powers), `AbelianDeRham` (free, Hodge, base change, rigid, duality), `AbelianDualCrystal`, `PeriodComparison`, `GaussManinPeriods`, `SerreTateGoodReductionSt` (Néron–Ogg–Shafarevich, potential good reduction, CM good reduction). Reading: each matches the standard theorem of that name in shape and hypotheses; internal definitions (for example `IsGlobalArtinMap`) not checked line by line.
+
+All of these are proved in Lean and the axiom check is clean, so the comparison is about whether the names describe the statements honestly, not about correctness.
+
+**Constants (Exact).** `ChebyshevInequalityAtWindowScale` (TopWin.lean:30) is ∃ eD eL ε₁ > 0, ∀ ε < ε₁, ∃ family with Gm(x) ≤ x^(1/2 + (eD + eL + 7)ε) on its windows. eD, eL are fixed as ε → 0, so their values never affect the conclusion. Only an effective version would need them.
+
+**SizesAt statically (Exact definitions, Reading for the summary).** With m = x^μ, n = x^ν, k = x^κ, the size layer (`SizesAt`, `ErrWindows0`, `RestSize`, `CostWindows`, `GrowthInequalitySizes`) constrains exponents only by 1/2 − ε ≤ μ ≤ 1/2 + ε/2, κ ≥ 1 + μ, κ ≤ 2ν + 1/2 − ε, κ ≤ eK, plus the family's word count κ ≥ 5μ + ν. Everything else compares polynomials in x with b = exp(x^ε). So statically μ is pinned only by the two windows encoding the balance; the perturbation run checks the downstream arithmetic modules mechanically.
+
+## 28. Next steps
 
 1. **Done:** exact dependency list (section 4).
 2. **Done:** `ChainTied` and the balance (sections 5 to 7). `ErrorFormsWeakWindowsFalse.lean` turned out to define unused propositions; only `ErrWindows`, `ErrText` and `errorBracketSizeWindows` from it are used.
