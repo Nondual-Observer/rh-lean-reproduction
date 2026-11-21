@@ -79,6 +79,21 @@ while toks and "=" in toks[0] and not toks[0].startswith("-") and not toks[0].st
 out = os.path.join(od, rel); os.makedirs(os.path.dirname(out), exist_ok=True)
 base = out[:-len(".olean")]
 red = {"-o": out, "-i": base + ".ilean", "-c": base + ".c", "-b": base + ".bc"}
+# Lake may have built a module from a different checkout of the same tree (for example a RAM-disk
+# copy). Find the prefix it used from the source argument and map it back to the project.
+tail_ = "/src/" + mod + ".lean"
+src_tok = next((t for t in toks if t.endswith(tail_)), None)
+old = src_tok[:-len(tail_)] if src_tok else proj
+if old != proj:
+    toks = [t.replace(old, proj) for t in toks]
+    env = {k: (v.replace(old, proj) if isinstance(v, str) else v) for k, v in env.items()}
+    for idx, t in enumerate(toks):
+        if t.endswith(".setup.json") and os.path.exists(t):
+            txt = open(t).read()
+            if old in txt:
+                os.makedirs(od, exist_ok=True)
+                newp = os.path.join(od, mod.replace("/", ".") + ".setup.json")
+                open(newp, "w").write(txt.replace(old, proj)); toks[idx] = newp
 args, k = [], 0
 src_ours = os.path.join(proj, "src", mod + ".lean")
 src_new = os.path.join(root, "src", mod + ".lean")
@@ -139,6 +154,18 @@ if [ "$cal_ok" != 1 ]; then
   rm -f "$OUT/path_sample.pid"; exit 1
 fi
 
+[ -n "${ONLY:-}" ] && { cp "$ONLY" "$WD/sample.txt"; python3 -I - "$MAN" "$WD" <<'PY'
+import sys,os
+man,wd=sys.argv[1:3]
+want={}
+for line in open(man):
+    h,_,p=line.rstrip("\n").partition("  ")
+    want[p[2:] if p.startswith("./") else p]=h
+with open(os.path.join(wd,"manifest_subset.txt"),"a") as fh:
+    for r in open(os.path.join(wd,"sample.txt")):
+        r=r.strip(); fh.write("{}  {}\n".format(want[r],r))
+PY
+}
 log "Sample: $(wc -l < "$WD/sample.txt") differing modules recompiled at $SUTH ($SJOBS at a time)"
 xargs -P "$SJOBS" -I{} bash -c 'compile "'"$SUTH"'" "$1" "'"$WD"'/suth"' _ {} < "$WD/sample.txt" > "$WD/compile_status.txt"
 
