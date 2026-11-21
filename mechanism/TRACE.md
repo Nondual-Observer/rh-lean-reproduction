@@ -618,11 +618,63 @@ Searched the unused part of the archive for remnants of the outline's "one would
 
 So the archive keeps many abandoned **√x** variants of the endgame, but **no trace of a weaker 2/3 route**. The 2/3 calculation exists only in the outline (entry 14). The comparison in section 15 therefore stays a reconstruction: the code shows that every per-lift charge is at most B0, but not which naive accounting would cost m·B0.
 
-## 19. Next steps
+## 19. The 2/3 counterfactual, computed from the code's own quantities
+
+The outline (entry 14) says a calculation of "the cost of each lift" shows "one would stop at 2/3 a priori". The archive does not contain that calculation (section 18). Here it is reconstructed from the quantities the code actually uses, with the accounting that gives 2/3 named and the code's mechanism that avoids it located.
+
+### What the code charges, per lift (Verified, sections 13 and 18)
+
+```
+charge of lift j  =  Σ_{small ℓ} log ℓ · Σ_{pieces i at lift j over ℓ} colength(i)
+colength(i)       ≤  (rank)·e′  =  (locDeg·m) · e′          rank from ShapeJumps: |L| = m
+e′                ≈  64·hB·sN(ℓ),  hB ∈ [b, 6b]
+⟹  charge of lift j  ≈  f·m·b·x^ε  =  B0                    (every lift, the same order)
+Eb = Σ_{j=1}^{m} charge(j)  ≈  m·B0
+```
+
+Two facts make the charges **add up lift by lift, with nothing counted twice**:
+
+- **Each piece belongs to exactly one lift.** `NData.locs_mem`: i ∈ locs j w ↔ j(i) = j ∧ w(i) = w (section 13).
+- **Each lift is charged on its own block.** The family is `DefFam` with `L : J → T → BlockDat` (`Formalism/LocalToGlobal/Divisibility/RowLat.lean:213`), one separate block per lift j. The lift exponents and divisibility lengths of lift j are read from that block alone: `JJ j t w := (F.L j t).JexpU …`, `etaJ j t w := (F.L j t).etaU …` (`LiftLat.lean:147–151`). This matches the outline's picture of each lift adjoining one block, π ↦ π ⊞ μ_j[t] (entry 8). (Verified)
+
+### The balance, per unit of main term (Verified arithmetic)
+
+The main term is nT·m·b, linear in m (m copies of one step's slope, cancelled exactly in `Ga_bound5`). With f = 2n and nT ≈ n:
+
+```
+error / main  =  x/m  +  Eb/(nT·m·b)
+actual:        Eb ≈ m·B0             ⟹  Eb/(nT·m·b) ≈ f·m·x^ε/nT ≈ 2m·x^ε
+              ⟹  x/m + m           minimised at m ≈ √x,       G(x) ≲ x^(1/2 + O(ε))
+```
+
+### Accounting 1: charge each lift for the whole chain so far (gives exactly 2/3)
+
+Suppose the divisibility of lift j were measured on the composite Θ_j ∘ … ∘ Θ_1, so that lift j pays again for the blocks of lifts 1, …, j. This is what happens if integrality is re-established after every step rather than tracked along the chain. Then:
+
+```
+charge'(j)  =  Σ_{j' ≤ j} charge(j')  ≈  j·B0
+Eb'         =  Σ_{j=1}^{m} j·B0  ≈  (m²/2)·B0
+Eb'/(nT·m·b)  ≈  m²·x^ε
+⟹  x/m + m²     minimised at m = x^(1/3),     G(x) ≲ x^(2/3 + O(ε))
+```
+
+**This is the outline's 2/3, exactly.** In the code, the factor m that this accounting adds is removed by the two facts above: pieces are assigned to one lift (`locs_mem`), and each lift's charge is read from its own block (`F.L j t`).
+
+### Accounting 2: no common lattice (no "gcd"); does not give 2/3 in this bookkeeping
+
+Without the glued lattice RR of section 17, each word would need its own target lattice, and the averaging over words in the frame inequality would be lost. The only cost of that averaging visible in the code is the term **log #W** in `Frame_at` (`QuadraticLogDerivCongr.lean:188`), with log #W ≤ (k − 3)·log 2 ≈ x^(9/2+10ε). Against the main term nT·m·b, with b = exp(x^ε), this is negligible. So **in this bookkeeping the gcd does not save a factor of m**. Its role is elsewhere: it makes one divisibility statement hold for all words at once. Whether, without it, divisibility would degrade by a factor of m in some other way is not visible in the code. (Reading)
+
+### Conclusion (Reading, every quantity Verified)
+
+The outline's sentence "precise computation of the cost of each lift, showing that one would stop at 2/3 a priori" is reproduced exactly by **compounding**: charging lift j for everything below it. The archive avoids it because the chain's cost is assigned **piece by piece to exactly one lift, each lift on its own block**, which is the formal content of "tracking divisibility along the chain". What remains per lift is one B0, and its factor m is the Bloch–Kato rank (section 18), so the balance stops at √x and no lower.
+
+**Not established.** That this is the calculation Alpöge did. It is the simplest accounting in the code's own quantities that gives exactly 2/3, and the code's structure is visibly built to avoid it. Accounting 2 is ruled out only as far as the code's visible costs go.
+
+## 20. Next steps
 
 1. **Done:** exact dependency list (section 4).
 2. **Done:** `ChainTied` and the balance (sections 5 to 7). `ErrorFormsWeakWindowsFalse.lean` turned out to define unused propositions; only `ErrWindows`, `ErrText` and `errorBracketSizeWindows` from it are used.
 3. **Done:** `E u j w` (section 8) and how `EComp` is proved (section 9). **Next:** read how `EComp` is proved for the family: `QuadraticLogDerivCongr.lean:594` (`data_EComp5`) and the `Formalism.L2.DIV.linkDIVt_of_*` lemmas; check whether the product-formula reading of the g-place term is what they do, and where Σ_τ nuAbs(u,j,τ) ≈ Σ_t aT t is proved.
-4. **Done:** inside `DIV`, the full m·B0 is used by the signature drift and by Eb (section 11). **Done (b):** the windows are chosen, not forced; only the balance itself pins m to √x (section 12). **Done (a):** Eb uses the full per-lift budget, not the `VWinAt` loss. Its m² is (m lifts) × (Bloch–Kato rank m per piece, fixed by equality in the family), section 13. **Done:** the "+m" side of the balance is the `DIV` error m·(B0 + Nc), i.e. drift + Eb; the energy and slope charges of the same order are not needed by the size layer (`exists_data_completion`), section 14. **Done:** the drift is a bookkeeping artefact; its signed size is below the proof's bound by a factor ≥ x^1131 (section 16). **Done:** the energy and slope m·B0 budgets are slack (energy ≈ m·2fb, slope exactly 0); the outline's 2/3 matched against the code (section 15). **Done:** the common lattice RR is built place by place by `prescribedRowLat` in `exists_divStage_of_pk`, gluing each place's own twist data (section 17, answers Whidden's open question). **Done:** the two m's in Eb are one m used twice (lifts = indefinite part of the starting signature (k−1, m) = Bloch–Kato rank); e′ ≈ b because e′ is linear in the Hodge–Tate height hB ∈ [b, 6b]; no 2/3 route survives in the archive (section 18). **Next:** ask number theorists which naive accounting costs m·B0 per lift (compounding along the chain, or no gcd across Hecke characters), and whether a chain with a smaller indefinite part per lift is possible.
+4. **Done:** inside `DIV`, the full m·B0 is used by the signature drift and by Eb (section 11). **Done (b):** the windows are chosen, not forced; only the balance itself pins m to √x (section 12). **Done (a):** Eb uses the full per-lift budget, not the `VWinAt` loss. Its m² is (m lifts) × (Bloch–Kato rank m per piece, fixed by equality in the family), section 13. **Done:** the "+m" side of the balance is the `DIV` error m·(B0 + Nc), i.e. drift + Eb; the energy and slope charges of the same order are not needed by the size layer (`exists_data_completion`), section 14. **Done:** the drift is a bookkeeping artefact; its signed size is below the proof's bound by a factor ≥ x^1131 (section 16). **Done:** the energy and slope m·B0 budgets are slack (energy ≈ m·2fb, slope exactly 0); the outline's 2/3 matched against the code (section 15). **Done:** the common lattice RR is built place by place by `prescribedRowLat` in `exists_divStage_of_pk`, gluing each place's own twist data (section 17, answers Whidden's open question). **Done:** the two m's in Eb are one m used twice (lifts = indefinite part of the starting signature (k−1, m) = Bloch–Kato rank); e′ ≈ b because e′ is linear in the Hodge–Tate height hB ∈ [b, 6b]; no 2/3 route survives in the archive (section 18). **Done:** the outline's 2/3 is reproduced exactly by compounding (charging lift j for the whole chain below it); the code avoids it by charging each piece to one lift, each lift on its own block; the gcd costs only log #W here (section 19). **Next:** ask number theorists whether this is the calculation behind entry 14, and whether a chain with a smaller indefinite part per lift is possible.
 5. **Done:** `BNBounds` is proved by equality, B0 = 2·|H|·m·b·x^ε with f = 2|H| (section 12).
 6. **Bring it to people who know the theory.** The automorphic layer needs number theorists. A short, factual Zulip post (written by me) with sections 1, 2 and 4 could help the people already working on understanding.
