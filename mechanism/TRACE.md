@@ -526,11 +526,34 @@ Every per-lift charge is at most B0, one factor m. Nothing in the code charges a
 
   Deciding between them needs either Alpöge's own calculation or a number theorist. That is the question to ask on Zulip.
 
-## 16. Next steps
+## 16. The signature drift is avoidable: its signed size is negligible (check b)
+
+Section 11 claimed, by arithmetic only, that the drift term of `DIV` nearly cancels if summed with signs. Checked against the code (every declaration named here is Exact: used):
+
+**1. The drift is exactly 2j − 1 − m (Verified).** In the family record, `k := N.R.k` (`Formalism/LocalToGlobal/Divisibility/NumbersLink.lean:560`) and pq_j = (k + j − 1) − (m − j) (line 574). So pq_j − k = 2j − 1 − m. The hypothesis |pq_j − k| ≤ m (`p22`, line 618) is proved from 1 ≤ j ≤ m by `linarith`.
+
+**2. The absolute value is a pointwise triangle step (Verified).** In `divisor_inequality_assembly` (`…/HermitianTwistDivisors/DivAssembly.lean:11`), the step `hA` bounds each term (pq_j − kk)·w(j,ρ)·logOm by |pq_j − kk|·|w(j,ρ)|·|logOm| **before** summing. Without that one step, the same proof yields the exact signed sum Σ_j Σ_ρ (pq_j − k)·w(j,ρ)·logOm. `TheoremDivIneq` (`StatementK.lean`) then bounds the absolute version crudely, from |pq_j − k| ≤ m, 0 ≤ w ≤ 2b, |logOm| ≤ La, |J| = m and |Pl| ≤ f, giving m·f·m·2b·La, the "≈ 6·m·B0" of section 11.
+
+**3. At each place, the m lift weights are almost equal (Verified).** The weights are w(j,ρ) = `(hc ρ).e (j − 1)` (`Numbers.lean:160`, the same values as `wj` in `DataParams₂.lean:73`). `SizeData₂.be_close` says |b_i − e_j| ≤ η at every place, so **|w(j,ρ) − w(j′,ρ)| ≤ 2η for all lifts j, j′**. The place-type windows say the same thing more coarsely (thick: w ∈ [b, b + η + 1]; top: [bT_t + b′/x, bT_t + b′/x + η]; thin: [w″, w″ + η]; `AsmLed.lean:26–31`). Here η = etaSz, and `szRow_eta_bounds` proves **etaSz ≤ b / (t³·f·k³)**.
+
+**4. The signed sum (checked by arithmetic from 1 to 3).** Since Σ_{j=1}^{m} (2j − 1 − m) = 0, subtracting the j = 1 weight changes nothing:
+
+```
+Σ_j Σ_ρ (2j−1−m)·w(j,ρ)·logOm  =  logOm · Σ_ρ Σ_j (2j−1−m)·( w(j,ρ) − w(1,ρ) )
+|signed drift|  ≤  La · f · (m²/2) · 2η   =  f·m²·η·La
+|absolute drift, as bounded in the proof|  ≤  2·f·m²·b·La
+ratio  ≤  η / (2b)  ≤  1 / (2·t³·f·k³)  ≤  x^(−1131)        (t ≥ x^377)
+```
+
+So the signed drift is smaller than the bound the proof uses by a factor of at least x^1131, and smaller than the m·B0 budget by about the same factor. **The drift's m² is an artefact of taking absolute values term by term.** A version of `DivAssembly` that kept the signed sum would remove it with a two-line change.
+
+**Consequence (Reading).** With section 15, every m·B0 charge in the per-point error except **Eb** is now either slack (energy, slope) or an artefact of bookkeeping (drift). The "+m" side of the balance, the reason the chain is cut at m ≈ √x, rests on one term: **Eb, m lifts × a Bloch–Kato rank of m per piece** (section 13).
+
+## 17. Next steps
 
 1. **Done:** exact dependency list (section 4).
 2. **Done:** `ChainTied` and the balance (sections 5 to 7). `ErrorFormsWeakWindowsFalse.lean` turned out to define unused propositions; only `ErrWindows`, `ErrText` and `errorBracketSizeWindows` from it are used.
 3. **Done:** `E u j w` (section 8) and how `EComp` is proved (section 9). **Next:** read how `EComp` is proved for the family: `QuadraticLogDerivCongr.lean:594` (`data_EComp5`) and the `Formalism.L2.DIV.linkDIVt_of_*` lemmas; check whether the product-formula reading of the g-place term is what they do, and where Σ_τ nuAbs(u,j,τ) ≈ Σ_t aT t is proved.
-4. **Done:** inside `DIV`, the full m·B0 is used by the signature drift and by Eb (section 11). **Done (b):** the windows are chosen, not forced; only the balance itself pins m to √x (section 12). **Done (a):** Eb uses the full per-lift budget, not the `VWinAt` loss. Its m² is (m lifts) × (Bloch–Kato rank m per piece, fixed by equality in the family), section 13. **Done:** the "+m" side of the balance is the `DIV` error m·(B0 + Nc), i.e. drift + Eb; the energy and slope charges of the same order are not needed by the size layer (`exists_data_completion`), section 14. **Done:** the energy and slope m·B0 budgets are slack (energy ≈ m·2fb, slope exactly 0); the outline's 2/3 matched against the code (section 15). **Next:** ask number theorists which naive accounting costs m·B0 per lift (compounding along the chain, or no gcd across Hecke characters); check the drift claim against the code; find why the lift exponent e' is as large as b = exp(x^ε).
+4. **Done:** inside `DIV`, the full m·B0 is used by the signature drift and by Eb (section 11). **Done (b):** the windows are chosen, not forced; only the balance itself pins m to √x (section 12). **Done (a):** Eb uses the full per-lift budget, not the `VWinAt` loss. Its m² is (m lifts) × (Bloch–Kato rank m per piece, fixed by equality in the family), section 13. **Done:** the "+m" side of the balance is the `DIV` error m·(B0 + Nc), i.e. drift + Eb; the energy and slope charges of the same order are not needed by the size layer (`exists_data_completion`), section 14. **Done:** the drift is a bookkeeping artefact; its signed size is below the proof's bound by a factor ≥ x^1131 (section 16). **Done:** the energy and slope m·B0 budgets are slack (energy ≈ m·2fb, slope exactly 0); the outline's 2/3 matched against the code (section 15). **Next:** ask number theorists which naive accounting costs m·B0 per lift (compounding along the chain, or no gcd across Hecke characters); find why the lift exponent e' is as large as b = exp(x^ε).
 5. **Done:** `BNBounds` is proved by equality, B0 = 2·|H|·m·b·x^ε with f = 2|H| (section 12).
 6. **Bring it to people who know the theory.** The automorphic layer needs number theorists. A short, factual Zulip post (written by me) with sections 1, 2 and 4 could help the people already working on understanding.
