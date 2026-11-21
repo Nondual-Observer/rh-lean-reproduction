@@ -276,8 +276,8 @@ below is either a paraphrase of a Lean statement, a summary of a Lean
 proof, or our interpretation, and we say which. It is not an independent
 proof: we have not re-derived the classical inputs
 (Ferrero–Washington <a class="cite" href="#bib-ferrero-washington">[4]</a>,
-Poitou–Tate duality <a class="cite" href="#bib-nsw">[12]</a>, CM
-theory <a class="cite" href="#bib-shimura">[13]</a> and others), which are proved
+Poitou–Tate duality <a class="cite" href="#bib-nsw">[13]</a>, CM
+theory <a class="cite" href="#bib-shimura">[14]</a> and others), which are proved
 inside the development and checked by the Lean kernel, and some proofs
 are summarised rather than reproduced line by line. Where we have not
 traced something, we say so (Section <a href="#sec:open"
@@ -664,12 +664,17 @@ class="math inline">\(\to\)</span> <code>zeroFreeAll_of_topG</code>
 class="math inline">\(\to\)</span> <code>EveryCharacter</code>.</p>
 <div class="corollary">
 <p><strong>Corollary 9</strong>. <em>Every later step only has to hold
-for <span class="math inline">\(x\)</span> in windows <span
-class="math inline">\([Y,Y^2]\)</span> with <span
-class="math inline">\(Y\ge X^{1/J}\)</span>, which is exactly how the
+for <span class="math inline">\(x\)</span> in windows. <span class="tag exact">Exact</span> The
 <span class="math inline">\(\text{Ш}\)</span> window of Section <a
 href="#sec:F" data-reference-type="ref" data-reference="sec:F">8</a> is
-stated (<span class="math inline">\(\delta=1\)</span>).</em></p>
+stated on <span class="math inline">\([Y,Y^2]\)</span> with <span
+class="math inline">\(Y\ge X^{1/J}\)</span>, and <code>supplyChi</code>
+turns it into host fields on windows with exponent <span
+class="math inline">\(3/2\)</span> (<code>HostExW</code>), so the Landau
+step is applied with <span class="math inline">\(\delta=1/2\)</span>,
+that is, on windows <span class="math inline">\([Y,Y^{3/2}]\)</span>. We
+thank Manvir Jaswal, whose guide <a class="cite" href="#bib-jaswal">[6]</a>
+states the windows this way, for the correction.</em></p>
 </div>
 <h1 data-number="4" id="sec:B"><span
 class="header-section-number">4</span> Step B: isolating the target
@@ -1942,7 +1947,7 @@ class="math inline">\(|\operatorname{Cl}(K&#39;)/\operatorname{Cl}(K&#39;)^\ell|
 </div>
 <p><span class="tag reading">Reading</span> Bounded <span class="math inline">\(\ell\)</span>-rank
 up the tower is the statement <span
-class="math inline">\(\mu=0\)</span> <a class="cite" href="#bib-washington">[15]</a>.
+class="math inline">\(\mu=0\)</span> <a class="cite" href="#bib-washington">[16]</a>.
 The proof occupies a 62-file folder
 (<code>GaloisLibrary/FerreroWashingtonIndex</code>).</p>
 <h4 data-number="8.0.0.2" id="provenance."><span
@@ -2247,13 +2252,13 @@ class="math inline">\(K\)</span> and attached to a newform of weight
 of <span class="math inline">\(W\)</span> and of <span
 class="math inline">\(W\otimes\theta\)</span> vanish. <span class="tag reading">Reading</span> As
 David Loeffler pointed out on Zulip (21 November 2026), this matches
-Kato’s theorem <a class="cite" href="#bib-kato">[7]</a> directly without
-needing an explicit <span class="math inline">\(L\)</span>-value
-hypothesis: in this setting the relevant critical <span
+Kato’s theorem <a class="cite" href="#bib-kato">[8]</a> directly without needing
+an explicit <span class="math inline">\(L\)</span>-value hypothesis: in
+this setting the relevant critical <span
 class="math inline">\(L\)</span>-value sits at <span
 class="math inline">\(s = 1\)</span> in the analytic normalisation (to
-the right of the central point <span class="math inline">\(s = 1/2\)</span>),
-where non-vanishing is automatic. It is proved in Lean
+the right of the central point <span class="math inline">\(s =
+1/2\)</span>), where non-vanishing is automatic. It is proved in Lean
 (<code>katoTwoW_of_printsH_of_rT_of_quadBC2</code>).</p></li>
 <li><p><em>CM inputs.</em> <span class="tag exact">Exact</span> Read statement by statement:
 Shimura’s main theorem of complex multiplication for imaginary quadratic
@@ -2279,6 +2284,45 @@ line by line.</p></li>
 clean, Question 4 is about exposition: whether the names are honest
 descriptions. For the ones we read they are, with the caveat on the
 Kato-type statement above.</p>
+<h4 data-number="11.0.0.1" id="comparison-with-jaswals-guide."><span
+class="header-section-number">11.0.0.1</span> Comparison with Jaswal’s
+guide.</h4>
+<p>Manvir Jaswal’s reader’s guide <a class="cite" href="#bib-jaswal">[6]</a>
+compares every classical input on the chain with its archive form (his
+Table 2) and reaches the same verdicts on Ferrero–Washington and
+Poitou–Tate. It adds two inputs we did not read, which it classes as
+weaker than the published theorems their names recall, both proved in
+the archive.</p>
+<ul>
+<li><p><em>Galois representations</em> (<code>Row0b</code>, proved by
+<code>galoisLocalGlobalStrong_recParameter</code>): local–global
+compatibility is asserted only when the local parameter is abelian or
+tame with zero monodromy, and at <span
+class="math inline">\(w\mid\ell\)</span> only under extra data.</p></li>
+<li><p><em>Local parameters</em> (<code>RecTExists</code>): the map
+exhibited by <code>recTExists</code> satisfies the required laws but
+sends every supercuspidal outside a class <code>GoodCusp</code> to an
+unramified twist of one fixed parameter <span
+class="math inline">\(J_{w,n}\)</span> (<code>cuspEx</code>,
+<code>JunkEx</code>), so it is not the local Langlands correspondence.
+The full correspondence is stated as <code>LocalLanglandsGL</code> and
+proved only conditionally.</p></li>
+</ul>
+<p><span class="tag verified">Verified</span> by name against the export of <code>Main</code>:
+<code>Row0b</code>, <code>galoisLocalGlobalStrong_recParameter</code>,
+<code>RecTExists</code>, <code>recTExists</code>, <code>GoodCusp</code>,
+<code>cuspEx</code> and <code>JunkEx</code> are used;
+<code>LocalLanglandsGL</code> is not. So the proof does not depend on
+the local Langlands correspondence. Jaswal also classes the Kato-type
+input as “Different” in shape, since it is stated with its own
+hypotheses (<code>Used</code>, a newform attachment,
+<code>WitAQ</code>), which is compatible with the reading above. His
+Table 1 lists the statements on the chain for which he knows no
+reference; several of them (<code>ch_balance</code>,
+<code>TheoremSSelected</code>, <code>LinkN</code>, <code>lemmaK</code>)
+are the steps we trace in Sections <a href="#sec:B"
+data-reference-type="ref" data-reference="sec:B">4</a>–<a href="#sec:F"
+data-reference-type="ref" data-reference="sec:F">8</a>.</p>
 <div class="question">
 <p><strong>Question 5</strong>. Is the windowed Landau theorem
 (Theorem <a href="#thm:landau" data-reference-type="ref"
@@ -2286,16 +2330,16 @@ data-reference="thm:landau">5</a>) new as a stated result?</p>
 </div>
 <p><strong>Narrowed.</strong> Deducing zero-free regions from one-sided
 or localised information on prime sums is a classical line going back to
-Landau <a class="cite" href="#bib-landau">[8]</a> and developed by Pintz (see the
-recent survey <a class="cite" href="#bib-johnston-trudgian">[6]</a>), and
+Landau <a class="cite" href="#bib-landau">[9]</a> and developed by Pintz (see the
+recent survey <a class="cite" href="#bib-johnston-trudgian">[7]</a>), and
 effective versions of Landau’s theorem already give quantitative lower
 bounds for averages over ranges <span
 class="math inline">\([1,Y]\)</span>. The windowed statement is
 therefore close to known methods in substance; whether this exact form
 appears in the literature is for specialists to say.</p>
-<h4 data-number="11.0.0.1"
+<h4 data-number="11.0.0.2"
 id="the-call-level-gap-in-step-d4-is-closed."><span
-class="header-section-number">11.0.0.1</span> The call-level gap in step
+class="header-section-number">11.0.0.2</span> The call-level gap in step
 D4 is closed.</h4>
 <p><span class="tag exact">Exact</span> <code>extendedClosedForm</code> is the field
 <code>p15</code> of <code>local_flatness_results</code>, which feeds
@@ -2308,9 +2352,9 @@ statement (<code>AuxBlock8.Conclusion1</code>, via
 class="math inline">\(\sqrt p\)</span> lemma reaches the gain inequality
 through the first closed-form theorem. Not checked: which lines of the
 gain proof consume <code>p15</code> specifically.</p>
-<h4 data-number="11.0.0.2"
+<h4 data-number="11.0.0.3"
 id="the-constants-do-not-matter-for-the-theorem."><span
-class="header-section-number">11.0.0.2</span> The constants do not
+class="header-section-number">11.0.0.3</span> The constants do not
 matter for the theorem.</h4>
 <p><span class="tag exact">Exact</span> <code>ChebyshevInequalityAtWindowScale</code> asks for
 <em>some</em> constants <span class="math inline">\(e_D,e_L\)</span> and
@@ -2324,9 +2368,9 @@ zero-freeness for every <span
 class="math inline">\(\operatorname{Re}s&gt;1/2\)</span> whatever their
 values. Explicit constants would only matter for an effective
 (numerical) version, which the development does not attempt.</p>
-<h4 data-number="11.0.0.3"
+<h4 data-number="11.0.0.4"
 id="sizesat-under-other-exponents-read-statically."><span
-class="header-section-number">11.0.0.3</span> <code>SizesAt</code> under
+class="header-section-number">11.0.0.4</span> <code>SizesAt</code> under
 other exponents, read statically.</h4>
 <p><span class="tag exact">Exact</span> Write <span class="math inline">\(m=x^\mu\)</span>, <span
 class="math inline">\(n=x^\nu\)</span>, <span
@@ -2351,8 +2395,8 @@ predicted. What reading cannot rule out is a hidden dependence elsewhere
 in the 13<span>,</span>000 modules downstream of the size choices; the
 perturbation run (Section <a href="#sec:23" data-reference-type="ref"
 data-reference="sec:23">9</a>) will check that mechanically.</p>
-<h4 data-number="11.0.0.4" id="still-not-traced."><span
-class="header-section-number">11.0.0.4</span> Still not traced.</h4>
+<h4 data-number="11.0.0.5" id="still-not-traced."><span
+class="header-section-number">11.0.0.5</span> Still not traced.</h4>
 <p>The Lean proofs of the classical inputs of Section <a href="#sec:F"
 data-reference-type="ref" data-reference="sec:F">8</a>, as opposed to
 their statements; numerical values of the constants; the perturbation
@@ -2365,7 +2409,7 @@ it:</p>
 <li><p>Jonas Whidden’s Zulip readings (the balance, the frame lemma, the
 common-lattice question);</p></li>
 <li><p>Bartosz Naskręcki’s proof guide and
-book <a class="cite" href="#bib-naskrecki">[11]</a>, which also state the <span
+book <a class="cite" href="#bib-naskrecki">[12]</a>, which also state the <span
 class="math inline">\(x/m+m\)</span> balance, the localized Landau step,
 the choice of auxiliary primes and the Ferrero–Washington and
 Poitou–Tate premises;</p></li>
@@ -2374,7 +2418,7 @@ independently traces the windowed Landau route and the gain chain
 through <code>AuxBlock8.Conclusion1</code> and
 <code>starAll_of</code>;</p></li>
 <li><p>Andrew Sutherland’s verification record and build
-manifest <a class="cite" href="#bib-sutherland">[14]</a>; the full kernel replays
+manifest <a class="cite" href="#bib-sutherland">[15]</a>; the full kernel replays
 and independent rebuilds reported by Simon DeDeo and Elliot
 Arledge;</p></li>
 <li><p>the dependency and dead-code analyses of James Shore
@@ -2388,8 +2432,8 @@ path-dependent olean hashes;</p></li>
 <code>riemann.tamnd.com</code>.</p></li>
 </ul>
 <p>Errors of interpretation are ours.</p>
-<h4 data-number="11.0.0.5" id="use-of-ai-tools."><span
-class="header-section-number">11.0.0.5</span> Use of AI tools.</h4>
+<h4 data-number="11.0.0.6" id="use-of-ai-tools."><span
+class="header-section-number">11.0.0.6</span> Use of AI tools.</h4>
 <p>Claude (Anthropic) was used to help read the Lean source, run
 searches over the declaration list, and draft parts of this text and its
 figures. Statements marked <span class="tag exact">Exact</span> or <span class="tag verified">Verified</span> were checked
@@ -2415,37 +2459,42 @@ fields</em>, Ann. of Math. (2) 109 (1979), 377–395.</p>
 <p><span id="bib-iwaniec-kowalski"></span> [5] H. Iwaniec and E. Kowalski,
 <em>Analytic Number Theory</em>, AMS Colloquium Publications 53,
 American Mathematical Society, 2004.</p>
-<p><span id="bib-johnston-trudgian"></span> [6] D. R. Johnston and T. Trudgian,
+<p><span id="bib-jaswal"></span> [6] M. Jaswal, <em>The Riemann hypothesis for
+Dirichlet <span class="math inline">\(L\)</span>-functions [after Levent
+Alpöge]</em>, preprint, 21 November 2026, <a
+href="https://doi.org/10.5281/zenodo.24410057"
+class="uri">https://doi.org/10.5281/zenodo.24410057</a>.</p>
+<p><span id="bib-johnston-trudgian"></span> [7] D. R. Johnston and T. Trudgian,
 <em>A round of Pintz to celebrate oscillations in sums</em>,
 arXiv:2511.09978.</p>
-<p><span id="bib-kato"></span> [7] K. Kato, <em><span
+<p><span id="bib-kato"></span> [8] K. Kato, <em><span
 class="math inline">\(p\)</span>-adic Hodge theory and values of zeta
 functions of modular forms</em>, Astérisque 295 (2004), 117–290.</p>
-<p><span id="bib-landau"></span> [8] E. Landau, <em>Handbuch der Lehre von der
+<p><span id="bib-landau"></span> [9] E. Landau, <em>Handbuch der Lehre von der
 Verteilung der Primzahlen</em>, Teubner, Leipzig, 1909.</p>
-<p><span id="bib-lean4"></span> [9] L. de Moura and S. Ullrich, <em>The Lean 4
+<p><span id="bib-lean4"></span> [10] L. de Moura and S. Ullrich, <em>The Lean 4
 theorem prover and programming language</em>, in: Automated Deduction
 (CADE-28), LNCS 12699, Springer, 2021, 625–635.</p>
-<p><span id="bib-mathlib"></span> [10] The mathlib Community, <em>The Lean
+<p><span id="bib-mathlib"></span> [11] The mathlib Community, <em>The Lean
 mathematical library</em>, in: Proceedings of the 9th ACM SIGPLAN
 International Conference on Certified Programs and Proofs (CPP 2020),
 367–381.</p>
-<p><span id="bib-naskrecki"></span> [11] B. Naskręcki, <code>riemann-rev</code>
+<p><span id="bib-naskrecki"></span> [12] B. Naskręcki, <code>riemann-rev</code>
 (status dashboard, proof guide and book), <a
 href="https://github.com/nasqret/riemann-rev"
 class="uri">https://github.com/nasqret/riemann-rev</a>, November
 2026.</p>
-<p><span id="bib-nsw"></span> [12] J. Neukirch, A. Schmidt and K. Wingberg,
+<p><span id="bib-nsw"></span> [13] J. Neukirch, A. Schmidt and K. Wingberg,
 <em>Cohomology of Number Fields</em>, 2nd ed., Grundlehren der
 mathematischen Wissenschaften 323, Springer, 2008.</p>
-<p><span id="bib-shimura"></span> [13] G. Shimura, <em>Introduction to the
+<p><span id="bib-shimura"></span> [14] G. Shimura, <em>Introduction to the
 Arithmetic Theory of Automorphic Functions</em>, Princeton University
 Press, 1971.</p>
-<p><span id="bib-sutherland"></span> [14] A. V. Sutherland, build and
+<p><span id="bib-sutherland"></span> [15] A. V. Sutherland, build and
 verification page for the Lean development, <a
 href="https://math.mit.edu/~drew/grh/"
 class="uri">https://math.mit.edu/~drew/grh/</a>, November 2026.</p>
-<p><span id="bib-washington"></span> [15] L. C. Washington, <em>Introduction to
+<p><span id="bib-washington"></span> [16] L. C. Washington, <em>Introduction to
 Cyclotomic Fields</em>, 2nd ed., Graduate Texts in Mathematics 83,
 Springer, 1997.</p>
 <h1 data-number="12" id="map-from-steps-to-lean-declarations"><span

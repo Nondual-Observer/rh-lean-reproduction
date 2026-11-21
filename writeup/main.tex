@@ -104,7 +104,7 @@ actually uses. The argument proves the Generalized Riemann Hypothesis for every 
 For each character it builds an arithmetic family attached to a chain of about $\sqrt{x}$ theta
 lifts, bounds one quantity in two ways (a twisted prime sum on one side, the Arakelov degree of a
 divisible lattice on the other), and obtains an error of size $x/m + m$ for a chain of length $m$.
-Taking $m\approx\sqrt{x}$ gives a square-root bound on a weighted prime sum over windows $[Y,Y^2]$,
+Taking $m\approx\sqrt{x}$ gives a square-root bound on a weighted prime sum over windows $[Y,Y^{3/2}]$,
 and a windowed form of Landau's theorem turns that into the absence of zeros with
 $\re s > 1/2+\eps$. We locate where the square root is paid, show that the other charges of the same
 nominal size are slack or artefacts, and explain why the argument does not stall at the exponent
@@ -183,7 +183,7 @@ reconstructs that $2/3$ from the code's own quantities and shows how the code av
 \node[box, right=6mm of E] (F) {\textbf{F. $\Sha$ window}\\ \mbox{$e^{x^{4\eps/5}}$ vs.\ $\sqrt b$: slack}};
 \node[key, below=9mm of E] (C) {\textbf{C. Size bound}\\ \mbox{error $\approx x/m+m$, smallest at $m\approx\sqrt{x}$}};
 \node[wbox, below=7mm of C] (B) {\textbf{B. Fourier isolation}\\ \mbox{$\Gz(x)\le 3x^{1/2+\eps}+\Err/\text{main}$}};
-\node[wbox, below=7mm of B] (A) {\textbf{A. Windowed Landau}\\ \mbox{bound on $[Y,Y^2]$ $\Rightarrow$ no zeros with $\re s>1/2+\eps$}};
+\node[wbox, below=7mm of B] (A) {\textbf{A. Windowed Landau}\\ \mbox{bound on $[Y,Y^{3/2}]$ $\Rightarrow$ no zeros with $\re s>1/2+\eps$}};
 \node[wbox, below=7mm of A] (T) {\textbf{GRH for every Dirichlet character, hence RH}};
 \draw[arr] (D) -- (C); \draw[arr] (E) -- (C); \draw[arr] (F) -- (C);
 \draw[arr] (C) -- (B); \draw[arr] (B) -- (A); \draw[arr] (A) -- (T);
@@ -369,12 +369,12 @@ contradicts the growth forced by the pole (\lean{landau_growth_contra},
 }
 \node[font=\small] at (11.3,0) {$\cdots$};
 \fill[blue!20] (12.4,-0.18) rectangle (13.6,0.18); \draw[blue!70!black, thick] (12.4,-0.18) rectangle (13.6,0.18);
-\node[font=\scriptsize, above] at (13,0.2) {$[Y_i,Y_i^{2}]$};
+\node[font=\scriptsize, above] at (13,0.2) {$[Y_i,Y_i^{3/2}]$};
 \node[font=\footnotesize, align=center, text width=8.5cm] at (6.5,-1.0)
   {$G_m(y)\le C y^{\theta}$ is only needed inside the shaded windows; between them $G_m$ may be large};
 \end{tikzpicture}
-\caption{The hypothesis of the windowed Landau theorem (on a $\log\log$ scale each window $[Y,Y^2]$
-has the same length $\log 2$). A sequence of windows reaching to infinity is enough to rule out zeros
+\caption{The hypothesis of the windowed Landau theorem (on a $\log\log$ scale each window $[Y,Y^{3/2}]$
+has the same length $\log(3/2)$). A sequence of windows reaching to infinity is enough to rule out zeros
 with $\re s>\theta$.}\label{fig:windows}
 \end{figure}
 
@@ -410,8 +410,11 @@ Theorem~\ref{thm:coregm} to Theorem~\ref{thm:main} is (\Verified):
 $\to$ \lean{EveryCharacter}.
 
 \begin{corollary}
-Every later step only has to hold for $x$ in windows $[Y,Y^2]$ with $Y\ge X^{1/J}$, which is exactly
-how the $\Sha$ window of Section~\ref{sec:F} is stated ($\delta=1$).
+Every later step only has to hold for $x$ in windows. \Exact{} The $\Sha$ window of
+Section~\ref{sec:F} is stated on $[Y,Y^2]$ with $Y\ge X^{1/J}$, and \lean{supplyChi} turns it into
+host fields on windows with exponent $3/2$ (\lean{HostExW}), so the Landau step is applied
+with $\delta=1/2$, that is, on windows $[Y,Y^{3/2}]$. We thank Manvir Jaswal, whose
+guide~\cite{jaswal} states the windows this way, for the correction.
 \end{corollary}
 
 % ======================================================================
@@ -1469,6 +1472,30 @@ match the published theorems at full strength?
 about exposition: whether the names are honest descriptions. For the ones we read they are, with
 the caveat on the Kato-type statement above.
 
+\paragraph{Comparison with Jaswal's guide.} Manvir Jaswal's reader's guide~\cite{jaswal} compares
+every classical input on the chain with its archive form (his Table~2) and reaches the same verdicts
+on Ferrero--Washington and Poitou--Tate. It adds two inputs we did not read, which it classes as
+weaker than the published theorems their names recall, both proved in the archive.
+\begin{itemize}
+\item \emph{Galois representations} (\lean{Row0b}, proved by
+  \lean{galoisLocalGlobalStrong_recParameter}): local--global compatibility is asserted only when the
+  local parameter is abelian or tame with zero monodromy, and at $w\mid\ell$ only under extra data.
+\item \emph{Local parameters} (\lean{RecTExists}): the map exhibited by \lean{recTExists} satisfies
+  the required laws but sends every supercuspidal outside a class \lean{GoodCusp} to an unramified
+  twist of one fixed parameter $J_{w,n}$ (\lean{cuspEx}, \lean{JunkEx}), so it is not the local
+  Langlands correspondence. The full correspondence is stated as \lean{LocalLanglandsGL} and proved
+  only conditionally.
+\end{itemize}
+\Verified{} by name against the export of \lean{Main}: \lean{Row0b},
+\lean{galoisLocalGlobalStrong_recParameter}, \lean{RecTExists}, \lean{recTExists}, \lean{GoodCusp},
+\lean{cuspEx} and \lean{JunkEx} are used; \lean{LocalLanglandsGL} is not. So the proof does not
+depend on the local Langlands correspondence. Jaswal also classes the Kato-type input as
+``Different'' in shape, since it is stated with its own hypotheses (\lean{Used}, a newform
+attachment, \lean{WitAQ}), which is compatible with the reading above. His Table~1 lists the
+statements on the chain for which he knows no reference; several of them (\lean{ch_balance},
+\lean{TheoremSSelected}, \lean{LinkN}, \lean{lemmaK}) are the steps we trace in
+Sections~\ref{sec:B}--\ref{sec:F}.
+
 \begin{question}
 Is the windowed Landau theorem (Theorem~\ref{thm:landau}) new as a stated result?
 \end{question}
@@ -1551,6 +1578,8 @@ the whole text and takes full responsibility for its content.
   vanishes for abelian number fields}, Ann. of Math. (2) 109 (1979), 377--395.
 \bibitem{iwaniec-kowalski} H.~Iwaniec and E.~Kowalski, \emph{Analytic Number Theory}, AMS Colloquium
   Publications 53, American Mathematical Society, 2004.
+\bibitem{jaswal} M.~Jaswal, \emph{The Riemann hypothesis for Dirichlet $L$-functions [after Levent
+  Alp\"oge]}, preprint, 21 November 2026, \url{https://doi.org/10.5281/zenodo.24410057}.
 \bibitem{johnston-trudgian} D.~R.~Johnston and T.~Trudgian, \emph{A round of Pintz to celebrate
   oscillations in sums}, arXiv:2511.09978.
 \bibitem{kato} K.~Kato, \emph{$p$-adic Hodge theory and values of zeta functions of modular forms},
