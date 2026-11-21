@@ -2094,9 +2094,10 @@ Sutherland’s manifest, including <code>Main.olean</code>;
 </tr>
 <tr class="even">
 <td style="text-align: left;">Export hash</td>
-<td style="text-align: left;">running at release; will be posted as an
-update (no independent reproduction of the solution export’s hash had
-been reported as of 21 November)</td>
+<td style="text-align: left;">byte-identical match to the published
+export: 61<span>,</span>570<span>,</span>595<span>,</span>788 bytes,
+sha256 <code>5ea74b91…244e</code> (<code>lean4export</code> v4.33.0,
+commit <code>15f6055e</code>, 89 minutes)</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">Kernel replay</td>
@@ -2113,8 +2114,9 @@ replays: Sutherland’s <code>leanchecker</code>, 175<span>,</span>187 of
 <p><strong>Remark 37</strong>. The differing oleans store the source
 path (for example <code>/home/.../rh/lean/src/.../OrbitMult.lean</code>,
 once per file), which differs between machines. The kernel export holds
-only declarations, so a matching export hash would show that the
-differences cannot touch the proof.</p>
+only declarations, and our re-export matches the published 61.6 GB
+export byte for byte, confirming that the differences cannot touch the
+proof.</p>
 </div>
 <h1 data-number="11" id="sec:open"><span
 class="header-section-number">11</span> Open questions, and what we

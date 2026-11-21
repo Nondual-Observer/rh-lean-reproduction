@@ -1353,7 +1353,7 @@ Full build & 175{,}187 modules, 183{,}893 jobs, OK, 401 minutes on 94 cores\\
 Statement & identical to Mathlib's \lean{RiemannHypothesis} (\lean{Mathlib.NumberTheory.LSeries.RiemannZeta})\\
 Axioms & \lean{propext}, \lean{Quot.sound}, \lean{Classical.choice} only; \texttt{OVERALL: CLEAN}\\
 Olean comparison & 76{,}968 byte-identical to Sutherland's manifest, including \texttt{Main.olean}; 98{,}219 differ, every one embedding the absolute build path; 0 differ without a path\\
-Export hash & running at release; will be posted as an update (no independent reproduction of the solution export's hash had been reported as of 21 November)\\
+Export hash & byte-identical match to the published export: 61{,}570{,}595{,}788 bytes, sha256 \texttt{5ea74b91\ldots 244e} (\texttt{lean4export} v4.33.0, commit \texttt{15f6055e}, 89 minutes)\\
 Kernel replay & \texttt{Main} with imports trusted: done; full \texttt{--fresh} replay not run by us (others report full replays: Sutherland's \texttt{leanchecker}, 175{,}187 of 175{,}187 modules; Simon DeDeo, likewise)\\
 \bottomrule
 \end{tabular}
@@ -1376,8 +1376,8 @@ Kernel replay & \texttt{Main} with imports trusted: done; full \texttt{--fresh} 
 \begin{remark}
 The differing oleans store the source path (for example
 \lean{/home/.../rh/lean/src/.../OrbitMult.lean}, once per file), which differs between machines.
-The kernel export holds only declarations, so a matching export hash would show that the differences
-cannot touch the proof.
+The kernel export holds only declarations, and our re-export matches the published 61.6 GB export
+byte for byte, confirming that the differences cannot touch the proof.
 \end{remark}
 
 % ======================================================================

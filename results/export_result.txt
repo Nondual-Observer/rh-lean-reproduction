@@ -1,0 +1,9 @@
+export sha256 (yours)    : 5ea74b912147c5c93cc2b6d70cc727cf908df2f62ac6a20480a3fa02f6be244e
+export sha256 (published): 5ea74b912147c5c93cc2b6d70cc727cf908df2f62ac6a20480a3fa02f6be244e
+export bytes (yours)     : 61570595788
+export bytes (published) : 61570595788
+VERDICT                  : MATCH: byte-identical to the published export
+lean4export commit       : 15f6055e299ad5b89345e533cc2192f4cc00f659
+export-targets.txt sha256: 9eeb2e5e55be4a78f6e4983fc950dba915b45ad8aeb7a02a32341927a89e05e8
+export wall time         : 89 min
+lean version             : leanprover/lean4:v4.33.1
