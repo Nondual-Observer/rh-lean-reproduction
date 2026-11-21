@@ -864,7 +864,24 @@ All three are used.
 
 **Reading.** So step 6 sits on formal proofs of a large part of classical Iwasawa theory and Galois cohomology (Ferrero–Washington, Poitou–Tate, Kato-type bounds, CM theory). Whether these formal statements match the published theorems at full strength is a question for specialists; the kernel only guarantees that the Lean statements are proved.
 
-## 26. Next steps
+## 26. Closing the open questions (20 Nov, 23:30 local)
+
+**Q1, is compounding the outline's 2/3? Still open.** The outline's entry 14 (dated 15 Nov) reports a computation of the cost of each lift and the figure 2/3, but does not show the calculation. Section 19 stays a reconstruction.
+
+**Q2, can a smaller indefinite part per lift lower the m² of Eb? Answered within this chain.** `ShapeJumps k m t` is required with the same m at every local piece, whatever its lift (`admG2`, `EmbeddingTypes.lean:122`, Verified). So every lift is charged rank m. Even a rank that tracked the shrinking indefinite part, m − j at lift j, would pay Σ_j (m − j) = m(m−1)/2, still of order m² (Reading, arithmetic). At most a factor 2 is available; lowering the exponent needs rank o(m) per lift, i.e. a different, shorter chain, which costs on the x/m side.
+
+**Q3, why is e′ ≈ b = exp(x^ε)? Answered within this design.** e′ is linear in the Hodge–Tate height hB ∈ [b, 6b] (section 18). The weight scale cannot be polynomial because the Ш-window losses are exponential themselves: `BaAt` uses exp(x^(4ε/5)) and `HVAt` (cond·t)^C + C·exp(x^(4ε/5)), both absorbed by √b = exp(x^ε/2) (Exact, definitions). b cancels in the balance, so this fixes the size of Eb, not the exponent.
+
+**Q4, do the formal classical theorems match the literature? Two of four.**
+- Ferrero–Washington (Exact): |Cl(K′)/Cl(K′)^ℓ| ≤ ℓ^r for all K′ = K(μ_{ℓ^n}), K abelian with μ_ℓ ⊆ K (μ_4 if ℓ = 2), Mathlib's `ClassGroup`. Reading: bounded ℓ-rank up the cyclotomic Z_ℓ-tower, equivalent to μ = 0.
+- Poitou–Tate (Exact): `PoitouTateNormalised`: number field F, ℓ ≠ 2 or F totally complex, S ⊇ places above ℓ, every finite Z/ℓ^r G_S-module: normalised local invariants, the nine-term exact sequence, Ш-duality, H^n = 0 for n ≥ 3. Reading: the standard theorem in the case where real places contribute nothing. Proved unconditionally by `PositivityTheory.Lit1.PTN.poitouTateNormalised_holds`; the wrapper `poitou_tate_normalised_of_literature` ignores its `OpenLiteratureStatements` argument.
+- Kato-type bounds, CM inputs: not compared.
+
+**Q5, is the windowed Landau theorem new? Narrowed.** Zero-free regions from one-sided arithmetic information is the Landau–Pintz line (survey: "A round of Pintz to celebrate oscillations in sums", arXiv:2511.09978). Close to known methods; the exact form is for specialists.
+
+**Gap in 21/25.2 closed at the call level (Exact).** `extendedClosedForm` is field `p15` of `local_flatness_results` (AdmissibleFamilyNoKernel.lean:62) → `loc8All_of` → `first_theorem_threshold_functions` → `first_theorem_closed_form` → `FirstTheoremAtFamily` → `family_first_bound_of_theorem` → `Adm8F` → `linkG_without_kernels` → `admissible_family_no_kernel` → `AuxBlock8.Pf.stmtF` (the gain clause). Not checked: which lines of the gain proof use `p15`.
+
+## 27. Next steps
 
 1. **Done:** exact dependency list (section 4).
 2. **Done:** `ChainTied` and the balance (sections 5 to 7). `ErrorFormsWeakWindowsFalse.lean` turned out to define unused propositions; only `ErrWindows`, `ErrText` and `errorBracketSizeWindows` from it are used.
