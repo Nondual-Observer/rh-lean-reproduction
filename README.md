@@ -84,7 +84,7 @@ Full result (all 175,187 files; `results/olean_comparison.txt`):
 | Identical to manifest | 76,968 | 0 |
 | Different | 0 | 98,219 |
 
-`Main.olean` is identical. The build itself took 401 minutes on 94 cores and the check step reports `OVERALL: CLEAN` (`results/build_check_summary.txt`).
+`Main.olean` is identical. The build itself took 401 minutes on 94 cores and the check step reports `OVERALL: CLEAN` (`results/build_check_summary.txt`). `leanchecker` re-checks `Main` with exit code 0, and the full single-threaded replay of everything `Main` depends on (`leanchecker --fresh Main`) ran to completion in about 10 h 17 min with no error reported (its exit code was not recorded).
 
 The two groups do not overlap. In the one module I examined by hand, the only differing text was the stored source path (`/mnt/rh_ram/lean/src/…` in my build against a relative path in a rebuild), which shifts everything after it. My working explanation is that `.olean` files store messages such as linter warnings, and those carry the absolute path of the build directory, so they cannot match a build made elsewhere.
 

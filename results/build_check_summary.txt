@@ -12,6 +12,7 @@ PASS  main: Classical.choice, Quot.sound, propext
 myRH typechecked : yes
 OVERALL: CLEAN
 
-replay (Main only, imports trusted): run by hand, see 5_replay.sh
+replay (Main only, imports trusted): lake env leanchecker Main, exit code 0, 1 min
+replay (full, --fresh): lake env leanchecker --fresh Main, single-threaded, 21 Nov 06:21 to 16:38 UTC (about 10 h 17 min); ran to completion with no error output and no out-of-memory kill; exit code not recorded (output was piped through tee)
 export hash (8_export_hash.sh): MATCH, byte-identical to published export (sha256 5ea74b912147c5c93cc2b6d70cc727cf908df2f62ac6a20480a3fa02f6be244e, 61570595788 bytes, 89 min; see results/export_result.txt)
 path sample (11_path_sample.sh): 300 of 300 sampled path-differing modules byte-identical to the manifest when compiled at Sutherland's build path (see results/path_sample_result.txt)

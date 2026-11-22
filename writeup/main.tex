@@ -1360,7 +1360,7 @@ Statement & identical to Mathlib's \lean{RiemannHypothesis} (\lean{Mathlib.Numbe
 Axioms & \lean{propext}, \lean{Quot.sound}, \lean{Classical.choice} only; \texttt{OVERALL: CLEAN}\\
 Olean comparison & 76{,}968 byte-identical to Sutherland's manifest, including \texttt{Main.olean}; 98{,}219 differ, every one embedding the absolute build path; 0 differ without a path. Recompiled at Sutherland's build path, a random sample of 300 of the 98{,}219 is byte-identical to the manifest, 300 of 300\\
 Export hash & byte-identical match to the published export: 61{,}570{,}595{,}788 bytes, sha256 \texttt{5ea74b91\ldots 244e} (\texttt{lean4export} v4.33.0, commit \texttt{15f6055e}, 89 minutes)\\
-Kernel replay & \texttt{Main} with imports trusted: done; full \texttt{--fresh} replay not run by us (others report full replays: Sutherland's \texttt{leanchecker}, 175{,}187 of 175{,}187 modules; Simon DeDeo, likewise)\\
+Kernel replay & \texttt{Main} with imports trusted: exit code 0 (1 minute). Full replay of everything \texttt{Main} depends on (\texttt{leanchecker -{}-fresh Main}, single-threaded): ran to completion in about 10 h 17 min (06:21 to 16:38 UTC, 21 Nov) with no error reported; its exit code was not recorded. Others report full replays too: Sutherland's \texttt{leanchecker}, 175{,}187 of 175{,}187 modules; Simon DeDeo, likewise\\
 \bottomrule
 \end{tabular}
 \end{center}

@@ -914,6 +914,7 @@ Added for others: `results/used_decls.txt.gz`, the names-only list of the 1,484,
 - **Exact chain length (after hhh2210 on issue #5):** `exists_even_between` takes m = 2⌈½·x^(1/2−ε/16)⌉ (`ExistsRanksRankValFrame.lean:10,82`).
 - **Kato input:** David Loeffler (Zulip) explained why no L-value hypothesis is needed: the relevant critical value is at s = 1, right of the centre, so it cannot vanish.
 - **Issue #5 answers:** `omTied_retie_of_cube` has a single consumer chain (`omTied_withTrue` ← `exists_trueVolume_stage_of_any_column_choice`), and its field hypotheses are discharged in `omTied_withTrue` from fields of `ColW`, built by `step_pinned`; the Siegel mass ratio is proved (`siegelMassRatio_holds`). For §7 of Jose's note: `LinkMu` gets its meaning from the family field `nprimeDef` (N_u = I_u·N_u^H) and the classical twisting formula `mu_frac`; both `boundsMu` lemmas feed `LinkDIV` through `divClausesR_of`; `DesignExists` is proved by `designExists_of_tuSize_aux4n_litThin`. Drafts in `drafts/github_issue5_*.md`.
+- **Full kernel replay:** `lake env leanchecker --fresh Main` ran single-threaded from 06:21 to 16:38 UTC (about 10 h 17 min) and finished with no error output and no out-of-memory kill. The output went through `tee`, so the exit code was not recorded.
 - **James Shore's cone list** agrees with our `used_decls` except for 4 exporter-added constants (`Nat.lor`, `Nat.xor`, `String.mk`, `String.mk._proof_1`).
 
 ## 29. Next steps

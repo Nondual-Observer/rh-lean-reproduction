@@ -2115,9 +2115,12 @@ commit <code>15f6055e</code>, 89 minutes)</td>
 <tr class="odd">
 <td style="text-align: left;">Kernel replay</td>
 <td style="text-align: left;"><code>Main</code> with imports trusted:
-done; full <code>–fresh</code> replay not run by us (others report full
-replays: Sutherland’s <code>leanchecker</code>, 175<span>,</span>187 of
-175<span>,</span>187 modules; Simon DeDeo, likewise)</td>
+exit code 0 (1 minute). Full replay of everything <code>Main</code>
+depends on (<code>leanchecker --fresh Main</code>, single-threaded): ran
+to completion in about 10 h 17 min (06:21 to 16:38 UTC, 21 Nov) with no
+error reported; its exit code was not recorded. Others report full
+replays too: Sutherland’s <code>leanchecker</code>, 175<span>,</span>187
+of 175<span>,</span>187 modules; Simon DeDeo, likewise</td>
 </tr>
 </tbody>
 </table>
