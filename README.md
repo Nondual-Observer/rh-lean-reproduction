@@ -75,7 +75,7 @@ Lean checks proofs symbolically and never evaluates ζ. In a few places, though,
 
 ## 6. Reproducibility of the build
 
-I built the project with `lake build Main` on a Google Cloud VM (377 GB RAM, 94 parallel jobs), using the scripts in `scripts/`. `scripts/7_compare.sh` hashes every compiled `.olean` and compares it with Sutherland's manifest, whose caveats note that only a 77-module sample of his build had been compared with a real `lake build`.
+I built the project with `lake build Main` on a Google Cloud VM (377 GB RAM, 94 parallel jobs), using the scripts in `scripts/`. `scripts/7_compare.sh` hashes every compiled `.olean` and compares it with Sutherland's manifest. When I ran this, his caveats noted that only a 77-module sample of his build had been compared with a real `lake build`; he has since run a full sandboxed `lake build` (see below).
 
 Full result (all 175,187 files; `results/olean_comparison.txt`):
 
@@ -90,7 +90,9 @@ The two groups do not overlap. In the one module I examined by hand, the only di
 
 **Settled: the path is the only difference.** Sutherland confirmed in leanprover-community/riemann-hypothesis#6 that his build passed sources to `lean` as `/home/ubuntu/grh/src/lean/src/<Module>.lean`. `scripts/11_path_sample.sh` replays, for a random sample of 300 of the 98,219 differing modules (seed 20261121), the exact `lean` command Lake recorded in each module's `.trace`, changing only the output location and the source prefix to his path. All 300 are byte-identical to his manifest (`results/path_sample_result.txt`). A calibration step first checks that the same replay at our own path reproduces our own `.olean` files exactly.
 
-`scripts/8_export_hash.sh` exports my build with `lean4export` (v4.33.0, commit `15f6055e`) and compares it with the published export (`results/export_result.txt`). It finished in 89 minutes and **matched byte for byte**: 61,570,595,788 bytes, sha256 `5ea74b912147c5c93cc2b6d70cc727cf908df2f62ac6a20480a3fa02f6be244e`. That confirms the differing `.olean` files do not affect the kernel declarations. My build is not sandboxed, so this does not close the "sandboxed re-export" gap on Sutherland's page. The perturbation test of the size windows (`mechanism/PERTURB.md`) will be added in a follow-up update.
+`scripts/8_export_hash.sh` exports my build with `lean4export` (v4.33.0, commit `15f6055e`) and compares it with the published export (`results/export_result.txt`). It finished in 89 minutes and **matched byte for byte**: 61,570,595,788 bytes, sha256 `5ea74b912147c5c93cc2b6d70cc727cf908df2f62ac6a20480a3fa02f6be244e`. That confirms the differing `.olean` files do not affect the kernel declarations.
+
+My build is not sandboxed. Sutherland has since closed that gap himself: `lake build Main` in a bubblewrap sandbox (no network, read-only source, archive downloaded afresh) on a separate machine, at his build path, gives an export byte-identical to the published one, and 175,186 of its 175,187 compiled files match his manifest. The one exception, `Formalism/LocalToGlobal/SiegelLatticeTheory/CokernelGLCounts/RankPointCounts/LocModel.olean`, compiles non-deterministically in Lean v4.33.1: two theorems elaborated in parallel both trigger an auto-generated equation lemma (`BBtop.eq_1`), and one bound-variable name in it depends on which gets there first. The two outputs differ in 38 bytes, bound-variable names play no part in kernel checking, and the lemma is not in the export. The underlying race was fixed in Lean v4.36.0 (lean4#15499). Details are on [his page](https://math.mit.edu/~drew/grh/). The perturbation test of the size windows (`mechanism/PERTURB.md`) will be added in a follow-up update.
 
 ## 7. The note's vocabulary against the code
 
