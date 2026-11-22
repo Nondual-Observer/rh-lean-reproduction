@@ -45,6 +45,9 @@ note(){ echo "$*" | tee -a "$RES"; }
 run_detached fc88 "$PWD/12_formal_conjectures.sh"
 exec >> "$OUT/fc88.log" 2>&1
 export LEAN_ABORT_ON_PANIC=1
+# leantar unpacks the Mathlib cache with one thread per core; on a large VM that exceeds the
+# default limit of 1024 open files ("No file descriptors available (os error 24)").
+ulimit -n "$(ulimit -Hn)" 2>/dev/null || ulimit -n 65536 2>/dev/null || true
 : > "$RES"
 note "12_formal_conjectures.sh  started $(date -u +%FT%TZ)"
 note "PR #88 head $PR_SHA; formal-conjectures $FC_REV; project $PROJ"
