@@ -1,0 +1,40 @@
+leanprover-community/riemann-hypothesis#88: the formal-conjectures Comparator setup, run on my build
+Script: scripts/12_formal_conjectures.sh   Machine: rh-vm (GCP, 94 vCPU, 377 GB RAM), 22 Nov 2026
+Build: the published archive (Lean v4.33.1, Mathlib 0df444a3), built with lake build Main.
+
+The challenge is FormalConjectures/Millennium/RiemannHypothesis.lean from google-deepmind/formal-conjectures,
+unchanged; the theorems judged are RiemannHypothesis.riemannHypothesis and GRH.generalized_riemann_hypothesis.
+
+12_formal_conjectures.sh  started 2026-11-22T10:58:40Z
+PR #88 head c018a709ff1c290dcedd636de32fce34cc7587d4; formal-conjectures d8d031d4998c78575159ccab9a7a9e95ce043883; project /home/ishaandixit2017/rh/lean
+A  compile FormalConjecturesStatement: OK (1 s)
+A  compile FormalConjecturesBridge: OK (4 s)
+A  compile FormalConjecturesSolution: OK (38 s)
+A  #print axioms: both theorems use only propext, Classical.choice, Quot.sound
+B  formal-conjectures lean-toolchain = project's
+B  same Mathlib commit 0df444a360eaa60ab8c11dca51a86af692955474
+B  fc-challenge.export: 350866107 bytes, sha256 75aa4a26e43ba9ea2998ba28ebdec4d72c43b43944e6c333963c4cfeda08c2c1
+B  MATCHES the README's sha256 (macOS value holds on Linux)
+C  fc-solution.export: 61570614651 bytes, sha256 17719b54c91e0f5c3f89a1741fd074b5b86f15f26ac57b443ef965f4ccd72f70, 5712 s
+C  con-leche compare branch at 274f01384ea65bf70934efb11ddaf9dd8aa4f513
+C  (note: not 5dc36dc1, the commit Sutherland used)
+C  con-leche --compare: exit 0 (182 s)
+con-leche: accepted 51688 declarations, 2 axioms justified by the solution /home/ishaandixit2017/rh/fc88/fc-solution.export (1468413 declarations accepted) (--verified)
+con-leche: theorem RiemannHypothesis.riemannHypothesis justified by the solution
+con-leche: theorem GRH.generalized_riemann_hypothesis justified by the solution
+finished 2026-11-22T12:41:19Z
+
+Statements printed in part A (with the solution file at the head above):
+'RiemannHypothesis.riemannHypothesis' depends on axioms: [propext, Classical.choice, Quot.sound]
+'GRH.generalized_riemann_hypothesis' depends on axioms: [propext, Classical.choice, Quot.sound]
+GRH.generalized_riemann_hypothesis : ∀ (q : ℕ) [inst : NeZero q] (χ : DirichletCharacter ℂ q),
+  χ.IsPrimitive → ∀ (s : ℂ), DirichletCharacter.LFunction χ s = 0 → s ∉ Int.cast '' GRH.trivialZeros χ → s.re = 1 / 2
+
+Notes
+- An earlier run on the same day stopped in part B: unpacking the Mathlib cache with one thread per core
+  exceeded the default limit of 1,024 open files. The script now raises the limit first.
+- The PR later moved its files into comparator/. Compared with c018a70: the statement and bridge files, the
+  config and the export targets are byte-identical, and FormalConjecturesSolution.lean differs only in the
+  path named in its module docstring.
+- Not run: the full `lake comparator` (single-threaded Lean kernels on a 62 GB export).
+- Reported in the PR: https://github.com/leanprover-community/riemann-hypothesis/pull/88

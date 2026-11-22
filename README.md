@@ -26,6 +26,7 @@ This repository is my independent look at the release. It does **not** claim to 
 | 8 | Both sides of the balance are paid by one inequality, the divisibility bound `DIV`. The energy and slope charges of the same nominal size are slack, and the signature drift is an artefact smaller than its bound by a factor of x^1131. What is left is `Eb`: m lifts times a Bloch–Kato rank m, one m used twice. | Each step checked against the used-declaration list |
 | 9 | The outline's 2/3 is reproduced exactly by charging each lift for the whole chain below it (x/m + m²). The code avoids it by charging every local piece to exactly one lift; no 2/3 route survives in the archive. | Reconstruction from the code's own quantities |
 | 10 | The last analytic step is a windowed Landau theorem, and the Ш window rests on Lean proofs of Ferrero–Washington, Poitou–Tate and CM theory, all proved in the project, none assumed. | Checked against the used-declaration list |
+| 11 | The proof also establishes Google DeepMind's own statements of RH and GRH (formal-conjectures), not just this project's: the bridge in community PR #88 compiles against my build with only the three standard axioms, and `con-leche --compare` accepts both theorems against the formal-conjectures challenge (`results/formal_conjectures_result.txt`). | Compiled and compared on the full build |
 
 ## 1. Source and provenance
 
@@ -94,6 +95,8 @@ The two groups do not overlap. In the one module I examined by hand, the only di
 
 My build is not sandboxed. Sutherland has since closed that gap himself: `lake build Main` in a bubblewrap sandbox (no network, read-only source, archive downloaded afresh) on a separate machine, at his build path, gives an export byte-identical to the published one, and 175,186 of its 175,187 compiled files match his manifest. The one exception, `Formalism/LocalToGlobal/SiegelLatticeTheory/CokernelGLCounts/RankPointCounts/LocModel.olean`, compiles non-deterministically in Lean v4.33.1: two theorems elaborated in parallel both trigger an auto-generated equation lemma (`BBtop.eq_1`), and one bound-variable name in it depends on which gets there first. The two outputs differ in 38 bytes, bound-variable names play no part in kernel checking, and the lemma is not in the export. The underlying race was fixed in Lean v4.36.0 (lean4#15499). Details are on [his page](https://math.mit.edu/~drew/grh/). The perturbation test of the size windows (`mechanism/PERTURB.md`) will be added in a follow-up update.
 
+**Against Google DeepMind's statements.** Community PR #88 adds a second Comparator setup whose challenge is formal-conjectures' own `RiemannHypothesis.riemannHypothesis` and `GRH.generalized_riemann_hypothesis`, the latter covering every non-trivial zero of a primitive Dirichlet L-function. `scripts/12_formal_conjectures.sh` runs it on my build: the three files compile against the real `Main.lean` (axioms `propext`, `Classical.choice`, `Quot.sound`), the challenge export on Linux has the sha256 the PR quotes, and `con-leche --compare` (branch `compare`, `274f0138`) accepts both theorems (`results/formal_conjectures_result.txt`). The full `lake comparator` run was not done.
+
 ## 7. The note's vocabulary against the code
 
 The note ends with a 20-step timeline. `analysis/note_terms.py` searches all files for each step's key names, matching whole words in CamelCase identifiers and paths (`results/note_terms.json`). Theta lifts (2,629 files), covolumes (3,670), seesaws (565), Bessel periods (359) and GGP periods (236) are everywhere. **Stepanov, Guinand–Weil, "relative trace formula" and Vandiver never appear**, and "Iwasawa tower or theory" appears in 2 files. So those steps live in the code under other names, or were dropped on the way. A name match is not a semantic match; this is a map for readers, not an analysis of the mathematics.
@@ -160,6 +163,8 @@ The balance x/m + m was stated independently, from other sources, in Jonas Whidd
 cd scripts && bash run_all.sh
 PARTIAL=1 bash 7_compare.sh        # during the build; full run afterwards
 bash 8_export_hash.sh              # after the build
+bash 11_path_sample.sh             # rebuild a sample at Sutherland's path
+bash 12_formal_conjectures.sh      # PR #88: check against formal-conjectures' RH and GRH
 
 # text-only analyses on the extracted source (no code is run)
 python3 -I analysis/reach.py ~/rh/lean
@@ -174,7 +179,7 @@ python3 more.py ~/rh/lean/src && python3 cyclo.py ~/rh/lean/src
 
 ## Layout
 
-- `scripts/`: the build pipeline (steps 1 to 6), `7_compare.sh` and `8_export_hash.sh`.
+- `scripts/`: the build pipeline (steps 1 to 6), `7_compare.sh`, `8_export_hash.sh`, `11_path_sample.sh` and `12_formal_conjectures.sh`.
 - `analysis/`: `reach.py`, `census.py`, `levels.py`, `note_terms.py`, and `kernel-computations/`.
 - `results/`: every output quoted above, with the date it was taken, and `used_decls.txt.gz`, the names of the 1,484,733 declarations in the export of `Main` (one `kind name` per line), so anyone can check "used / not used" with `zgrep -w`.
 - `mechanism/TRACE.md`: the mechanism trace of section 10.
