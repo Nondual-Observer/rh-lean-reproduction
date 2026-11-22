@@ -8,7 +8,7 @@ This repository is my independent look at the release. It does **not** claim to 
 
 ## Start here
 
-- **[The readable account](https://ishaan2006.github.io/rh-lean-reproduction/)** (also as a [PDF](docs/rh_lean_proof_readable.pdf), LaTeX source in `writeup/main.tex`): the whole proof top down, in six steps, with 15 figures. Every claim is labelled Exact, Verified, Reading or Ours.
+- **[The readable account](https://ishaan2006.github.io/rh-lean-reproduction/)** (also as a [PDF](https://ishaan2006.github.io/rh-lean-reproduction/paper/), LaTeX source in `writeup/main.tex`): the whole proof top down, in six steps, with 15 figures. Every claim is labelled Exact, Verified, Reading or Ours.
 - **[`mechanism/TRACE.md`](mechanism/TRACE.md)**: the evidence, 26 sections, every declaration with file and line.
 - **[`scripts/`](scripts/)**: rebuild and re-check everything yourself.
 
